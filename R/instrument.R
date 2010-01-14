@@ -18,7 +18,7 @@
 ## we should probably assign instruments into a special namespace and create get* functions.  Jeff?
 
 is.instrument <- function( x ) {
-  x <- get(x,envir=.instrument,inherits=TRUE)
+  x <- get(x,pos=.instrument) #removed inherits=TRUE
   inherits( x, "instrument" )
 }
 
@@ -57,7 +57,7 @@ stock <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
                         ),
                     class=c("stock","instrument")
                   ), # end structure
-         envir=.instrument,inherits=TRUE
+         envir=as.environment(.instrument)
   )
 }
 
@@ -78,7 +78,7 @@ future <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
                         ),
                     class=c("future","instrument")
                   ), # end structure
-         envir=.instrument,inherits=TRUE
+         envir=as.environment(.instrument)
   )
 }
 
@@ -91,13 +91,16 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   ## with futures series we probably need to be more sophisticated,
   ## and find the existing series from prior periods (probably years)
   ## and then add the first_traded and expires to the time series
-  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")))
+  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
   if(inherits(temp_series,"future_series")) {
-    temp_series$first_traded<-c(temp_series$first_traded,first_traded)
+      message("updating existing first_traded and expires")
+      temp_series$first_traded<-c(temp_series$first_traded,first_traded)
     temp_series$expires<-c(temp_series$expires,expires)
   } else {
     temp_series = structure( list(primary_id = contract$primary_id,
                          suffix_id = suffix_id,
+                         currency = contract$currency,
+                         multiplier = contract$multiplier,
                          first_traded = first_traded,
                          expires = expires,
                          identifiers = identifiers
@@ -106,7 +109,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
              ) # end structure
   }
 
-  assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=.instrument,inherits=TRUE)
+  assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=as.environment(.instrument))
 }
 
 option <- function(primary_id , currency , multiplier , identifiers = NULL, ..., underlying_id=NULL){
@@ -126,7 +129,7 @@ option <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
                         ),
                     class=c("option","instrument")
                   ), # end structure
-         envir=.instrument,inherits=TRUE
+         envir=as.environment(.instrument)
   )
 }
 
@@ -137,14 +140,17 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   ## and find the existing series from prior periods (probably years)
   ## and then add the first_traded and expires to the time series
   if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
-  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")))
+  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
   if(inherits(temp_series,"option_series")) {
+    message("updating existing first_traded and expires")
     temp_series$first_traded<-c(temp_series$first_traded,first_traded)
     temp_series$expires<-c(temp_series$expires,expires)
   } else {
     temp_series = structure( list(primary_id = contract$primary_id,
                          suffix_id = suffix_id,
                          first_traded = first_traded,
+                         currency = contract$currency,
+                         multiplier = contract$multiplier,
                          expires = expires,
                          callput = callput,
                          identifiers = identifiers
@@ -153,7 +159,7 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
              ) # end structure
   }
 
-  assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=.instrument,inherits=TRUE)
+  assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=as.environment(.instrument))
 }
 
 currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = NULL, ...){
@@ -166,12 +172,12 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
                         ),
                     class=c("currency","instrument")
                   ), # end structure
-         envir=.instrument,inherits=TRUE
+         envir=as.environment(.instrument)
   )
 }
 
 is.currency <- function( x ) {
-  x <- get(x,envir=.instrument,inherits=TRUE)
+  x <- get(x,pos=.instrument) # REMOVED ,inherits=TRUE
   inherits( x, "currency" )
 }
 
@@ -189,7 +195,7 @@ exchange_rate <- function (primary_id , currency , second_currency, identifiers 
                         ),
                     class=c("exchange_rate","instrument")
                   ), # end structure
-         envir=.instrument,inherits=TRUE
+         envir=as.environment(.instrument)
   )
 }
 
@@ -205,12 +211,12 @@ bond <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
                     ),
                     class=c("bond","instrument")
             ), # end structure
-            envir=.instrument,inherits=TRUE
+            envir=as.environment(.instrument)
     )
 }
 
 
 
 getInstrument <- function(x){
-  get(x,envir=.instrument,inherits=TRUE)
+  get(x,pos=.instrument) #removed inherits=TRUE
 }
