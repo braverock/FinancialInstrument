@@ -12,7 +12,8 @@
 ###############################################################################
 
 .onLoad <- function(lib, pkg) {
-    .instrument <<- new.env()
+    if(!exists('.instrument'))
+        .instrument <<- new.env()
 }
 
 ## we should probably assign instruments into a special namespace and create get* functions.  Jeff?
@@ -219,4 +220,5 @@ bond <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
 
 getInstrument <- function(x){
   get(x,pos=.instrument) #removed inherits=TRUE
+  #TODO add Date support to instrument, to get the proper value given a specific date
 }
