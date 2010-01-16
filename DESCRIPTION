@@ -1,7 +1,7 @@
-Package: instrument
+Package: FinancialInstrument
 Type: Package
 Title: Financial Instrument Model Infrastructure for R
-Version: 0.0.1
+Version: 0.0.2
 Date: $Date: 2009-11-12 15:36:18 -0600 (Thu, 12 Nov 2009) $
 Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson
 Maintainer: Peter Carl <peter@braverock.com>
