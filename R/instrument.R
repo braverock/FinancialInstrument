@@ -19,7 +19,6 @@
 ## we should probably assign instruments into a special namespace and create get* functions.  Jeff?
 
 is.instrument <- function( x ) {
-  x <- get(x,pos=.instrument) #removed inherits=TRUE
   inherits( x, "instrument" )
 }
 
@@ -178,7 +177,6 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
 }
 
 is.currency <- function( x ) {
-  x <- get(x,pos=.instrument) # REMOVED ,inherits=TRUE
   inherits( x, "currency" )
 }
 
