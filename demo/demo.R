@@ -1,4 +1,4 @@
-require(instrument)
+require(FinancialInstrument)
 currency("USD")
 currency("GBP")
 currency("EUR")
