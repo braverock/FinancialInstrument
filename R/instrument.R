@@ -177,6 +177,7 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
 }
 
 is.currency <- function( x ) {
+  x<-getInstrument(x)
   inherits( x, "currency" )
 }
 
