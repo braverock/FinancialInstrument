@@ -50,10 +50,10 @@ instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ..
 stock <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
   stock_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type="stock" )
   ## now structure and return
-  assign(primary_id, structure( list(primary_id = stock_tmp$primary_id,
-                         currency = stock_tmp$currency,
-                         multiplier = stock_tmp$multiplier,
-                         identifiers = stock_tmp$identifiers
+  assign(primary_id, structure( list(primary_id = stock_temp$primary_id,
+                         currency = stock_temp$currency,
+                         multiplier = stock_temp$multiplier,
+                         identifiers = stock_temp$identifiers
                         ),
                     class=c("stock","instrument")
                   ), # end structure
