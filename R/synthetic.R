@@ -7,35 +7,48 @@
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id:$
+# $Id$
 #
 ###############################################################################
 
 synthetic <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., members=NULL){
-    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type="synthetic" )
-    if (type=="synthetic") cl<-c("synthetic","instrument")
-    else cl <- c(type,"synthetic", "instrument")
+    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=NULL )    else cl <- c(type,"synthetic", "instrument")
     ## now structure and return
     return(structure( list(primary_id = synthetic_temp$primary_id,
                             currency = synthetic_temp$currency,
                             multiplier = synthetic_temp$multiplier,
                             identifiers = synthetic_temp$identifiers,
-                            members = members 
+                            memberlist = members 
                     ),
                     class=cl )
            )
 }
 
 synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., type="synthetic.ratio", members, memberratio){
+    #TODO make sure that with options/futures or other  instruments that we have you use the base contract
     if(!is.list(members)){
-        if(length(members)!=length(memberratios) | length(members)<2){
+        if(length(members)!=length(memberratio) | length(members)<2){
             stop("length of members and memberratio must be equal, and contain two or more instruments")
         } else {
-            memberlist<-list(members=members,memberratio=memberratio,memberpositions=NULL)   
+            memberlist<-list(members=members,memberratio=memberratio,currencies=vector(),memberpositions=NULL)   
         }
+        for(member in members) {
+            tmp_symbol<-member
+            tmp_instr<-try(getInstrument(member))
+            if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
+                message(paste("Instrument",tmp_symbol," not found, using currency of",currency))
+                memberlist$currencies[member]<-currency
+            } else {
+                memberlist$currencies[member]<-tmp_instr$currency                
+            }
+        }
+        names(memberlist$members)<-memberlist$members
+        names(memberlist$memberratio)<- memberlist$members
+        names(memberlist$currencies)<- memberlist$members
     } else {
         # TODO do some sanity checking here on the list elements
-          memberlist=members
+        warning("passing in members as a list not fully tested")
+        memberlist=members
     }
     synthetic_temp = synthetic(primary_id , currency , multiplier , identifiers = identifiers, ..., members, type=type )
     ## now structure and return
@@ -43,7 +56,7 @@ synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers
                             currency = synthetic_temp$currency,
                             multiplier = synthetic_temp$multiplier,
                             identifiers = synthetic_temp$identifiers,
-                            members = memberlist
+                            memberlist = synthetic_temp$memberlist
                     ),
                     class=class(synthetic_temp)
             ), # end structure
@@ -52,5 +65,5 @@ synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers
 }
 
 spread <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., members, memberratio){
-    synthetic.ratio(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., type=c("spread","synthetic.ratio"), members, memberratios)
+    synthetic.ratio(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., type=c("spread","synthetic.ratio"), members=members, memberratio=memberratio)
 }
