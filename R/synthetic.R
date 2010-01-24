@@ -11,8 +11,9 @@
 #
 ###############################################################################
 
-synthetic <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., members=NULL){
-    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=NULL )    else cl <- c(type,"synthetic", "instrument")
+synthetic <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., members=NULL, cl=c(type,"synthetic", "instrument")){
+    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=NULL )
+    
     ## now structure and return
     return(structure( list(primary_id = synthetic_temp$primary_id,
                             currency = synthetic_temp$currency,
@@ -24,7 +25,7 @@ synthetic <- function(primary_id , currency , multiplier=NULL, identifiers = NUL
            )
 }
 
-synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., type="synthetic.ratio", members, memberratio){
+synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., cl=c("synthetic.ratio","synthetic","instrument"), members, memberratio){
     #TODO make sure that with options/futures or other  instruments that we have you use the base contract
     if(!is.list(members)){
         if(length(members)!=length(memberratio) | length(members)<2){
@@ -50,7 +51,7 @@ synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers
         warning("passing in members as a list not fully tested")
         memberlist=members
     }
-    synthetic_temp = synthetic(primary_id , currency , multiplier , identifiers = identifiers, ..., members, type=type )
+    synthetic_temp = synthetic(primary_id , currency , multiplier , identifiers = identifiers, ..., members, type=NULL )
     ## now structure and return
     assign(primary_id, structure( list(primary_id = synthetic_temp$primary_id,
                             currency = synthetic_temp$currency,
@@ -58,12 +59,12 @@ synthetic.ratio <- function(primary_id , currency , multiplier=NULL, identifiers
                             identifiers = synthetic_temp$identifiers,
                             memberlist = synthetic_temp$memberlist
                     ),
-                    class=class(synthetic_temp)
+                    class=cl
             ), # end structure
             envir=.instrument,inherits=TRUE
     )
 }
 
 spread <- function(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., members, memberratio){
-    synthetic.ratio(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., type=c("spread","synthetic.ratio"), members=members, memberratio=memberratio)
+    synthetic.ratio(primary_id , currency , multiplier=NULL, identifiers = NULL, ..., cl=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio)
 }
