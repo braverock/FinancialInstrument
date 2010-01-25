@@ -54,13 +54,13 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
         warning("passing in members as a list not fully tested")
         memberlist=members
     }
-    synthetic_temp = synthetic(primary_id , currency , multiplier=multiplier , identifiers = identifiers, members=members , ...  )
+    synthetic_temp = synthetic(primary_id , currency , multiplier=multiplier , identifiers = identifiers, members=members , memberratio=memberratio, ...  )
     ## now structure and return
     assign(primary_id, structure( list(primary_id = synthetic_temp$primary_id,
                             currency = synthetic_temp$currency,
                             multiplier = synthetic_temp$multiplier,
                             identifiers = synthetic_temp$identifiers,
-                            memberlist = synthetic_temp$memberlist
+                            memberlist = memberlist
                     ),
                     class=cl
             ), # end structure
