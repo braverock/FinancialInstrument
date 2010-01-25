@@ -43,52 +43,9 @@ buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
         instr_norm<-instr_prices*instr_mult*instr_ratio*exchange_rate
         if(is.null(spreadlevel)) spreadlevel<-instr_norm else spreadlevel=spreadlevel+instr_norm
     }
-#    primary_instr<-getInstrument(spread_instr$memberlist$members[1])
-#    if(inherits(primary_instr,"try-error") | !is.instrument(primary_instr)){
-#        stop(paste("Instrument",primary_instr," not found, please create it first."))
-#    } else {
-#        primary_currency<-primary_instr$currency
-#        stopifnot(is.currency(primary_currency))
-#        primary_mult<-primary_instr$multiplier
-#        primary_ratio<-spread_instr$memberlist$memberratios[1]
-#        primary_prices<-Cl(get(spread_instr$memberlist$members[1]))
-#    }
-#    secondary_instr<-getInstrument(spread_instr$memberlist[1])
-#    if(inherits(secondary_instr,"try-error") | !is.instrument(secondary_instr)){
-#        stop(paste("Instrument", secondary_instr, " not found, please create it first."))
-#    } else {
-#        if(!all.equal(primary_currency,secondary_currency)){
-#            secondary_currency<-secondary_instr$currency
-#            stopifnot(is.currency(secondary_currency))
-#            exchange_rate<-try(get( paste(primary_currency,secondary_currency,sep='')))
-#            if(inherits(exchange_rate,"try-error")){
-#                exchange_rate<-try(get( paste(secondary_currency,primary_currency,sep='')))
-#                if(inherits(exchange_rate,"try-error")){
-#                    stop(paste("Exchange Rate", paste(primary_currency, secondary_currency, sep=''), "not found."))    
-#                } else {
-#                    exchange_rate <- 1/exchange_rate
-#                }   
-#            }
-#        } else {
-#            #currencies of both instruments are the same
-#            exchange_rate=1
-#        }
-#        secondary_mult<-secondary_instr$multiplier
-#        secondary_ratio<-spread_instr$memberlist$memberratios[2]
-#        secondary_prices<-get(spread_instr$memberlist$members[2])
-#    }
-#    
-#    spreadlevel<- (primary_prices*primary_mult*primary_ratio)-(secondary_prices*secondary_mult*secondary_ratio*exchange_rate)
-    if(onelot) spreadlevel = spreadlevel/spread_instr$memberlist$memberratios[1]
-    if(!all.equal(spread_currency,primary_currency)){
-        #convert to the currency of the spread
-        spr_exch_rate <- try(get(paste(spread_currency,primary_currency,sep='')))
-        if(inherits(spr_exch_rate,"try-error")){
-            stop(paste("Required Exchange Rate", paste(spread_currency, primary_currency,sep=''),"not found."))    
-        } else {
-            spreadlevel<-spreadlevel*exchange_rate
-        }
-    }
+
+    if(onelot) spreadlevel = spreadlevel/spread_instr$memberlist$memberratio[1]
+
     return(spreadlevel)
 }
 
