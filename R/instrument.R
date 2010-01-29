@@ -217,7 +217,13 @@ bond <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
 
 
 
-getInstrument <- function(x){
-  get(x,pos=.instrument) #removed inherits=TRUE
-  #TODO add Date support to instrument, to get the proper value given a specific date
+getInstrument <- function(x, Dates=NULL){
+    tmp_instr<-get(x,pos=.instrument) #removed inherits=TRUE
+    if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
+        warning(paste("Instrument",x," not found, please create it first."))
+        return(FALSE)
+    } else{
+        return(tmp_instr)
+    }
+    #TODO add Date support to instrument, to get the proper value given a specific date
 }

@@ -17,6 +17,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
         if(inherits(instr,"try-error") | !is.instrument(instr)){
             stop(paste("Instrument",instr," not found, please create it first."))
         } else {
+            #TODO check to see if instrument is a 'root symbol' instrument like a future or option
             instr_currency<-instr$currency
             if(i==1) primary_currency=instr_currency
             stopifnot(is.currency(instr_currency))

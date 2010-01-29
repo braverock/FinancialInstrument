@@ -64,7 +64,7 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
                     ),
                     class=cl
             ), # end structure
-            envir=.instrument,inherits=TRUE
+            envir=as.environment(.instrument)
     )
 }
 
