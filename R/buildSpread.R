@@ -1,3 +1,16 @@
+#' construct a price/level series for a spread
+#' 
+#' this function should provide a generic spread series builder.  
+#' 
+#' 
+#' @param spread_id string descrining the primary_id of an instrument of type 'spread 
+#' @param ... any other passthru parameters
+#' @param Dates date range to subset on, currently not implemented
+#' @param onelot TRUE/FALSE, if TRUE, will divide by the number of units of the front leg to get a 'onelot'
+#' @seealso 
+#' \code{\link{spread}} for instructions on defining the spread
+#' @author bpeterson
+#' @export
 buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
     #TODO subset using Dates arg?  or let the +/- operators deal with it?
     #TODO FIXME put some intelligence in the subsetting and intersection, maybe up front or in a checkData style
@@ -52,9 +65,10 @@ buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
 
 
 ###############################################################################
-# Blotter: Tools for transaction-oriented trading systems development
-# for R (see http://r-project.org/) 
-# Copyright (c) 2008-2010 Peter Carl and Brian G. Peterson
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING

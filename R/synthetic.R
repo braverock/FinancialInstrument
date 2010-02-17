@@ -27,6 +27,20 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
            )
 }
 
+#' constructors for synthetic instruments
+#' @param primary_id string describing the unique ID for the instrument
+#' @param currency string describing the currency ID of an object of type \code{\link{currency}}
+#' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
+#' @param identifiers character vector of any other identifiers that should also be stored for this instrument
+#' @param ... any other passthru parameters 
+#' @param cl class string, should not be set by users
+#' @param members character vector of instrument identifiers that make up the synthetic
+#' @param memberratio numeric vector of ratio relationchips between members, e.g. c(4,3) for a 4:3 spread
+#' @aliases
+#' synthetic
+#' spread 
+#' synthetic.ratio
+#' @export
 synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., cl=c("synthetic.ratio","synthetic","instrument"), members, memberratio)
 {
     #TODO make sure that with options/futures or other  instruments that we have you use the base contract

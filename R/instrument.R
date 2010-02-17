@@ -18,10 +18,36 @@
 
 ## we should probably assign instruments into a special namespace and create get* functions.  Jeff?
 
+#' class test for object supposedly of type 'instrument'
+#' @param x object to test for type
+#' @export
 is.instrument <- function( x ) {
   inherits( x, "instrument" )
 }
 
+#' instrument class constructors
+#' 
+#' All 'currency' instruments must be defined before instruments of other types may be defined
+#' 
+#' @param primary_id string describing the unique ID for the instrument
+#' @param currency string describing the currency ID of an object of type \code{\link{currency}}
+#' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
+#' @param identifiers character vector of any other identifiers that should also be stored for this instrument
+#' @param ... any other passthru parameters 
+#' @param type instrument type to be appended to the class definition
+#' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
+#' @aliases 
+#' stock
+#' bond
+#' future
+#' option
+#' currency
+#' instrument
+#' @seealso 
+#' \code{\link{exchange_rate}}
+#' \code{\link{option_series}}
+#' \code{\link{future_series}}
+#' @export
 instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ...,type=NULL ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
 
@@ -82,6 +108,17 @@ future <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
   )
 }
 
+#' constructors for series contracts on instruments such as options and futures
+#' @param primary_id string describing the unique ID for the instrument
+#' @param suffix_id string suffix that should be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year
+#' @param first_traded string coercible to Date for first trading day
+#' @param expires string coercible to Date for expiration date
+#' @param identifiers character vector of any other identifiers that should also be stored for this instrument
+#' @param ... any other passthru parameters
+#' @aliases 
+#' option_series
+#' future_series
+#' @export
 future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
   contract<-try(getInstrument(primary_id))
   if(!inherits(contract,"future")) stop("futures contract spec must be defined first")
@@ -176,11 +213,21 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
   )
 }
 
+#' class test for object supposedly of type 'currency'
+#' @param x object to test for type
+#' @export
 is.currency <- function( x ) {
   x<-getInstrument(x)
   inherits( x, "currency" )
 }
 
+#' constructor for spot exchange rate instruments
+#' @param primary_id string identifier, usually expressed as a currency pair 'USDYEN' or 'EURGBP'
+#' @param currency string identifying front currency
+#' @param second_currency string identifying second currency
+#' @param identifiers character vector of any other identifiers that should also be stored for this instrument
+#' @param ... any other passthru parameters
+#' @export
 exchange_rate <- function (primary_id , currency , second_currency, identifiers = NULL, ...){
   exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , identifiers = identifiers, ..., type="exchange_rate")
 
@@ -216,7 +263,10 @@ bond <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
 }
 
 
-
+#' primare accessor function for getting objects of type 'instrument'
+#' @param x string identifier of instrument to retrieve
+#' @param Dates date range to retrieve 'as of', may not currently be implemented
+#' @export
 getInstrument <- function(x, Dates=NULL){
     tmp_instr<-get(x,pos=.instrument) #removed inherits=TRUE
     if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
