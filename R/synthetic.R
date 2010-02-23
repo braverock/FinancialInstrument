@@ -11,6 +11,7 @@
 #
 ###############################################################################
 
+#' @export
 synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, cl=c("synthetic", "instrument"))
 {
 
@@ -82,6 +83,7 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
     )
 }
 
+#' @export
 spread <- function(primary_id , currency , members, memberratio, ..., multiplier=1, identifiers = NULL)
 {
     synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, cl=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=...)

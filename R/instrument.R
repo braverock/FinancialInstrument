@@ -73,6 +73,7 @@ instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ..
           )
 }
 
+#' @export
 stock <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
   stock_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type="stock" )
   ## now structure and return
@@ -87,6 +88,7 @@ stock <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
   )
 }
 
+#' @export
 future <- function(primary_id , currency , multiplier , identifiers = NULL, ..., underlying_id=NULL){
   future_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ... , type="future" )
 
@@ -149,6 +151,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=as.environment(.instrument))
 }
 
+#' @export
 option <- function(primary_id , currency , multiplier , identifiers = NULL, ..., underlying_id=NULL){
   option_temp = instrument(primary_id , currency , multiplier, identifiers = identifiers, ..., type="option")
 
@@ -170,6 +173,7 @@ option <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
   )
 }
 
+#' @export
 option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...){
   contract<-try(getInstrument(primary_id))
   if(!inherits(contract,"option")) stop("options contract spec must be defined first")
@@ -199,6 +203,7 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=as.environment(.instrument))
 }
 
+#' @export
 currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = NULL, ...){
   ## now structure and return
   assign(primary_id, structure( list(primary_id = primary_id,
