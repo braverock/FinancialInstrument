@@ -1,7 +1,6 @@
 \name{synthetic.ratio}
 \title{constructors for synthetic instruments...}
 \usage{synthetic.ratio(primary_id, currency, multiplier=1, identifiers, ..., cl=c("synthetic.ratio", "synthetic", "instrument"), members, memberratio)}
-\usage{synthetic(primary_id, currency, multiplier=1, identifiers, ..., members, cl=c("synthetic", "instrument"))}
 \description{constructors for synthetic instruments}
 \alias{synthetic}
 \alias{spread}

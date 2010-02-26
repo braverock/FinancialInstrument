@@ -1,12 +1,6 @@
 \name{instrument}
 \title{instrument class constructors...}
 \usage{instrument(primary_id, currency, multiplier, identifiers, ..., type)}
-\usage{bond(primary_id, currency, multiplier, identifiers, ...)}
-\usage{stock(primary_id, currency, multiplier, identifiers, ...)}
-\usage{future(primary_id, currency, multiplier, identifiers, ..., underlying_id)}
-\usage{option(primary_id, currency, multiplier, identifiers, ..., underlying_id)}
-\usage{currency(primary_id, currency, multiplier=1, identifiers, ...)}
-
 \description{instrument class constructors}
 \details{All 'currency' instruments must be defined before instruments of other types may be defined}
 \alias{stock}
