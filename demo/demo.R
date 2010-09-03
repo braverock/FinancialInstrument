@@ -16,7 +16,7 @@ exchange_rate("USDYEN","USD","YEN")
 
 # now a stock and an option contract on it
 stock("IBM","USD",1)
-option(".IBM","USD",100,underlying_id="IBM")
+option(".IBM","USD",multiplier=100,tick_size=.01, underlying_id="IBM")
 #@TODO:Jeff to pull put and call option series for 2009
 
 # bond & bond future

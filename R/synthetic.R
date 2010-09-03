@@ -36,7 +36,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param ... any other passthru parameters 
 #' @param cl class string, should not be set by users
 #' @param members character vector of instrument identifiers that make up the synthetic
-#' @param memberratio numeric vector of ratio relationchips between members, e.g. c(4,3) for a 4:3 spread
+#' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
 #' @aliases
 #' synthetic
 #' spread 

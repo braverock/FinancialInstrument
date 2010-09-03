@@ -1,6 +1,8 @@
 \name{synthetic.ratio}
 \title{constructors for synthetic instruments...}
-\usage{synthetic.ratio(primary_id, currency, multiplier=1, identifiers, ..., cl=c("synthetic.ratio", "synthetic", "instrument"), members, memberratio)}
+\usage{synthetic.ratio(primary_id, currency, multiplier=1, identifiers, ...,
+    cl=c("synthetic.ratio", "synthetic", "instrument"), members,
+    memberratio)}
 \description{constructors for synthetic instruments}
 \alias{synthetic}
 \alias{spread}
@@ -12,4 +14,4 @@
 \item{...}{any other passthru parameters}
 \item{cl}{class string, should not be set by users}
 \item{members}{character vector of instrument identifiers that make up the synthetic}
-\item{memberratio}{numeric vector of ratio relationchips between members, e.g. c(4,3) for a 4:3 spread}}
+\item{memberratio}{numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread}}

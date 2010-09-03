@@ -30,10 +30,11 @@ is.instrument <- function( x ) {
 #' All 'currency' instruments must be defined before instruments of other types may be defined
 #' 
 #' @param primary_id string describing the unique ID for the instrument
+#' @param ... any other passthru parameters 
 #' @param currency string describing the currency ID of an object of type \code{\link{currency}}
 #' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
+#' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @param identifiers character vector of any other identifiers that should also be stored for this instrument
-#' @param ... any other passthru parameters 
 #' @param type instrument type to be appended to the class definition
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
 #' @aliases 
@@ -48,7 +49,7 @@ is.instrument <- function( x ) {
 #' \code{\link{option_series}}
 #' \code{\link{future_series}}
 #' @export
-instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ...,type=NULL ){
+instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
 
   # not sure this is correct, maybe should store the primary_id for the currency instead.  Why doesn't R have pointers?
@@ -58,7 +59,8 @@ instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ..
 
   ## note that multiplier could be a time series, probably add code here to check
   if(!is.numeric(multiplier) | length(multiplier) > 1) stop("multiplier must be a single number")
-
+  if(!is.numeric(tick_size) | length(tick_size) > 1) stop("tick_size must be a single number")
+  
   if(is.null(type)) tclass="instrument" else tclass = c(type,"instrument")
 
   ## now structure and return
@@ -66,6 +68,7 @@ instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ..
                          type = type,
                          currency = currency,
                          multiplier = multiplier,
+						 tick_size=tick_size,
                          identifiers = identifiers
                         ),
                     class = tclass
@@ -74,23 +77,14 @@ instrument<-function(primary_id , currency , multiplier , identifiers = NULL, ..
 }
 
 #' @export
-stock <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
-  stock_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type="stock" )
-  ## now structure and return
-  assign(primary_id, structure( list(primary_id = stock_temp$primary_id,
-                         currency = stock_temp$currency,
-                         multiplier = stock_temp$multiplier,
-                         identifiers = stock_temp$identifiers
-                        ),
-                    class=c("stock","instrument")
-                  ), # end structure
-         envir=as.environment(.instrument)
-  )
+stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock")
+	assign(primary_id, stock_temp, envir=as.environment(.instrument) )
 }
 
 #' @export
-future <- function(primary_id , currency , multiplier , identifiers = NULL, ..., underlying_id=NULL){
-  future_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ... , type="future" )
+future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+  future_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future" )
 
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled futures")
@@ -101,7 +95,8 @@ future <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
   assign(primary_id, structure( list(primary_id = future_temp$primary_id,
                          currency = future_temp$currency,
                          multiplier = future_temp$multiplier,
-                         identifiers = future_temp$identifiers,
+						 tick_size=future_temp$tick_size,
+						 identifiers = future_temp$identifiers,
                          underlying_id = future_temp$underlying_id
                         ),
                     class=c("future","instrument")
@@ -140,7 +135,8 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
                          suffix_id = suffix_id,
                          currency = contract$currency,
                          multiplier = contract$multiplier,
-                         first_traded = first_traded,
+						 tick_size=contract$tick_size,
+						 first_traded = first_traded,
                          expires = expires,
                          identifiers = identifiers
                         ),
@@ -152,8 +148,8 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
 }
 
 #' @export
-option <- function(primary_id , currency , multiplier , identifiers = NULL, ..., underlying_id=NULL){
-  option_temp = instrument(primary_id , currency , multiplier, identifiers = identifiers, ..., type="option")
+option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+  option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="option")
 
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled options")
@@ -164,6 +160,7 @@ option <- function(primary_id , currency , multiplier , identifiers = NULL, ...,
   assign(primary_id, structure( list(primary_id = option_temp$primary_id,
                          currency = option_temp$currency,
                          multiplier = option_temp$multiplier,
+						 tick_size = option_temp$tick_size,
                          identifiers = option_temp$identifiers,
                          underlying_id = option_temp$underlying_id
                         ),
@@ -192,6 +189,7 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
                          first_traded = first_traded,
                          currency = contract$currency,
                          multiplier = contract$multiplier,
+						 tick_size=contract$tick_size,
                          expires = expires,
                          callput = callput,
                          identifiers = identifiers
@@ -210,6 +208,7 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
                          type = "currency",
                          currency = primary_id,
                          multiplier = 1,
+                         tick_size=.01,
                          identifiers = identifiers
                         ),
                     class=c("currency","instrument")
@@ -234,16 +233,18 @@ is.currency <- function( x ) {
 #' @param ... any other passthru parameters
 #' @export
 exchange_rate <- function (primary_id , currency , second_currency, identifiers = NULL, ...){
-  exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , identifiers = identifiers, ..., type="exchange_rate")
+  # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
 
   if(!exists(currency, where=.instrument,inherits=TRUE)) warning("currency not found") # assumes that we know where to look
   if(!exists(second_currency, where=.instrument,inherits=TRUE)) warning("second_currency not found") # assumes that we know where to look
 
   ## now structure and return
-  assign(primary_id, structure( list(primary_id = exchange_rate_temp$primary_id,
-                         currency = exchange_rate_temp$currency,
-                         second_currency = exchange_rate_temp$second_currency,
-                         identifiers = exchange_rate_temp$identifiers
+  assign(primary_id, structure( list(primary_id = primary_id,
+                         currency = currency,
+                         multiplier=1,
+                         tick_size=.01,
+                         second_currency = second_currency,
+                         identifiers = identifiers
                         ),
                     class=c("exchange_rate","instrument")
                   ), # end structure
@@ -253,18 +254,9 @@ exchange_rate <- function (primary_id , currency , second_currency, identifiers 
 
 #@TODO: government bond
 #@TODO  auction dates, coupons, etc for govmt. bonds
-bond <- function(primary_id , currency , multiplier, identifiers = NULL, ...){
-    bond_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type="bond" )
-    ## now structure and return
-    assign(primary_id, structure( list(primary_id = bond_temp$primary_id,
-                            currency = bond_temp$currency,
-                            multiplier = bond_temp$multiplier,
-                            identifiers = bond_temp$identifiers
-                    ),
-                    class=c("bond","instrument")
-            ), # end structure
-            envir=as.environment(.instrument)
-    )
+bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
+    bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond" )
+    assign( primary_id, bond_temp, envir=as.environment(.instrument) )
 }
 
 

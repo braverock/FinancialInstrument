@@ -1,6 +1,7 @@
 \name{future_series}
 \title{constructors for series contracts on instruments such as options and futures...}
-\usage{future_series(primary_id, suffix_id, first_traded, expires, identifiers, ...)}
+\usage{future_series(primary_id, suffix_id, first_traded, expires,
+    identifiers, ...)}
 \description{constructors for series contracts on instruments such as options and futures}
 \alias{option_series}
 \alias{future_series}
