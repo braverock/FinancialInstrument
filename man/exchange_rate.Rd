@@ -6,5 +6,5 @@
 \arguments{\item{primary_id}{string identifier, usually expressed as a currency pair 'USDYEN' or 'EURGBP'}
 \item{currency}{string identifying front currency}
 \item{second_currency}{string identifying second currency}
-\item{identifiers}{character vector of any other identifiers that should also be stored for this instrument}
+\item{identifiers}{named list of any other identifiers that should also be stored for this instrument}
 \item{...}{any other passthru parameters}}
