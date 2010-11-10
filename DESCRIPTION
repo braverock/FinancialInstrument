@@ -14,5 +14,3 @@ LazyLoad: yes
 Depends: R (>= 2.9.0), xts, zoo
 Suggests: quantmod
 Copyright: (c) 2004 - 2010
-Collate: 'buildSpread.R' 'instrument.R' 'splice.R' 'splooth.R'
-    'synthetic.R' 'volep.R'
