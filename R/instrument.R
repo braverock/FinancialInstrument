@@ -17,7 +17,7 @@
 }
 
 #' class test for object supposedly of type 'instrument'
-#' @param x object to test for type
+#' @param x object or primary_id of instrument to test for type
 #' @export
 is.instrument <- function( x ) {
   inherits( x, "instrument" )
@@ -27,14 +27,21 @@ is.instrument <- function( x ) {
 #' 
 #' All 'currency' instruments must be defined before instruments of other types may be defined.
 #' 
-#' In \dots you may pass any other arbitrary instrument fields.  
+#' In \dots you may pass any other arbitrary instrument fields that will be used to create 'custom' fields.  
 #' S3 classes in \R are basically lists with a class attribute.
 #' We use this to our advantage to allow us to set arbitrary fields.
 #' 
 #' \code{identifiers} should be a named list to specify other identifiers beyond the \code{primary_id}.
-#' Please note that whenever possible, these should still be unique.  Perhaps Bloomberg, Reuters-RIC, CUSIP, etc.  
+#' Please note that whenever possible, these should still be unique.  Perhaps Bloomberg, Reuters-X.RIC, CUSIP, etc.  
 #' The code will return the first (and only the first) match that it finds, starting with the primary_id, and then searching all instruments in the list alphabetically by primary_id.  
 #' This is robust enough if you take some care, though a more robust patch would be welcomed.
+#' 
+#' The \code{primary_id} will be coerced within reason to a valid \R variable name by 
+#' replacing +-=^\%$#@:; with _ . 
+#' 
+#' Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
+#' We currently match any of the following: \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
+#' Others mat be specified using a named list of identifiers, as described above.
 #' 
 #' @param primary_id string describing the unique ID for the instrument
 #' @param ... any other passthru parameters 
@@ -55,16 +62,33 @@ is.instrument <- function( x ) {
 #' \code{\link{exchange_rate}}
 #' \code{\link{option_series}}
 #' \code{\link{future_series}}
+#' \code{\link{load.instruments}}
 #' @export
 instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
-
-  # not sure this is correct, maybe should store the primary_id for the currency instead.  Why doesn't R have pointers?
+  
+  primary_id<-gsub("[+-=^%$#@:;]","_",primary_id) # replace illegal characters
+  
   if(!is.currency(currency)) stop("currency must be an object of type 'currency'")
 
-  if(!hasArg(identifiers)) identifiers = list()
-
-  ## note that multiplier could be a time series, probably add code here to check
+  if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
+  if(!is.list(identifiers)) {
+      warning("identifiers",identifiers,"do not appear to be a named list")
+  } else {
+      arg<-list(...)
+      #check for identifiers we recognize 
+      ident_str<-c("X.RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
+      for(i_s in ident_str ){
+          if(any(grepl(i_s,names(arg),ignore.case=TRUE))) {
+              pos<-first(grep(i_s,names(arg),ignore.case=TRUE))
+              identifiers<-c(identifiers,arg[[pos]])
+              names(identifiers)[length(identifiers)]<-names(arg)[pos]
+              arg[[pos]]<-NULL
+          }
+      }
+  }
+  
+  ## TODO note that multiplier could be a time series, probably add code here to check
   if(!is.numeric(multiplier) | length(multiplier) > 1) stop("multiplier must be a single number")
   if(!is.numeric(tick_size) | length(tick_size) > 1) stop("tick_size must be a single number")
   
@@ -77,8 +101,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
 				   tick_size=tick_size,
                    identifiers = identifiers
                    )
-                  
-  tmpinstr <- c(tmpinstr,list(...))   
+  if(length(arg)>=1) tmpinstr <- c(tmpinstr,arg)   
   class(tmpinstr)<-tclass
   return(tmpinstr)
 }
@@ -120,8 +143,8 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   # TODO add check for Date equivalent in first_traded and expires
 
   ## with futures series we probably need to be more sophisticated,
-  ## and find the existing series from prior periods (probably years)
-  ## and then add the first_traded and expires to the time series
+  ## and find the existing series from prior periods (probably years or months)
+  ## and then add the first_traded and expires to the time series bu splicing
   temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
   if(inherits(temp_series,"future_series")) {
       message("updating existing first_traded and expires")
@@ -224,12 +247,11 @@ exchange_rate <- function (primary_id , currency , second_currency, identifiers 
   if(!exists(second_currency, where=.instrument,inherits=TRUE)) warning("second_currency not found") # assumes that we know where to look
 
   ## now structure and return
-  exrate_temp=  instrument(primary_id=primary_id , currency=primary_id , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., secon_currency=second_currency, type=c("exchange_rate","currency"))
+  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., secon_currency=second_currency, type=c("exchange_rate","currency"))
   assign(primary_id, exrate_temp, envir=as.environment(.instrument) )
 }
 
-#@TODO: government bond
-#@TODO  auction dates, coupons, etc for govmt. bonds
+#TODO  auction dates, coupons, etc for govmt. bonds
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
     bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond" )
     assign( primary_id, bond_temp, envir=as.environment(.instrument) )

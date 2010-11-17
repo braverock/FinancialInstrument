@@ -5,14 +5,17 @@
 \description{instrument class constructors}
 \details{All 'currency' instruments must be defined before instruments of other types may be defined.
 
-In \dots you may pass any other arbitrary instrument fields.  
+In \dots you may pass any other arbitrary instrument fields that will be used to create 'custom' fields.  
 S3 classes in \R are basically lists with a class attribute.
 We use this to our advantage to allow us to set arbitrary fields.
 
 \code{identifiers} should be a named list to specify other identifiers beyond the \code{primary_id}.
-Please note that whenever possible, these should still be unique.  Perhaps Bloomberg, Reuters-RIC, CUSIP, etc.  
+Please note that whenever possible, these should still be unique.  Perhaps Bloomberg, Reuters-X.RIC, CUSIP, etc.  
 The code will return the first (and only the first) match that it finds, starting with the primary_id, and then searching all instruments in the list alphabetically by primary_id.  
-This is robust enough if you take some care, though a more robust patch would be welcomed.}
+This is robust enough if you take some care, though a more robust patch would be welcomed.
+
+The \code{primary_id} will be coerced within reason to a valid \R variable name by 
+replacing +-=^\%$#}
 \alias{stock}
 \alias{bond}
 \alias{future}
@@ -21,7 +24,8 @@ This is robust enough if you take some care, though a more robust patch would be
 \alias{instrument}
 \seealso{\code{\link{exchange_rate}}
 \code{\link{option_series}}
-\code{\link{future_series}}}
+\code{\link{future_series}}
+\code{\link{load.instruments}}}
 \arguments{\item{primary_id}{string describing the unique ID for the instrument}
 \item{...}{any other passthru parameters}
 \item{currency}{string describing the currency ID of an object of type \code{\link{currency}}}
