@@ -1,7 +1,7 @@
 Package: FinancialInstrument
 Type: Package
 Title: Financial Instrument Model Infrastructure for R
-Version: 0.2
+Version: 0.2.1
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich,
     Brian G. Peterson
@@ -14,4 +14,3 @@ LazyLoad: yes
 Depends: R (>= 2.11.1), xts, zoo
 Suggests: quantmod
 Copyright: (c) 2004 - 2010
-Collate: 'buildSpread.R' 'instrument.R' 'load.instruments.R' 'synthetic.R' 'volep.R'

@@ -37,11 +37,20 @@ is.instrument <- function( x ) {
 #' This is robust enough if you take some care, though a more robust patch would be welcomed.
 #' 
 #' The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-#' replacing +-=^\%$#@:; with _ . 
+#' using \code{\link{make.names}}  Please use some care to choose your primary identifiers so that R won't complain.
+#' If you have better regular expression code, we'd be happy to include it.   
 #' 
 #' Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
 #' We currently match any of the following: \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
 #' Others mat be specified using a named list of identifiers, as described above.
+#' 
+#' \code{assign_i} will use \code{\link{assign}} to place the constructed 
+#' instrument class object into the \code{.instrument} environment.  Most of the 
+#' special type-specific constructors will use \code{assign_i=TRUE} internally. 
+#' Calling with \code{assign_i=FALSE}, or not specifying it, will return an object and
+#' will \emph{not} store it.  Use this option ether to wrap calls to \code{instrument}
+#' prior to further processing (and presumably assignment) or to test your parameters
+#' before assignment.
 #' 
 #' @param primary_id string describing the unique ID for the instrument
 #' @param ... any other passthru parameters 
@@ -51,6 +60,7 @@ is.instrument <- function( x ) {
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param type instrument type to be appended to the class definition, typically not set by user
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
+#' @param assign_i TRUE/FALSE if TRUE, assign the instrument to the .instrument environment, default FALSE
 #' @aliases 
 #' stock
 #' bond
@@ -64,12 +74,13 @@ is.instrument <- function( x ) {
 #' \code{\link{future_series}}
 #' \code{\link{load.instruments}}
 #' @export
-instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL ){
+instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL, assign_i=FALSE ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
   
-  primary_id<-gsub("[+-=^%$#@:;]","_",primary_id) # replace illegal characters
+  #primary_id<-gsub("[+-=^%$@:;]",".",primary_id) # replace illegal characters
+  primary_id<-make.names(primary_id)
   
-  if(!is.currency(currency)) stop("currency must be an object of type 'currency'")
+  if(!is.currency(currency)) stop("currency ",currency," must be an object of type 'currency'")
 
   if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
   if(!is.list(identifiers)) {
@@ -95,21 +106,22 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(is.null(type)) tclass="instrument" else tclass = c(type,"instrument")
 
   tmpinstr <- list(primary_id = primary_id,
-                   type = type,
                    currency = currency,
                    multiplier = multiplier,
 				   tick_size=tick_size,
-                   identifiers = identifiers
+                   identifiers = identifiers,
+                   type = type
                    )
   if(length(arg)>=1) tmpinstr <- c(tmpinstr,arg)   
   class(tmpinstr)<-tclass
-  return(tmpinstr)
+  
+  if(assign_i)  assign(primary_id, tmpinstr, envir=as.environment(.instrument) )
+  else return(tmpinstr) 
 }
 
 #' @export
 stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
-	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock")
-	assign(primary_id, stock_temp, envir=as.environment(.instrument) )
+	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
 }
 
 #' @export
@@ -120,12 +132,14 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
         if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
     }
 
-    future_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id )
-  
-    assign(primary_id, future_temp, envir=as.environment(.instrument) )
+    future_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
 }
 
 #' constructors for series contracts on instruments such as options and futures
+#' 
+#' In custom parameters for these series contracts, we have often found it
+#' useful to store attributes such as local roll-on and roll-off dates
+#' (rolling not on the \code{first_listed} or \code{expires}
 #' @param primary_id string describing the unique ID for the instrument
 #' @param suffix_id string suffix that should be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year
 #' @param first_traded string coercible to Date for first trading day
@@ -150,20 +164,21 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
       message("updating existing first_traded and expires")
       temp_series$first_traded<-c(temp_series$first_traded,first_traded)
       temp_series$expires<-c(temp_series$expires,expires)
+      assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=as.environment(.instrument))
   } else {
-      temp_series = instrument( primary_id = contract$primary_id,
-                         suffix_id = suffix_id,
-                         currency = contract$currency,
-                         multiplier = contract$multiplier,
-						 tick_size=contract$tick_size,
-						 first_traded = first_traded,
-                         expires = expires,
-                         identifiers = identifiers,
-                         type=c("future_series", "future")
-                         ) 
+      temp_series = instrument( primary_id = paste(contract$primary_id,suffix_id,sep='_'),
+                                 suffix_id=suffix_id,
+                                 currency = contract$currency,
+                                 multiplier = contract$multiplier,
+        						 tick_size=contract$tick_size,
+        						 first_traded = first_traded,
+                                 expires = expires,
+                                 identifiers = identifiers,
+                                 type=c("future_series", "future"),
+                                 ...,
+                                 assign_i=TRUE
+                              ) 
   }
-
-  assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=as.environment(.instrument))
 }
 
 #' @export
@@ -176,38 +191,37 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
       if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
   }
   ## now structure and return
-  option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id )
-  
-  assign(primary_id, option_temp, envir=as.environment(.instrument) )
+  option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=TRUE )
 }
 
 #' @export
 option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...){
-  contract<-try(getInstrument(primary_id))
-  if(!inherits(contract,"option")) stop("options contract spec must be defined first")
-  ## with options series we probably need to be more sophisticated,
-  ## and find the existing series from prior periods (probably years)
-  ## and then add the first_traded and expires to the time series
-  if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
-  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
-  if(inherits(temp_series,"option_series")) {
-    message("updating existing first_traded and expires")
-    temp_series$first_traded<-c(temp_series$first_traded,first_traded)
-    temp_series$expires<-c(temp_series$expires,expires)
-  } else {
-      temp_series = instrument( primary_id = contract$primary_id,
-              suffix_id = suffix_id,
-              currency = contract$currency,
-              multiplier = contract$multiplier,
-              tick_size=contract$tick_size,
-              first_traded = first_traded,
-              expires = expires,
-              identifiers = identifiers,
-              type=c("option_series", "option")
-      ) 
-  }
-
-  assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=as.environment(.instrument))
+    contract<-try(getInstrument(primary_id))
+    if(!inherits(contract,"option")) stop("options contract spec must be defined first")
+    ## with options series we probably need to be more sophisticated,
+    ## and find the existing series from prior periods (probably years)
+    ## and then add the first_traded and expires to the time series
+    if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
+    temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
+    if(inherits(temp_series,"option_series")) {
+        message("updating existing first_traded and expires")
+        temp_series$first_traded<-c(temp_series$first_traded,first_traded)
+        temp_series$expires<-c(temp_series$expires,expires)
+        assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=as.environment(.instrument))
+    } else {
+        temp_series = instrument( primary_id = paste(contract$primary_id,suffix_id,sep='_'),
+                                    suffix_id = suffix_id,
+                                    currency = contract$currency,
+                                    multiplier = contract$multiplier,
+                                    tick_size=contract$tick_size,
+                                    first_traded = first_traded,
+                                    expires = expires,
+                                    identifiers = identifiers,
+                                    ...,
+                                    type=c("option_series", "option"),
+                                    assign_i=TRUE
+                                ) 
+    }
 }
 
 #' @export
@@ -247,14 +261,12 @@ exchange_rate <- function (primary_id , currency , second_currency, identifiers 
   if(!exists(second_currency, where=.instrument,inherits=TRUE)) warning("second_currency not found") # assumes that we know where to look
 
   ## now structure and return
-  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., secon_currency=second_currency, type=c("exchange_rate","currency"))
-  assign(primary_id, exrate_temp, envir=as.environment(.instrument) )
+  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., secon_currency=second_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
-    bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond" )
-    assign( primary_id, bond_temp, envir=as.environment(.instrument) )
+    bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }
 
 

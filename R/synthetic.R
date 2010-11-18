@@ -12,20 +12,9 @@
 ###############################################################################
 
 #' @export
-synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, cl=c("synthetic", "instrument"))
+synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
 {
-
-    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=NULL )
-    
-    ## now structure and return
-    return(structure( list(primary_id = synthetic_temp$primary_id,
-                            currency = synthetic_temp$currency,
-                            multiplier = synthetic_temp$multiplier,
-                            identifiers = synthetic_temp$identifiers,
-                            memberlist = members 
-                    ),
-                    class=cl )
-           )
+    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=type, members=members, assign_i=TRUE )    
 }
 
 #' constructors for synthetic instruments
@@ -34,7 +23,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
 #' @param identifiers character vector of any other identifiers that should also be stored for this instrument
 #' @param ... any other passthru parameters 
-#' @param cl class string, should not be set by users
+#' @param type class string, should not be set by users
 #' @param members character vector of instrument identifiers that make up the synthetic
 #' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
 #' @aliases
@@ -42,7 +31,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' spread 
 #' synthetic.ratio
 #' @export
-synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., cl=c("synthetic.ratio","synthetic","instrument"), members, memberratio)
+synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., type=c("synthetic.ratio","synthetic","instrument"), members, memberratio)
 {
     #TODO make sure that with options/futures or other  instruments that we have you use the base contract
     if(!is.list(members)){
@@ -69,22 +58,11 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
         warning("passing in members as a list not fully tested")
         memberlist=members
     }
-    synthetic_temp = synthetic(primary_id , currency , multiplier=multiplier , identifiers = identifiers, members=members , memberratio=memberratio, ...  )
-    ## now structure and return
-    assign(primary_id, structure( list(primary_id = synthetic_temp$primary_id,
-                            currency = synthetic_temp$currency,
-                            multiplier = synthetic_temp$multiplier,
-                            identifiers = synthetic_temp$identifiers,
-                            memberlist = memberlist
-                    ),
-                    class=cl
-            ), # end structure
-            envir=as.environment(.instrument)
-    )
+    synthetic_temp = synthetic(primary_id , currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ... ,type=type, assign_i=TRUE )
 }
 
 #' @export
 spread <- function(primary_id , currency , members, memberratio, ..., multiplier=1, identifiers = NULL)
 {
-    synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, cl=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=...)
+    synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, type=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=..., assign_i=TRUE)
 }

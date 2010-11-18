@@ -1,7 +1,7 @@
 \name{instrument}
 \title{instrument class constructors...}
 \usage{instrument(primary_id, ..., currency, multiplier, tick_size,
-    identifiers, type)}
+    identifiers, type, assign_i=FALSE)}
 \description{instrument class constructors}
 \details{All 'currency' instruments must be defined before instruments of other types may be defined.
 
@@ -15,7 +15,20 @@ The code will return the first (and only the first) match that it finds, startin
 This is robust enough if you take some care, though a more robust patch would be welcomed.
 
 The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-replacing +-=^\%$#}
+using \code{\link{make.names}}  Please use some care to choose your primary identifiers so that R won't complain.
+If you have better regular expression code, we'd be happy to include it.   
+
+Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
+We currently match any of the following: \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
+Others mat be specified using a named list of identifiers, as described above.
+
+\code{assign_i} will use \code{\link{assign}} to place the constructed 
+instrument class object into the \code{.instrument} environment.  Most of the 
+special type-specific constructors will use \code{assign_i=TRUE} internally. 
+Calling with \code{assign_i=FALSE}, or not specifying it, will return an object and
+will \emph{not} store it.  Use this option ether to wrap calls to \code{instrument}
+prior to further processing (and presumably assignment) or to test your parameters
+before assignment.}
 \alias{stock}
 \alias{bond}
 \alias{future}
@@ -33,4 +46,5 @@ replacing +-=^\%$#}
 \item{tick_size}{the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)}
 \item{identifiers}{named list of any other identifiers that should also be stored for this instrument}
 \item{type}{instrument type to be appended to the class definition, typically not set by user}
-\item{underlying_id}{for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments}}
+\item{underlying_id}{for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments}
+\item{assign_i}{TRUE/FALSE if TRUE, assign the instrument to the .instrument environment, default FALSE}}

@@ -3,6 +3,9 @@
 \usage{future_series(primary_id, suffix_id, first_traded, expires,
     identifiers, ...)}
 \description{constructors for series contracts on instruments such as options and futures}
+\details{In custom parameters for these series contracts, we have often found it
+useful to store attributes such as local roll-on and roll-off dates
+(rolling not on the \code{first_listed} or \code{expires}}
 \alias{option_series}
 \alias{future_series}
 \arguments{\item{primary_id}{string describing the unique ID for the instrument}
