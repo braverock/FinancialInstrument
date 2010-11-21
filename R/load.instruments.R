@@ -80,3 +80,120 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     } 
             
 }
+
+setSymbolLookup.FI<-function(base_dir,storage_method='rda',split_method=c("days","common")){
+    # check that base_dir exists
+    if(!file.exists(base_dir)) stop('base_dir ',base_dir,' does not seem to specify a valid path' )
+    
+    # take split
+    split_method<-split_method[1] # only use the first value
+    
+    #load all instrument names
+    instr_names<-ls(pos=.instrument)
+    
+    #initialize list
+    params<-list()
+    params$storage_method<-storage_method
+    if(storage_method=='rda') params$extension<-'rda'
+    params$split_method<-split_method
+    params$src<-"FI"
+    new.symbols<-list()
+    for (instr in instr_names){
+        symbol<-list()
+        symbol[[1]]<-params
+        # construct $dir   
+        symbol[[1]]$dir<-paste(base_dir,instr,sep="/")
+        names(symbol)[1]<-instr
+        new.symbols<-c(new.symbols,symbol)
+    }
+    setSymbolLookup(new.symbols)
+}
+
+getSymbols.FI <- function(Symbols,
+                            from='2010-01-01',
+                            to=Sys.Date(),
+                            ..., 
+                            env,
+                            dir="",
+                            return.class="xts",
+                            extension="rda",
+                         ) 
+{
+    importDefaults("getSymbols.FI")
+    this.env <- environment()
+    for(var in names(list(...))) {
+        assign(var,list(...)[[var]], this.env)
+    }
+    
+    default.return.class <- return.class
+    default.dir <- dir
+    default.extension <- extension
+    
+    if(missing(verbose)) verbose <- FALSE
+    if(missing(auto.assign)) auto.assign <- TRUE
+    
+    for(i in 1:length(Symbols)) {
+        return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
+        return.class <- ifelse(is.null(return.class),default.return.class, return.class)
+        dir <- getSymbolLookup()[[Symbols[[i]]]]$dir
+        dir <- ifelse(is.null(dir),default.dir, dir)
+        if(!dir=="" && !file.exists(dir)) {
+            cat("\ndirectory ",dir," does not exist, skipping\n")
+            next
+        }
+        extension <- getSymbolLookup()[[Symbols[[i]]]]$extension
+        extension <- ifelse(is.null(extension),default.extension, extension)
+        if(verbose) cat("loading ",Symbols[[i]],".....")
+        switch(getSymbolLookup()[[Symbols[[i]]]]$split_method,
+                days={
+                    fr<-NULL
+                    StartDate <- as.Date(from) 
+                    EndDate <- as.Date(to) 
+                    date.vec <- as.Date(StartDate:EndDate)
+                    
+                    date.vec.ch <- as.character(date.vec)
+                    
+                    for(d in date.vec) {
+                        if(weekdays(as.Date(d)) == "Saturday" || weekdays(as.Date(d)) == "Sunday"){next}
+                        d<-format(as.Date(d),format='%Y.%m.%d')
+                        if(dir=="") {
+                            sym.file <- paste(d,Symbols[[i]],extension,sep=".")
+                        } else {
+                            sym.file <- file.path(dir,paste(d,Symbols[[i]],extension,sep="."))
+                        }
+                        if(!file.exists(sym.file)) {
+                            cat("\nfile ",paste(d,Symbols[[i]],extension,sep='.')," does not exist in ",dir,"....skipping\n")
+                            next
+                        }
+                        local.name <- load(sym.file)
+                        if(!is.null(fr)) local.name<-rbind(fr,local.name)
+                        assign('fr',get(local.name))                        
+                    } # end date loop
+                },
+                common = , {
+                    if(dir=="") {
+                        sym.file <- paste(Symbols[[i]],extension,sep=".")
+                    } else {
+                        sym.file <- file.path(dir,paste(Symbols[[i]],extension,sep="."))
+                    }
+                    if(!file.exists(sym.file)) {
+                        cat("\nfile ",paste(Symbols[[i]],extension,sep='.')," does not exist in ",dir,"....skipping\n")
+                        next
+                    }
+                    #fr <- read.csv(sym.file)
+                    local.name <- load(sym.file)
+                    assign('fr',get(local.name))
+                    if(verbose) cat("done.\n")
+                    if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
+                } # end 'common'/default method (same as getSymbols.rda)    
+        ) # end split_method switch
+        fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
+        Symbols[[i]] <-make.names(Symbols[[ii]]) 
+        if(auto.assign) assign(Symbols[[i]],fr,env)
+        if(verbose) cat("done.\n")        
+    } #end loop over Symbols
+    
+    if(auto.assign)
+        return(Symbols)
+    return(fr)
+}
