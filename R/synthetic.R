@@ -30,6 +30,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' synthetic
 #' spread 
 #' synthetic.ratio
+#' guaranteed_spread
 #' @export
 synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., type=c("synthetic.ratio","synthetic","instrument"), members, memberratio)
 {
@@ -65,4 +66,10 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
 spread <- function(primary_id , currency , members, memberratio, ..., multiplier=1, identifiers = NULL)
 {
     synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, type=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=..., assign_i=TRUE)
+}
+
+#' @export
+guaranteed_spread <- function(primary_id , currency , members, memberratio=c(1:1), ..., multiplier=1, identifiers = NULL)
+{
+	synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, type=c("guaranteed_spread","spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=..., assign_i=TRUE)
 }
