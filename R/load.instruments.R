@@ -68,12 +68,29 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     #now process the data
     for(rn in 1:nrow(filedata)){
         if(!isTRUE(is.instrument(getInstrument(as.character(filedata[rn,id_col]))))){
-            arg<-as.list(filedata[rn,])
+            type=as.character(filedata[rn,'type'])
+			if(type=='spread' || type=='guaranteed_spread'){
+				if(!is.null(arg$members)){
+					arg$members<-unlist(strsplit(arg$members,','))
+				}
+				if(!is.null(arg$memberratio)){
+					arg$memberratio<-unlist(strsplit(arg$memberratio,','))
+				}
+				if(!is.null(arg$ratio)){
+					arg$memberratio<-unlist(strsplit(arg$ratio,','))
+				}
+			}
+			arg<-as.list(filedata[rn,])
             arg$type<-NULL
             arg<-arg[!is.na(arg)]
             arg<-arg[!arg==""]
             if (set_primary) arg$primary_id<-filedata[rn,id_col]
-            try(do.call(as.character(filedata[rn,'type']),arg))
+            out<-try(do.call(type,arg))
+			if(inherits(out,"try-error")){
+				type=c(type,"instrument")
+				arg$type<-type
+				try(do.call("instrument",args))
+			}
         } else {
             warning(filedata[rn,id_col],"already exists in the .instrument environment")
         }
@@ -116,7 +133,7 @@ getSymbols.FI <- function(Symbols,
                             env,
                             dir="",
                             return.class="xts",
-                            extension="rda",
+                            extension="rda"
                          ) 
 {
     importDefaults("getSymbols.FI")
