@@ -28,9 +28,9 @@
 #' 
 #' Typically, columns will exist for \code{multiplier} and \code{tick_size}.
 #' 
-#' Any other columns necessary to define the specified instrument type will also be required to avoid Errors.  
+#' Any other columns necessary to define the specified instrument type will also be required to avoid fatal Errors.  
 #' 
-#' Additional columns will be processed, either as additional identifiers for recognized identifier names, or as custom feilds.  See \code{\link{instrument}} for more information on custom fields.
+#' Additional columns will be processed, either as additional identifiers for recognized identifier names, or as custom fields.  See \code{\link{instrument}} for more information on custom fields.
 #' 
 #' @param file string identifying file to load, default NULL, see Details
 #' @param ... any other passthru parameters
@@ -84,21 +84,50 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
             arg$type<-NULL
             arg<-arg[!is.na(arg)]
             arg<-arg[!arg==""]
-            if (set_primary) arg$primary_id<-filedata[rn,id_col]
-            out<-try(do.call(type,arg))
+            if (set_primary) {
+                arg$primary_id<-filedata[rn,id_col]
+            }
+            
+            if(is.function(try(match.fun(type)))){
+                out <- try(do.call(type,arg))
+            } 
 			if(inherits(out,"try-error")){
+                # the call for a function named for type didn't work, so we'll try calling instrument as a generic
 				type=c(type,"instrument")
-				arg$type<-type
-				try(do.call("instrument",args))
+				arg$type<-type # set the type
+                arg$assign_i<-TRUE # assign to the environment
+				try(do.call("instrument",arg))
 			}
         } else {
             warning(filedata[rn,id_col],"already exists in the .instrument environment")
         }
     } 
-            
 }
 
-setSymbolLookup.FI<-function(base_dir,storage_method='rda',split_method=c("days","common")){
+#' set quantmod-style SymbolLookup for instruments
+#' 
+#' This function exists to tell \code{\link[quantmod]{getSymbols}} where to look for your repository of market data.
+#' 
+#' The \code{base_dir} parameter \emph{must} be set or the function will fail.  
+#' This will vary by your local environment and operating system.  For mixed-OS environments,
+#' we recommend doing some OS-detection and setting the network share to your data to a common 
+#' location by operating system.  For example, all Windows machines may use \dQuote{M:/} 
+#' and all *nix-style (linux, Mac) machines may use \dQuote{/mnt/mktdata/}. 
+#' 
+#' The \code{split_method} currently allows either \sQuote{days} or \sQuote{common}, and expects the 
+#' file or files to be in sub-directories named for the symbol.  In high frequency data, it is standard practice to split
+#' the data by days, which is why that option is the default.
+#'     
+#' @param base_dir string specifying the base directory where data is stored, see Details 
+#' @param storage_method currently only \sQuote{rda}, but we will eventually support \sQuote{indexing} at least, and maybe others
+#' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
+#' @param ... any other passthru parameters
+#' @param extension file extension, default "rda"
+#' @seealso 
+#' \code{\link{load.instruments}}
+#' \code{\link[quantmod]{setSymbolLookup}}
+#' @export
+setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda'){
     # check that base_dir exists
     if(!file.exists(base_dir)) stop('base_dir ',base_dir,' does not seem to specify a valid path' )
     
@@ -111,21 +140,54 @@ setSymbolLookup.FI<-function(base_dir,storage_method='rda',split_method=c("days"
     #initialize list
     params<-list()
     params$storage_method<-storage_method
-    if(storage_method=='rda') params$extension<-'rda'
+    params$extension<-extension
     params$split_method<-split_method
     params$src<-"FI"
     new.symbols<-list()
+    ndc<-nchar(base_dir)
+    if(substr(base_dir,ndc,ndc)=='/') sepch='' else sepch='/'
     for (instr in instr_names){
+        if(!use_identifier=='primary_id'){
+            tmp_instr<-getInstrument(instr)
+            instr_str<-tmp_instr$identifiers[[use_identifier]]
+            if(!is.null(instr_str)) instr<-instr_str
+            else {
+                instr_str<-tmp_instr[[use_identifier]]
+                if(!is.null(instr_str)) instr<-instr_str
+            }
+        }
         symbol<-list()
         symbol[[1]]<-params
-        # construct $dir   
-        symbol[[1]]$dir<-paste(base_dir,instr,sep="/")
+        # construct $dir
+        symbol[[1]]$dir<-paste(base_dir,instr,sep=sepch)
         names(symbol)[1]<-instr
         new.symbols<-c(new.symbols,symbol)
     }
     setSymbolLookup(new.symbols)
 }
 
+#' getSymbols method for loading data from split files
+#' 
+#' This function should probably get folded back into getSymbols.rda in quantmod.
+#' 
+#' Meant to be called internally by \code{\link[quantmod]{getSymbols}} .
+#' 
+#' The symbol lookup table will most likely be loaded by \code{\link{setSymbolLookup.FI}}
+#' 
+#' @param Symbols a character vector specifying the names of each symbol to be loaded
+#' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
+#' @param to Retrieve data through this date. Default Sys.Date().
+#' @param ... any other passthru parameters
+#' @param env where to create objects. Default .GlobalEnv
+#' @param dir if not specified in getSymbolLookup, directory string to use.  default ""
+#' @param return.class only "xts" is currently supported
+#' @param extension file extension, default "rda"
+#' @param date_format format as per the \code{\link{strptime}}, default '\%Y.\%m.\%d'
+#' @seealso 
+#' \code{\link{setSymbolLookup.FI}}
+#' \code{\link{load.instruments}}
+#' \code{\link[quantmod]{getSymbols}}
+#' @export
 getSymbols.FI <- function(Symbols,
                             from='2010-01-01',
                             to=Sys.Date(),
@@ -133,7 +195,8 @@ getSymbols.FI <- function(Symbols,
                             env,
                             dir="",
                             return.class="xts",
-                            extension="rda"
+                            extension="rda",
+                            date_format='%Y.%m.%d'
                          ) 
 {
     importDefaults("getSymbols.FI")
@@ -168,11 +231,9 @@ getSymbols.FI <- function(Symbols,
                     EndDate <- as.Date(to) 
                     date.vec <- as.Date(StartDate:EndDate)
                     
-                    date.vec.ch <- as.character(date.vec)
-                    
                     for(d in date.vec) {
                         if(weekdays(as.Date(d)) == "Saturday" || weekdays(as.Date(d)) == "Sunday"){next}
-                        d<-format(as.Date(d),format='%Y.%m.%d')
+                        d<-format(as.Date(d),format=date_format)
                         if(dir=="") {
                             sym.file <- paste(d,Symbols[[i]],extension,sep=".")
                         } else {
@@ -183,8 +244,10 @@ getSymbols.FI <- function(Symbols,
                             next
                         }
                         local.name <- load(sym.file)
-                        if(!is.null(fr)) local.name<-rbind(fr,local.name)
-                        assign('fr',get(local.name))                        
+                        if(!is.null(fr)) {
+                            fr<-rbind(fr,get(local.name))
+                        } else assign('fr',get(local.name))
+                        rm(local.name)
                     } # end date loop
                 },
                 common = , {
@@ -201,11 +264,11 @@ getSymbols.FI <- function(Symbols,
                     local.name <- load(sym.file)
                     assign('fr',get(local.name))
                     if(verbose) cat("done.\n")
-                    if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
+                    #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
                 } # end 'common'/default method (same as getSymbols.rda)    
         ) # end split_method switch
         fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
-        Symbols[[i]] <-make.names(Symbols[[ii]]) 
+        Symbols[[i]] <-make.names(Symbols[[i]]) 
         if(auto.assign) assign(Symbols[[i]],fr,env)
         if(verbose) cat("done.\n")        
     } #end loop over Symbols

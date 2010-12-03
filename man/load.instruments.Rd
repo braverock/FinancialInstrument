@@ -17,9 +17,9 @@ You will need to specify a \code{currency}, unless the instrument \code{type} is
 
 Typically, columns will exist for \code{multiplier} and \code{tick_size}.
 
-Any other columns necessary to define the specified instrument type will also be required to avoid Errors.  
+Any other columns necessary to define the specified instrument type will also be required to avoid fatal Errors.  
 
-Additional columns will be processed, either as additional identifiers for recognized identifier names, or as custom feilds.  See \code{\link{instrument}} for more information on custom fields.}
+Additional columns will be processed, either as additional identifiers for recognized identifier names, or as custom fields.  See \code{\link{instrument}} for more information on custom fields.}
 \seealso{instrument}
 \arguments{\item{file}{string identifying file to load, default NULL, see Details}
 \item{...}{any other passthru parameters}

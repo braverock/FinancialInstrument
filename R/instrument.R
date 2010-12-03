@@ -37,7 +37,8 @@ is.instrument <- function( x ) {
 #' This is robust enough if you take some care, though a more robust patch would be welcomed.
 #' 
 #' The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-#' using \code{\link{make.names}}  Please use some care to choose your primary identifiers so that R won't complain.
+#' using \code{\link{make.names}}. We also remove any leading digit (a simple workaround to account for issues with the Reuters API).  
+#' Please use some care to choose your primary identifiers so that R won't complain.
 #' If you have better regular expression code, we'd be happy to include it.   
 #' 
 #' Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
@@ -77,7 +78,8 @@ is.instrument <- function( x ) {
 instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL, assign_i=FALSE ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
   
-  #primary_id<-gsub("[+-=^%$@:;]",".",primary_id) # replace illegal characters
+  #deal with leading digits or illegal characters
+  if(is.numeric(substr(primary_id,1,1))) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
   
   if(!is.currency(currency)) stop("currency ",currency," must be an object of type 'currency'")
@@ -88,7 +90,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   } else {
       arg<-list(...)
       #check for identifiers we recognize 
-      ident_str<-c("X.RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
+  ident_str<-c("X.RIC","RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
       for(i_s in ident_str ){
           if(any(grepl(i_s,names(arg),ignore.case=TRUE))) {
               pos<-first(grep(i_s,names(arg),ignore.case=TRUE))
@@ -159,14 +161,15 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   ## with futures series we probably need to be more sophisticated,
   ## and find the existing series from prior periods (probably years or months)
   ## and then add the first_traded and expires to the time series bu splicing
-  temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
+  id<-paste(primary_id, suffix_id,sep="_")
+  temp_series<-try(getInstrument(id),silent=TRUE)
   if(inherits(temp_series,"future_series")) {
-      message("updating existing first_traded and expires")
+      message("updating existing first_traded and expires for ",id)
       temp_series$first_traded<-c(temp_series$first_traded,first_traded)
       temp_series$expires<-c(temp_series$expires,expires)
-      assign(paste(primary_id, suffix_id, sep="_"), temp_series, envir=as.environment(.instrument))
+      assign(id, temp_series, envir=as.environment(.instrument))
   } else {
-      temp_series = instrument( primary_id = paste(contract$primary_id,suffix_id,sep='_'),
+      temp_series = instrument( primary_id = id,
                                  suffix_id=suffix_id,
                                  currency = contract$currency,
                                  multiplier = contract$multiplier,
@@ -202,14 +205,15 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
     ## and find the existing series from prior periods (probably years)
     ## and then add the first_traded and expires to the time series
     if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
-    temp_series<-try(getInstrument(paste(primary_id, suffix_id,sep="_")),silent=TRUE)
+    id<-paste(primary_id, suffix_id,sep="_")
+    temp_series<-try(getInstrument(id),silent=TRUE)
     if(inherits(temp_series,"option_series")) {
-        message("updating existing first_traded and expires")
+        message("updating existing first_traded and expires for ", id)
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
         temp_series$expires<-c(temp_series$expires,expires)
-        assign(paste(primary_id, suffix_id,sep="_"), temp_series, envir=as.environment(.instrument))
+        assign(id, temp_series, envir=as.environment(.instrument))
     } else {
-        temp_series = instrument( primary_id = paste(contract$primary_id,suffix_id,sep='_'),
+        temp_series = instrument( primary_id = id,
                                     suffix_id = suffix_id,
                                     currency = contract$currency,
                                     multiplier = contract$multiplier,
@@ -265,6 +269,7 @@ exchange_rate <- function (primary_id , currency , second_currency, identifiers 
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
+#' @export
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
     bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }

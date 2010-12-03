@@ -15,7 +15,8 @@ The code will return the first (and only the first) match that it finds, startin
 This is robust enough if you take some care, though a more robust patch would be welcomed.
 
 The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-using \code{\link{make.names}}  Please use some care to choose your primary identifiers so that R won't complain.
+using \code{\link{make.names}}. We also remove any leading digit (a simple workaround to account for issues with the Reuters API).  
+Please use some care to choose your primary identifiers so that R won't complain.
 If you have better regular expression code, we'd be happy to include it.   
 
 Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
