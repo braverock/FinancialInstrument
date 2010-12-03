@@ -37,7 +37,7 @@ is.instrument <- function( x ) {
 #' This is robust enough if you take some care, though a more robust patch would be welcomed.
 #' 
 #' The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-#' using \code{\link{make.names}}. We also remove any leading digit (a simple workaround to account for issues with the Reuters API).  
+#' using \code{\link{make.names}}. We also remove any leading '1' digit (a simple workaround to account for issues with the Reuters API).  
 #' Please use some care to choose your primary identifiers so that R won't complain.
 #' If you have better regular expression code, we'd be happy to include it.   
 #' 
@@ -79,7 +79,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
   
   #deal with leading digits or illegal characters
-  if(is.numeric(substr(primary_id,1,1))) primary_id <- substr(primary_id,2,nchar(primary_id))
+  if(substr(primary_id,1,1)==1) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
   
   if(!is.currency(currency)) stop("currency ",currency," must be an object of type 'currency'")
@@ -169,6 +169,10 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
       temp_series$expires<-c(temp_series$expires,expires)
       assign(id, temp_series, envir=as.environment(.instrument))
   } else {
+      dargs<-list(...)
+      dargs$currency=NULL
+      dargs$multiplier=NULL
+      dargs$type=NULL
       temp_series = instrument( primary_id = id,
                                  suffix_id=suffix_id,
                                  currency = contract$currency,
@@ -178,7 +182,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
                                  expires = expires,
                                  identifiers = identifiers,
                                  type=c("future_series", "future"),
-                                 ...,
+                                 ...=dargs,
                                  assign_i=TRUE
                               ) 
   }
