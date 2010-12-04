@@ -88,6 +88,10 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
                 arg$primary_id<-filedata[rn,id_col]
             }
             
+            #do some name cleanup to make up for Reuters silliness
+            if(substr(arg$primary_id,1,1)==1) arg$primary_id <- substr(arg$primary_id,2,nchar(arg$primary_id))
+            arg$primary_id<-make.names(arg$primary_id)
+            
             if(is.function(try(match.fun(type)))){
                 out <- try(do.call(type,arg))
             } 

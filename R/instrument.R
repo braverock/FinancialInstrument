@@ -87,19 +87,28 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
   if(!is.list(identifiers)) {
       warning("identifiers",identifiers,"do not appear to be a named list")
-  } else {
-      arg<-list(...)
-      #check for identifiers we recognize 
+  } 
+
+  arg<-list(...)
+  if(is.list(arg[['...']])){
+      if(length(arg)==1) arg <- arg[['...']]
+      else {
+          targ<-arg[['...']]
+          arg[['...']]<-NULL
+          arg<-c(arg,targ)
+      }
+  } 
+  #check for identifiers we recognize 
   ident_str<-c("X.RIC","RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
-      for(i_s in ident_str ){
-          if(any(grepl(i_s,names(arg),ignore.case=TRUE))) {
-              pos<-first(grep(i_s,names(arg),ignore.case=TRUE))
-              identifiers<-c(identifiers,arg[[pos]])
-              names(identifiers)[length(identifiers)]<-names(arg)[pos]
-              arg[[pos]]<-NULL
-          }
+  for(i_s in ident_str ){
+      if(any(grepl(i_s,names(arg),ignore.case=TRUE))) {
+          pos<-first(grep(i_s,names(arg),ignore.case=TRUE))
+          identifiers<-c(identifiers,arg[[pos]])
+          names(identifiers)[length(identifiers)]<-names(arg)[pos]
+          arg[[pos]]<-NULL
       }
   }
+  
   
   ## TODO note that multiplier could be a time series, probably add code here to check
   if(!is.numeric(multiplier) | length(multiplier) > 1) stop("multiplier must be a single number")
@@ -114,7 +123,9 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
                    identifiers = identifiers,
                    type = type
                    )
-  if(length(arg)>=1) tmpinstr <- c(tmpinstr,arg)   
+  if(length(arg)>=1) {
+      tmpinstr <- c(tmpinstr,arg)   
+  }
   class(tmpinstr)<-tclass
   
   if(assign_i)  assign(primary_id, tmpinstr, envir=as.environment(.instrument) )
