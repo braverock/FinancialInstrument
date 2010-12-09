@@ -71,13 +71,19 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
         warning("passing in members as a list not fully tested")
         memberlist=members
     }
-    synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type)
+    if(is.null(currency)) currency<- as.character(memberlist$currencies[1]) #use the currency of the front leg
+
+    if (hasArg(tick_size)){
+        tick_size<-match.call(expand.dots=TRUE)$tick_size  
+    } else tick_size<-0 
+
+    synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type, tick_size=tick_size)
 }
 
 #' @export
-spread <- function(primary_id , currency , members=NULL, memberratio, ..., multiplier=1, identifiers = NULL)
+spread <- function(primary_id , currency=NULL , members, memberratio, ..., multiplier=1, identifiers = NULL)
 {
-    synthetic.ratio(primary_id , currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = identifiers, ...=..., type=c("spread","synthetic.ratio","synthetic","instrument"))
+    synthetic.ratio(primary_id=primary_id , currency=currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = identifiers, ...=..., type=c("spread","synthetic.ratio","synthetic","instrument"))
 }
 
 #' @export
