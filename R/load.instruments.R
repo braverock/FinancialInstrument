@@ -69,7 +69,8 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     for(rn in 1:nrow(filedata)){
         if(!isTRUE(is.instrument(getInstrument(as.character(filedata[rn,id_col]))))){
             type=as.character(filedata[rn,'type'])
-			if(type=='spread' || type=='guaranteed_spread'){
+            arg<-as.list(filedata[rn,])
+            if(type=='spread' || type=='guaranteed_spread'){
 				if(!is.null(arg$members)){
 					arg$members<-unlist(strsplit(arg$members,','))
 				}
@@ -80,7 +81,6 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 					arg$memberratio<-unlist(strsplit(arg$ratio,','))
 				}
 			}
-			arg<-as.list(filedata[rn,])
             arg$type<-NULL
             arg<-arg[!is.na(arg)]
             arg<-arg[!arg==""]

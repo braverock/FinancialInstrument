@@ -14,7 +14,7 @@
 #' @export
 synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
 {
-    synthetic_temp = instrument(primary_id , currency , multiplier , identifiers = identifiers, ..., type=type, members=members, assign_i=TRUE )    
+    synthetic_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )    
 }
 
 #' constructors for synthetic instruments
@@ -44,7 +44,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' synthetic.ratio
 #' guaranteed_spread
 #' @export
-synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., type=c("synthetic.ratio","synthetic","instrument"), members, memberratio)
+synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic","instrument"))
 {
     #TODO make sure that with options/futures or other  instruments that we have you use the base contract
     if(!is.list(members)){
@@ -71,17 +71,28 @@ synthetic.ratio <- function(primary_id , currency , multiplier=1, identifiers = 
         warning("passing in members as a list not fully tested")
         memberlist=members
     }
-    synthetic_temp = synthetic(primary_id , currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ... ,type=type, assign_i=TRUE )
+    synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type)
 }
 
 #' @export
-spread <- function(primary_id , currency , members, memberratio, ..., multiplier=1, identifiers = NULL)
+spread <- function(primary_id , currency , members=NULL, memberratio, ..., multiplier=1, identifiers = NULL)
 {
-    synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, type=c("spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=..., assign_i=TRUE)
+    synthetic.ratio(primary_id , currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = identifiers, ...=..., type=c("spread","synthetic.ratio","synthetic","instrument"))
 }
 
 #' @export
-guaranteed_spread <- function(primary_id , currency , members, memberratio=c(1,1), ..., multiplier=1, identifiers = NULL)
+guaranteed_spread <- function(primary_id , currency , members=NULL, memberratio=c(1,1), ..., multiplier=1, identifiers = NULL)
 {
-	synthetic.ratio(primary_id , currency , multiplier=multiplier, identifiers = NULL, type=c("guaranteed_spread","spread","synthetic.ratio","synthetic","instrument"), members=members, memberratio=memberratio, ...=..., assign_i=TRUE)
+    if (hasArg(suffix_id)){
+        suffix_id<-match.call(expand.dots=TRUE)$suffix_id  
+        id<-paste(primary_id, suffix_id,sep="_")
+    } else id<-primary_id 
+
+    
+    if(is.null(members) && hasArg(suffix_id)){
+        #make.names uses a dot to replace illegal chars like the '-', 
+        members<-unlist(strsplit(suffix_id,"[-;:_,\\.]")) # clean up the list to something we can use  
+        members<-paste(primary_id,members,sep='_') # construct a member vector appropriate for a guaranteed spread
+    }
+    synthetic.ratio(primary_id=id , currency=currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = NULL, ...=..., type=c("guaranteed_spread","spread","synthetic.ratio","synthetic","instrument"))
 }
