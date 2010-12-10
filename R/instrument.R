@@ -157,11 +157,13 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @param suffix_id string suffix that should be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year
 #' @param first_traded string coercible to Date for first trading day
 #' @param expires string coercible to Date for expiration date
+#' @param maturity string coercible to Date for maturity date of bond series
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param ... any other passthru parameters
 #' @aliases 
 #' option_series
 #' future_series
+#' bond_series
 #' @export
 future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
   contract<-try(getInstrument(primary_id))
@@ -289,7 +291,43 @@ bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifier
     bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }
 
-
+#' @export
+bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL){
+    contract<-try(getInstrument(primary_id))
+    if(!inherits(contract,"bond")) stop("bonds contract spec must be defined first")
+    
+    # TODO add check for Date equivalent in first_traded and expires
+    
+    ## with bond series we probably need to be more sophisticated,
+    ## and find the existing series from prior periods (probably years or months)
+    ## and then add the first_traded and expires to the time series by splicing
+    id<-paste(primary_id, suffix_id,sep="_")
+    temp_series<-try(getInstrument(id),silent=TRUE)
+    if(inherits(temp_series,"bond_series")) {
+        message("updating existing first_traded and maturity for ",id)
+        temp_series$first_traded<-c(temp_series$first_traded,first_traded)
+        temp_series$expires<-c(temp_series$expires,expires)
+        assign(id, temp_series, envir=as.environment(.instrument))
+    } else {
+        dargs<-list(...)
+        dargs$currency=NULL
+        dargs$multiplier=NULL
+        dargs$type=NULL
+        temp_series = instrument( primary_id = id,
+                suffix_id=suffix_id,
+                currency = contract$currency,
+                multiplier = contract$multiplier,
+                tick_size=contract$tick_size,
+                first_traded = first_traded,
+                maturity = maturity,
+                identifiers = identifiers,
+                type=c("bond_series", "bond"),
+                ...=dargs,
+                assign_i=TRUE
+        ) 
+    }
+}
+    
 #' primary accessor function for getting objects of type 'instrument'
 #' @param x string identifier of instrument to retrieve
 #' @param Dates date range to retrieve 'as of', may not currently be implemented
