@@ -69,6 +69,7 @@ is.instrument <- function( x ) {
 #' option
 #' currency
 #' instrument
+#' fund
 #' @seealso 
 #' \code{\link{exchange_rate}}
 #' \code{\link{option_series}}
@@ -135,6 +136,11 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
 #' @export
 stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
 	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
+}
+
+#' @export
+fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+    fund_temp =  instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
 }
 
 #' @export
