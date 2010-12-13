@@ -338,7 +338,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' @param x string identifier of instrument to retrieve
 #' @param Dates date range to retrieve 'as of', may not currently be implemented
 #' @export
-getInstrument <- function(x, Dates=NULL){
+getInstrument <- function(x, Dates=NULL, silent=FALSE){
     tmp_instr<-try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
     if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
         #first search
@@ -349,7 +349,7 @@ getInstrument <- function(x, Dates=NULL){
                 return(tmp_instr)
             }
         }
-        warning(paste("Instrument",x," not found, please create it first."))
+        if(!silent) warning(paste("Instrument",x," not found, please create it first."))
         return(FALSE)
     } else{
         return(tmp_instr)

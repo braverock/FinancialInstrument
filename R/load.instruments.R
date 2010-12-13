@@ -68,7 +68,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     
     #now process the data
     for(rn in 1:nrow(filedata)){
-        if(!isTRUE(is.instrument(getInstrument(as.character(filedata[rn,id_col]))))){
+        if(!isTRUE(is.instrument(try(getInstrument(as.character(filedata[rn,id_col]),silent=TRUE),silent=TRUE)))){
             type=as.character(filedata[rn,'type'])
             arg<-as.list(filedata[rn,])
             if(type=='spread' || type=='guaranteed_spread'){
