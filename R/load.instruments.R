@@ -64,6 +64,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
         warning("metadata does not appear to contain instrument type, using",default_type,". This may produce incorrect valuations.")
         filedata$type<-rep(default_type,nrow(filedata))
     }
+    dotargs<-list('...')
     
     #now process the data
     for(rn in 1:nrow(filedata)){
@@ -97,21 +98,22 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
             if(!is.null(arg$RIC)){
                 if(substr(arg$RIC,1,1)==1) arg$RIC <- substr(arg$RIC,2,nchar(arg$RIC))
             }            
+            if(length(dotargs)) args<-c(args,dotargs)
             
-            if(is.function(try(match.fun(type)))){
+            if(is.function(try(match.fun(type),silent=TRUE))){
                 out <- try(do.call(type,arg))
-            } 
-			if(inherits(out,"try-error")){
+                #TODO recover gracefully?
+            } else {
                 # the call for a function named for type didn't work, so we'll try calling instrument as a generic
 				type=c(type,"instrument")
 				arg$type<-type # set the type
                 arg$assign_i<-TRUE # assign to the environment
 				try(do.call("instrument",arg))
 			}
-        } else {
+        } else {   
             warning(filedata[rn,id_col],"already exists in the .instrument environment")
-        }
-    } 
+        } # end instrument check
+    } # end loop on rows
 }
 
 #' set quantmod-style SymbolLookup for instruments
