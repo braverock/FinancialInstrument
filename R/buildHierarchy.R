@@ -1,4 +1,4 @@
-#' Construct a heirarchy of instruments useful for aggregation
+#' Construct a hierarchy of instruments useful for aggregation
 #'
 #' All 'currency' instruments must be defined before instruments of other types may be defined.
 #'
@@ -12,8 +12,9 @@
 #' @seealso
 # TODO add a link to PortfolioAnalytics attribution functions, when they exist
 #' @export
-buildHeirarchy <- function(primary_ids, levels, ...) {
+buildHierarchy <- function(primary_ids, levels, ...) {
     out = data.frame(NA)
+    primary_ids = make.names(primary_ids)
     for(primary_id in primary_ids) {
         tmp_instr = try(getInstrument(primary_id))
         # TODO finish error checking
@@ -26,7 +27,7 @@ buildHeirarchy <- function(primary_ids, levels, ...) {
             else
                 attrs = attr
         }
-        if(!is.na(out))
+        if(!is.na(out[1]))
             out = rbind(out, attrs)
         else
             out = attrs
