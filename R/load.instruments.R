@@ -44,7 +44,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     if(is.null(file) && is.null(metadata)) stop("You must pass either a file identifier string or a metadata object to be converted.")
     if(is.null(metadata)){
         if (file.exists(file)){
-            filedata<-read.csv(file,stringsAsFactors=FALSE)
+            filedata<-read.csv(file,stringsAsFactors=FALSE, ...=...)
         } else {
             stop("The specified file",file,"does not seem to exist, maybe specify the full path?")
         }        
