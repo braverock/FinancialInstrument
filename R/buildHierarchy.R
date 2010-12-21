@@ -9,7 +9,7 @@
 #' @param ... any other passthru parameters
 #' @author Peter Carl
 #' @return Constructs a data.frame that contains the list of assets in the first column and the category or factor for grouping at each level in the following columns
-#' @seealso
+# @seealso
 # TODO add a link to PortfolioAnalytics attribution functions, when they exist
 #' @export
 buildHierarchy <- function(primary_ids, levels, ...) {

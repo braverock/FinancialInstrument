@@ -1,7 +1,6 @@
 \name{instrument}
 \title{instrument class constructors...}
-\usage{instrument(primary_id, ..., currency, multiplier, tick_size,
-    identifiers, type, assign_i=FALSE)}
+\usage{instrument(primary_id, ..., currency, multiplier, tick_size, identifiers, type, assign_i=FALSE)}
 \description{instrument class constructors}
 \details{All 'currency' instruments must be defined before instruments of other types may be defined.
 
@@ -15,7 +14,7 @@ The code will return the first (and only the first) match that it finds, startin
 This is robust enough if you take some care, though a more robust patch would be welcomed.
 
 The \code{primary_id} will be coerced within reason to a valid \R variable name by 
-using \code{\link{make.names}}. We also remove any leading digit (a simple workaround to account for issues with the Reuters API).  
+using \code{\link{make.names}}. We also remove any leading '1' digit (a simple workaround to account for issues with the Reuters API).  
 Please use some care to choose your primary identifiers so that R won't complain.
 If you have better regular expression code, we'd be happy to include it.   
 
@@ -36,6 +35,7 @@ before assignment.}
 \alias{option}
 \alias{currency}
 \alias{instrument}
+\alias{fund}
 \seealso{\code{\link{exchange_rate}}
 \code{\link{option_series}}
 \code{\link{future_series}}

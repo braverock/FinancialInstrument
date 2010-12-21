@@ -20,7 +20,10 @@ Typically, columns will exist for \code{multiplier} and \code{tick_size}.
 Any other columns necessary to define the specified instrument type will also be required to avoid fatal Errors.  
 
 Additional columns will be processed, either as additional identifiers for recognized identifier names, or as custom fields.  See \code{\link{instrument}} for more information on custom fields.}
-\seealso{instrument}
+\seealso{\code{\link{instrument}} 
+\code{\link{setSymbolLookup.FI}} 
+\code{\link[quantmod]{getSymbols}} 
+\code{\link{getSymbols.FI}}}
 \arguments{\item{file}{string identifying file to load, default NULL, see Details}
 \item{...}{any other passthru parameters}
 \item{metadata}{optional, data.frame containing metadata, default NULL, see Details}

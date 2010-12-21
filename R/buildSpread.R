@@ -52,6 +52,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
             }
             instr_mult<-instr$multiplier
             instr_ratio<-spread_instr$memberlist$memberratio[i]
+            
             instr_prices<-Cl(get(as.character(spread_instr$memberlist$members[i])))
         }        
         instr_norm<-instr_prices*instr_mult*instr_ratio*exchange_rate

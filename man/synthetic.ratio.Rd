@@ -1,8 +1,7 @@
 \name{synthetic.ratio}
 \title{constructors for synthetic instruments...}
-\usage{synthetic.ratio(primary_id, currency, multiplier=1, identifiers, ...,
-    type=c("synthetic.ratio", "synthetic", "instrument"), members,
-    memberratio)}
+\usage{synthetic.ratio(primary_id, currency, members, memberratio, ..., multiplier=1, identifiers, type=c("synthetic.ratio", "synthetic",
+    "instrument"))}
 \description{constructors for synthetic instruments}
 \details{Simple derivatives like \code{\link{option}} or \code{\link{future}} contracts typically have one underlying instrument.  
 While properties like strike and expiration vary for these derivative contracts or series, the underlying is well understood.

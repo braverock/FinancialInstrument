@@ -37,7 +37,11 @@
 #' @param metadata optional, data.frame containing metadata, default NULL, see Details
 #' @param id_col numeric column containing id if primary_id isn't defined, default 1
 #' @param default_type character string to use as instrument type fallback, see Details
-#' @seealso instrument
+#' @seealso 
+#' \code{\link{instrument}} 
+#' \code{\link{setSymbolLookup.FI}} 
+#' \code{\link[quantmod]{getSymbols}} 
+#' \code{\link{getSymbols.FI}}
 #' @export
 load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_type='stock') {
 
@@ -135,7 +139,8 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
 #' @param ... any other passthru parameters
 #' @param extension file extension, default "rda"
-#' @seealso 
+#' @seealso \code{\link{load.instruments}} 
+#' \code{\link{getSymbols.FI}}
 #' \code{\link{load.instruments}}
 #' \code{\link[quantmod]{setSymbolLookup}}
 #' @export
@@ -186,6 +191,9 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' 
 #' The symbol lookup table will most likely be loaded by \code{\link{setSymbolLookup.FI}}
 #' 
+#' If date_format is NULL (the Default), we will assume an ISO date as changed by \code{\link{make.names}}, 
+#' for example, 2010-12-01 would be assumed to be a file containing 2010.12.01
+#'  
 #' @param Symbols a character vector specifying the names of each symbol to be loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
 #' @param to Retrieve data through this date. Default Sys.Date().
@@ -194,11 +202,13 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' @param dir if not specified in getSymbolLookup, directory string to use.  default ""
 #' @param return.class only "xts" is currently supported
 #' @param extension file extension, default "rda"
-#' @param date_format format as per the \code{\link{strptime}}, default '\%Y.\%m.\%d'
+#' @param date_format format as per the \code{\link{strptime}}, see Details
 #' @seealso 
+#' \code{\link{instrument}}
 #' \code{\link{setSymbolLookup.FI}}
 #' \code{\link{load.instruments}}
 #' \code{\link[quantmod]{getSymbols}}
+#' 
 #' @export
 getSymbols.FI <- function(Symbols,
                             from='2010-01-01',
@@ -208,9 +218,10 @@ getSymbols.FI <- function(Symbols,
                             dir="",
                             return.class="xts",
                             extension="rda",
-                            date_format='%Y.%m.%d'
+                            date_format=NULL
                          ) 
 {
+    if(is.null(date_format)) date_format<-"%Y.%m.%d"
     importDefaults("getSymbols.FI")
     this.env <- environment()
     for(var in names(list(...))) {
