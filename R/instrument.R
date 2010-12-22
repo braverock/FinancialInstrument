@@ -13,7 +13,7 @@
 
 .onLoad <- function(lib, pkg) {
     if(!exists('.instrument'))
-        .instrument <<- new.env()
+        .instrument <<- new.env(hash=TRUE)
 }
 
 #' class test for object supposedly of type 'instrument'

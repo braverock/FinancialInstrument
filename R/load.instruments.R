@@ -169,14 +169,14 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
             instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
             if(!is.null(instr_str)) instr<-instr_str
             else {
-                instr_str<-tmp_instr[[use_identifier]]
+                instr_str<-make.names(tmp_instr[[use_identifier]])
                 if(!is.null(instr_str)) instr<-instr_str
             }
         }
         symbol<-list()
         symbol[[1]]<-params
         # construct $dir
-        symbol[[1]]$dir<-paste(base_dir,instr,sep=sepch)
+        symbol[[1]]$dir<-paste(base_dir,instr_str,sep=sepch)
         names(symbol)[1]<-instr
         new.symbols<-c(new.symbols,symbol)
     }
