@@ -135,9 +135,10 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' the data by days, which is why that option is the default.
 #'     
 #' @param base_dir string specifying the base directory where data is stored, see Details 
+#' @param \dots any other passthru parameters
 #' @param storage_method currently only \sQuote{rda}, but we will eventually support \sQuote{indexing} at least, and maybe others
 #' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
-#' @param ... any other passthru parameters
+#' @param use_identifier string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'
 #' @param extension file extension, default "rda"
 #' @seealso \code{\link{load.instruments}} 
 #' \code{\link{getSymbols.FI}}

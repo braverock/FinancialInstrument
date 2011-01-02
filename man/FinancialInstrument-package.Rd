@@ -23,10 +23,11 @@ FinancialInstrument doesn't try to exhaust the possibilities of attributes, so i
 
 That flexibility also extends to creating instruments that the package doesn't define.  \code{@TODO: Create an example of an instrument not covered by the package, such as a corporate bond.}  We would greatly appreciate any contributions in this vein.
 
-Defining instruments can be tedious, so we've also included a CSV loader in in the package too. See \code{\link{loadInstrument}} for detail.
+Defining instruments can be tedious, so we've also included a CSV loader in in the package too. See \code{\link{load.instruments}} for detail.  
+
+Once you've defined all these instruments (we keep hundreds or thousands of them in our environments), and you keep a local store of all your historical market data, you may want to use \code{\link{setSymbolLookup.FI}} to define where and how they are stored so that \code{\link[quantmod]{getSymbols}} will work for you. 
 
 FinancialInstrument's functions build and manipulate objects that are stored in an environment named ".instrument" rather than the global environment, \code{.GlobalEnv}.  Objects may be listed using \code{ls(envir=.instrument)}. See \code{\link{environment}} for more detail. 
-
 We do that for two reasons.  First, it keeps the user's workspace less cluttered and lowers the probability of clobbering something.  Second, it allows the user to save and re-use the \code{.instrument} environment in other workspaces.  Objects created with FinancialInstrument may be directly manipulated as any other object, but in our use so far we've found that it's relatively rare to do so.  Use the \code{\link{getInstrument}} function to query the contract specs of a particular instrument from the environment.
 
 }

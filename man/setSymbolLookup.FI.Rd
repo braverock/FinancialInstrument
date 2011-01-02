@@ -19,7 +19,8 @@ the data by days, which is why that option is the default.}
 \code{\link{load.instruments}}
 \code{\link[quantmod]{setSymbolLookup}}}
 \arguments{\item{base_dir}{string specifying the base directory where data is stored, see Details}
+\item{\dots}{any other passthru parameters}
 \item{storage_method}{currently only \sQuote{rda}, but we will eventually support \sQuote{indexing} at least, and maybe others}
 \item{split_method}{string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details}
-\item{...}{any other passthru parameters}
+\item{use_identifier}{string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'}
 \item{extension}{file extension, default "rda"}}

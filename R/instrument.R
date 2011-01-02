@@ -337,6 +337,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' primary accessor function for getting objects of type 'instrument'
 #' @param x string identifier of instrument to retrieve
 #' @param Dates date range to retrieve 'as of', may not currently be implemented
+#' @param silent if TRUE, will not warn on failure, default FALSE
 #' @export
 getInstrument <- function(x, Dates=NULL, silent=FALSE){
     tmp_instr<-try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
