@@ -1,7 +1,7 @@
 Package: FinancialInstrument
 Type: Package
 Title: Financial Instrument Model Infrastructure for R
-Version: 0.3.1
+Version: 0.4
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson
 Maintainer: Peter Carl <peter@braverock.com>
@@ -12,4 +12,4 @@ License: GPL
 LazyLoad: yes
 Depends: R (>= 2.11.1), xts, zoo
 Suggests: quantmod
-Copyright: (c) 2004 - 2010
+Copyright: (c) 2004 - 2011
