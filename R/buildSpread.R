@@ -68,7 +68,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, onelot=FALSE) {
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2011
 # Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
