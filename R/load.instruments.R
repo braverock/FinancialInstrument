@@ -140,12 +140,13 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
 #' @param use_identifier string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'
 #' @param extension file extension, default "rda"
+#' @param src which \code{\linkp[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'
 #' @seealso \code{\link{load.instruments}} 
 #' \code{\link{getSymbols.FI}}
 #' \code{\link{load.instruments}}
 #' \code{\link[quantmod]{setSymbolLookup}}
 #' @export
-setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda'){
+setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda', src='FI'){
     # check that base_dir exists
     if(!file.exists(base_dir)) stop('base_dir ',base_dir,' does not seem to specify a valid path' )
     
@@ -155,12 +156,14 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
     #load all instrument names
     instr_names<-ls(pos=.instrument)
     
+    #TODO add check to make sure that src is actually the name of a getSymbols function
+    
     #initialize list
     params<-list()
     params$storage_method<-storage_method
     params$extension<-extension
     params$split_method<-split_method
-    params$src<-"FI"
+    params$src<-src
     new.symbols<-list()
     ndc<-nchar(base_dir)
     if(substr(base_dir,ndc,ndc)=='/') sepch='' else sepch='/'
