@@ -164,6 +164,10 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
     params$extension<-extension
     params$split_method<-split_method
     params$src<-src
+    if(length(list(...))>=1){
+        dlist<-list(...)
+        params<-c(params(dlist))
+    }
     new.symbols<-list()
     ndc<-nchar(base_dir)
     if(substr(base_dir,ndc,ndc)=='/') sepch='' else sepch='/'
