@@ -181,6 +181,8 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
                     instr_str<-make.names(tmp_instr[[use_identifier]])
                     if(!is.null(instr_str)) instr<-instr_str
                 }                
+            } else {
+                instr_str <- instr
             }
         }
         symbol<-list()
