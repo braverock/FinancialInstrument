@@ -174,11 +174,13 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
     for (instr in instr_names){
         if(!use_identifier=='primary_id'){
             tmp_instr<-getInstrument(instr)
-            instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
-            if(!is.null(instr_str)) instr<-instr_str
-            else {
-                instr_str<-make.names(tmp_instr[[use_identifier]])
+            if(!use_identifier=='primary_id'){
+                instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
                 if(!is.null(instr_str)) instr<-instr_str
+                else {
+                    instr_str<-make.names(tmp_instr[[use_identifier]])
+                    if(!is.null(instr_str)) instr<-instr_str
+                }                
             }
         }
         symbol<-list()
