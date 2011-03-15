@@ -166,7 +166,7 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
     params$src<-src
     if(length(list(...))>=1){
         dlist<-list(...)
-        params<-c(params(dlist))
+        params<-c(params,dlist)
     }
     new.symbols<-list()
     ndc<-nchar(base_dir)
