@@ -97,7 +97,9 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
           targ<-arg[['...']]
           arg[['...']]<-NULL
           arg<-c(arg,targ)
-  } 
+      }
+  }
+  
   #check for identifiers we recognize 
   ident_str<-c("X.RIC","RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
   for(i_s in ident_str ){
@@ -112,7 +114,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   
   ## TODO note that multiplier could be a time series, probably add code here to check
   if(!is.numeric(multiplier) | length(multiplier) > 1) stop("multiplier must be a single number")
-  if(!is.null(tick_size) && !is.numeric(tick_size) | length(tick_size) > 1) stop("tick_size must be NULL or a single number")
+  if(!is.null(tick_size) && (!is.numeric(tick_size) | length(tick_size) > 1)) stop("tick_size must be NULL or a single number")
   
   if(is.null(type)) tclass="instrument" else tclass = c(type,"instrument")
 
