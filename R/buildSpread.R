@@ -89,7 +89,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, method=c('Close','Midpoint'
 #' @param unique_method method for making the time series unique, see Details
 #' @author Lance Levenson, Brian Peterson
 #' @export
-fn_SpreadBuilder <- function(prod1, prod2, from, to, ratio, session_times=NULL, unique_method=c('make.index.unique','duplicated','leastliq','price_change'))
+fn_SpreadBuilder <- function(prod1, prod2, from, to, ratio, session_times=NULL, unique_method=c('make.index.unique','duplicated','least.liq','price.change'))
 {
     #print(paste(date," ",prod1,".",prod2,sep=""))
     
@@ -166,8 +166,8 @@ fn_SpreadBuilder <- function(prod1, prod2, from, to, ratio, session_times=NULL, 
     Spread$Mid.Price <- (Spread$Bid.Price + Spread$Ask.Price) / 2
     
     switch(unique_method,
-            make_index_unique = {Spread<-make.index.unique(Spread)},
-            leastliq = {
+            make.index.unique = {Spread<-make.index.unique(Spread)},
+            least.liq = {
                 #determine the least liquid
                 idx1 <- index(na.omit(getPrice(Data.1)))
                 idx2 <- index(na.omit(getPrice(Data.2)))
@@ -179,7 +179,7 @@ fn_SpreadBuilder <- function(prod1, prod2, from, to, ratio, session_times=NULL, 
             duplicated = {
                 Spread <- Spread[!duplicated(index(Spread))]  #this may still be useful for instrument with huge numders of observations 
             },
-            price_change = {
+            price.change = {
                 Spread <- Spread[which(diff(Spread$Mid.Price)!=0 | 
                                         diff(Spread$Bid.Price)!=0 | 
                                         diff(Spread$Ask.Price)!=0) ,]
