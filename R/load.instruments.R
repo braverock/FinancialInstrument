@@ -209,6 +209,8 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' @param return.class only "xts" is currently supported
 #' @param extension file extension, default "rda"
 #' @param date_format format as per the \code{\link{strptime}}, see Details
+#' @param verbose TRUE/FALSE
+#' @param auto.assign TRUE/FALSE
 #' @seealso 
 #' \code{\link{instrument}}
 #' \code{\link{setSymbolLookup.FI}}
@@ -224,7 +226,9 @@ getSymbols.FI <- function(Symbols,
                             dir="",
                             return.class="xts",
                             extension="rda",
-                            date_format=NULL
+                            date_format=NULL,
+							verbose=TRUE,
+							auto.assign=TRUE
                          ) 
 {
     if(is.null(date_format)) date_format<-"%Y.%m.%d"
@@ -237,10 +241,7 @@ getSymbols.FI <- function(Symbols,
     default.return.class <- return.class
     default.dir <- dir
     default.extension <- extension
-    
-    if(missing(verbose)) verbose <- FALSE
-    if(missing(auto.assign)) auto.assign <- TRUE
-    
+       
     for(i in 1:length(Symbols)) {
         return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
         return.class <- ifelse(is.null(return.class),default.return.class, return.class)
