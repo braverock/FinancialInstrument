@@ -3,7 +3,7 @@ Type: Package
 Title: Financial Instrument Model Infrastructure for R
 Version: 0.4
 Date: $Date$
-Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson
+Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson, Garrett See
 Maintainer: Peter Carl <peter@braverock.com>
 Description: Infrastructure for defining instruments meta-data and relationships. Provides support for multi-asset class and multi-currency
     portfolios.  Still in heavy development.
