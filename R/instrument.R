@@ -254,6 +254,11 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
 
 option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, first_traded=NULL, tick_size=NULL) {
     #FIXME: identifiers?
+    
+    if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
+        stop("Please install quantmod before using this function.")
+    }    
+
     opts <- getOptionChain(Symbol=symbol,Exp=Exp, src="yahoo")
 	
 	locals <- function(x) c(rownames(x$calls),rownames(x$puts))
@@ -323,7 +328,8 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
 #' @param x object to test for type
 #' @export
 is.currency <- function( x ) {
-  x<-getInstrument(x)
+#FIXME: This should not get instrument, but it will break everyone's code if I change it. -Garrett
+  x<-getInstrument(x)       
   inherits( x, "currency" )
 }
 
@@ -365,7 +371,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
     if(inherits(temp_series,"bond_series")) {
         message("updating existing first_traded and maturity for ",id)
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
-        temp_series$expires<-c(temp_series$expires,expires)
+        temp_series$maturity<-c(temp_series$maturity,maturity)
         assign(id, temp_series, envir=as.environment(.instrument))
     } else {
         dargs<-list(...)

@@ -11,7 +11,7 @@
 #' \code{\link{spread}} for instructions on defining the spread
 #' @author bpeterson
 #' @export
-buildSpread<- function(spread_id, ..., Dates = NULL, method=c('Close','Midpoint','BA','BB')) {
+buildSpread<- function(spread_id, ..., Dates = NULL, prefer='Mid.Price', onelot=FALSE, method=c('Close','Midpoint','BA','BB')) {
     #TODO subset using Dates arg?  or let the +/- operators deal with it?
     #TODO FIXME put some intelligence in the subsetting and intersection, maybe up front or in a checkData style
     spread_instr<-try(getInstrument(spread_id))
@@ -39,7 +39,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, method=c('Close','Midpoint'
             if(i==1) primary_currency=instr_currency
             stopifnot(is.currency(instr_currency))
             if(!all.equal(primary_currency,instr_currency)){
-                instr_currency<-instr_instr$currency
+                instr_currency<-instr$currency
                 stopifnot(is.currency(instr_currency))
                 exchange_rate<-try(get( paste(primary_currency,instr_currency,sep='')))
                 if(inherits(exchange_rate,"try-error")){
@@ -60,7 +60,7 @@ buildSpread<- function(spread_id, ..., Dates = NULL, method=c('Close','Midpoint'
             #instr_prices<-getPrice(get(as.character(spread_instr$memberlist$members[i])),prefer=prefer)
             instr_prices<-try(get(as.character(spread_instr$memberlist$members[i])))
             if(inherits(instr_prices,"try-error")){
-                instr_prices<-gtetSymbols(as.character(spread_instr$memberlist$members[i]),from=from,to=to)
+                instr_prices<-getSymbols(as.character(spread_instr$memberlist$members[i]),from=from,to=to)
             }
         }        
         instr_norm<-instr_prices*instr_mult*instr_ratio*exchange_rate
