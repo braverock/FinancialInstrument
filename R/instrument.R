@@ -274,7 +274,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
         strike <- as.numeric(substr(si,8,15))/1000
 #        local <- paste(symbol, si, sep="   ")      
 		clean.si <- paste(expiry,right,strike,sep="")		
-		primary_id <- paste(".", symbol, "_", clean.si, sep="")
+		primary_id <- paste(symbol, "_", clean.si, sep="")
 
 		#create currency if it doesn't exist	#?? Any reason not to ??	
 		tmpccy <- try(getInstrument(currency,silent=TRUE),silent=TRUE)
