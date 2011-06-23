@@ -1,0 +1,94 @@
+"primary_id","description","exchange","currency","tick_size","multiplier","TZ","session_start","session_end","type","month_cycle","active_months"
+"CL","Crude Light","NYM","USD",0.01,1000,"America/New_York","09:00","11:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",10
+"GC","Gold","COMEX","USD",0.1,100,"America/New_York","08:20","12:15","future","F,G,H,J,K,M,N,Q,U,V,X,Z",5
+"HG","Copper","COMEX","USD",0.05,250,"America/New_York","08:20","12:15","future","F,G,H,J,K,M,N,Q,U,V,X,Z",5
+"HO","Heating Oil","NYM","USD",0.0001,42000,"America/New_York","09:00:00","11:00:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",6
+"NG","Natural Gas","NYM","USD",0.001,10000,"America/New_York","09:00","11:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",10
+"RB","RBOB","NYM","USD",0.0001,42000,"America/New_York","09:00","11:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",10
+"AD","Aussie Dollar","CME","USD",0.0001,100000,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"AEX","Amsterdam Exchange Index AEX","LIFFE","EUR",0.05,200,"Europe/Paris","08:00","16:45","future","F,G,H,J,K,M,N,Q,U,V,X,Z",3
+"AUB","Ultrabond","CBOT","USD",0.03125,1000,"America/Chicago","07:20","12:45","future","H,M,U,Z",2
+"BL2","French Wheat","LIFFE","EUR",0.25,50,"Europe/Paris","10:45","17:15","future","F,H,K,Q,X",3
+"BP","British Pound","CME","USD",0.0001,62500,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"CC","Cocoa","ICE-US","USD",1,10,"America/New_York","08:00","10:35","future","H,K,N,U,Z",3
+"CD","Canadian Dollar","CME","USD",0.0001,100000,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"CGB","Canada 10yr","ME","CAD",0.01,1000,"America/Toronto","08:20","13:45","future","H,M,U,Z",2
+"COM","Euro Rapeseed","LIFFE","EUR",0.25,50,"Europe/Paris","10:45","17:15","future","G,K,Q,X",3
+"CT","Cotton","ICE-US","USD",0.01,500,"America/New_York","08:00","13:45","future","H,K,N,V,Z",3
+"DM","S&P Midcap 400","CME","USD",0.1,100,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"DX","Dollar Index","ICE-US","USD",0.005,1000,"America/New_York","08:10","10:45","future","H,M,U,Z",3
+"ED","EURODollar","CME","USD",0.005,2500,"America/Chicago","07:20","12:45","future","F,G,H,J,K,M,N,Q,U,V,X,Z",10
+"GE","EURODollar Pit","CME","USD",0.005,2500,"America/Chicago","07:20","12:45","future","F,G,H,J,K,M,N,Q,U,V,X,Z",10
+"EMX","MSCI Emergin Mkt","CME","USD",0.1,50,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"ES","E-mini S&P 500","CME","USD",0.25,50,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"FBTP","BTP (Italian Bonds)","EUREX","EUR",0.01,1000,"Europe/Paris","08:00","17:45","future","H,M,U,Z",2
+"FC","Feeder Cattle","CME","USD",0.025,500,"America/Chicago","09:05","11:45","future","F,H,J,K,Q,U,V,X",5
+"FCE","CAC","LIFFE","EUR",0.5,10,"Europe/Paris","08:00","17:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",3
+"FDX","DAX","EUREX","EUR",0.5,25,"Europe/Paris","08:30","16:15","future","H,M,U,Z",2
+"FFI","FTSE 100","LIFFE","GBP",0.5,10,"Europe/London","08:00","15:15","future","H,M,U,Z",2
+"FGBL","Bund","EUREX","EUR",0.01,1000,"Europe/Paris","08:00","16:15","future","H,M,U,Z",2
+"FGBM","Bobble","EUREX","EUR",0.01,1000,"Europe/Paris","08:00","16:15","future","H,M,U,Z",2
+"FGBS","Schatz","EUREX","EUR",0.005,1000,"Europe/Paris","08:00","16:15","future","H,M,U,Z",2
+"FGBX","German long bond (BUXL)","EUREX","EUR",0.02,1000,"Europe/Paris","08:00","16:15","future","H,M,U,Z",2
+"FLG","Long Gilt","LIFFE","GBP",0.01,1000,"Europe/London","08:00","14:45","future","H,M,U,Z",2
+"G","Short Gilt","LIFFE","GBP",0.01,1000,"Europe/London","08:00","14:45","future","H,M,U,Z",2
+"H","Medium Gilt","LIFFE","GBP",0.01,1000,"Europe/London","08:00","14:45","future","H,M,U,Z",2
+"HSI","Hang Seng Index","HKX","HKD",1,50,"Asia/Hong_Kong","03:45","05:15","future","F,G,H,J,K,M,N,Q,U,V,X,Z",0
+"JAU","Tokyo Gold","TOCOM","JPY",1,1000,"Asia/Tokyo","09:00","15:30","future",,0
+"JCO","Tokyo Crude","TOCOM","JPY",10,50,"Asia/Tokyo","09:00","15:30","future",,0
+"JEYc","EURO-YEN","TFE","JPY",0.01,250000,"Asia/Tokyo","08:45","10:15","future",,0
+"JGB","JGB","TSX","JPY",0.01,1000000,"Asia/Tokyo","09:00","09:45","future",,0
+"JGL","Tokyo Gasoline","TOCOM","JPY",10,50,"Asia/Tokyo","09:00","15:30","future",,0
+"JNM","Nikkei 225","OSE","JPY",10,1000,"Asia/Tokyo","09:00","09:45","future",,0
+"JPA","Tokyo Palladium","TOCOM","JPY",1,500,"Asia/Tokyo","09:00","15:30","future",,0
+"JPL","Tokyo Platinum","TOCOM","JPY",1,500,"Asia/Tokyo","09:00","15:30","future",,0
+"JRU","Tokyo Rubber","TOCOM","JPY",0.1,5000,"Asia/Tokyo","09:00","15:30","future",,0
+"JTI","TOPIX","TSX","JPY",0.5,10000,"Asia/Tokyo","09:00","09:45","future",,0
+"JY","Yen","CME","USD",1,12.5,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"KC","Arabica Coffee","ICE-US","USD",0.05,375,"America/New_York","08:00","12:15","future","H,K,N,U,Z",3
+"KE","KC Wheat","KBOT","USD",0.25,50,"America/Chicago","09:30","12:00","future","H,K,N,U,Z",4
+"LC","Live Cattle","CME","USD",0.025,400,"America/Chicago","09:05","12:45","future","G,J,M,Q,V,Z",3
+"LCC","London Cocoa","LIFFE","USD",1,10,"Europe/London","08:00","14:45","future","H,K,N,U,Z",3
+"LCO","Brent","IPE","USD",0.01,1000,"Europe/London","01:00","21:45","future","F,G,H,J,K,M,N,Q,U,V,X,Z",5
+"LGO","GasOil","IPE","USD",0.25,100,"Europe/London","01:00","21:45","future","F,G,H,J,K,M,N,Q,U,V,X,Z",5
+"LH","Hogs","CME","USD",0.025,400,"America/Chicago","09:05","13:45","future","G,J,K,M,Q,V,Z",3
+"LRC","Robusta Coffee","LIFFE","USD",1,10,"Europe/London","08:00","14:45","future","F,H,K,N,X",3
+"LSU","London Sugar","LIFFE","USD",0.1,50,"Europe/London","13:10","16:15","future","H,K,Q,V,Z",3
+"MA","LME Aluminum","LME","USD",0.5,25,"Europe/London","11:55","15:45","future",,0
+"MC","LME Copper","LME","USD",0.25,25,"Europe/London","11:55","15:45","future",,0
+"MCI","MSCI EAFE Index","CME","USD",0.1,50,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"MN","LME Nickel","LME","USD",5,6,"Europe/London","11:55","15:45","future",,0
+"MWE","MSP Wheat","MGEX","USD",0.25,50,"America/Chicago","09:30","11:00","future","H,K,N,U,Z",4
+"NIY","Yen Nikkei","CME","JPY",1,2500,"America/Chicago","08:30","11:45","future","H,M,U,Z",2
+"NKD","Nikkei (USD)","CME","USD",5,5,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"NQ","Nasdaq 100 (e-mini)","CME","USD",0.25,20,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"OJ","Orange Juice","ICE-US","USD",0.05,150,"America/New_York","08:00","12:15","future","F,H,K,N,U,X",2
+"RS","Canola","ICE Canada","CAD",0.1,20,"America/Toronto","10:30","13:00","future","F,H,K,N,X",3
+"SB","Sugar No. 11","ICE-US","USD",0.01,1120,"America/New_York","08:00","12:15","future","H,K,N,V",5
+"SF","Swiss Franc","CME","USD",0.0001,125000,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"SIN","Nifty 50","SGX","USD",0.5,2,"Asia/Singapore","09:00","18:00","future",,0
+"SSG","MSCI Singapore","SGX","SGD",0.1,200,"Asia/Singapore","08:45","11:20","future",,0
+"STW","MSCI Taiwan","SGX","USD",0.1,100,"Asia/Singapore","08:45","15:35","future",,0
+"STXE","Stoxx 50","EUREX","EUR",1,10,"Europe/Paris","09:00","16:30","future","H,M,U,Z",2
+"SXF","S&P Canada 60","ME","CAD",0.1,200,"America/Toronto","09:31","15:00","future","H,M,U,Z",2
+"TFS","Russel 2000","ICE-US","USD",0.1,100,"America/New_York","09:30","12:45","future","H,M,U,Z",2
+"URO","Euro","CME","USD",0.0001,125000,"America/Chicago","07:00","12:45","future","H,M,U,Z",2
+"VX","VIX","CBOE","USD",0.05,5000,"America/Chicago","08:00","14:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",2
+"WBBR","BrentTI","IPE","USD",0.01,1000,"Europe/London","14:00","17:00","future","F,G,H,J,K,M,N,Q,U,V,X,Z",5
+"YAP","SPI 200","SFE","AUD",1,25,"Australia/Sydney","09:50","15:15","future",,0
+"YM","Mini Dow ($5)","CBOT","USD",1,5,"America/Chicago","08:30","13:45","future","H,M,U,Z",2
+"YTC","Australian 10yr Commonwealth","SFE","AUD",0.005,8000,"Australia/Sydney","08:28","15:15","future",,0
+"YTT","Australian 3yr Commonwealth","SFE","AUD",0.005,5600,"Australia/Sydney","08:28","15:15","future",,0
+"ZB","Thirty Year","CBOT","USD",0.03125,1000,"America/Chicago","07:20","12:45","future","H,M,U,Z",2
+"ZC","Corn","CBOT","USD",0.25,50,"America/Chicago","09:30","12:00","future","H,K,N,U,Z",5
+"ZF","Five Year","CBOT","USD",0.0078125,1000,"America/Chicago","07:20","12:45","future","H,M,U,Z",2
+"ZL","Soybean Oil","CBOT","USD",0.01,600,"America/Chicago","09:30","12:00","future","F,H,K,N,Q,U,V,Z",5
+"ZM","Soybean Meal","CBOT","USD",0.1,100,"America/Chicago","09:30","12:00","future","F,H,K,N,Q,U,V,Z",5
+"ZN","Ten Year","CBOT","USD",0.015625,1000,"America/Chicago","07:20","12:45","future","H,M,U,Z",2
+"ZS","Soybeans","CBOT","USD",0.25,50,"America/Chicago","09:30","12:00","future","F,H,K,N,Q,U,X",5
+"ZT","Two Year","CBOT","USD",0.0078125,2000,"America/Chicago","07:20","12:45","future","H,M,U,Z",2
+"ZW","Wheat","CBOT","USD",0.25,50,"America/Chicago","09:30","12:00","future","H,K,N,U,Z",5
+"RB.HO","RBOB/Heating Oil spread","NYM","USD",0.0001,42000,"America/New_York","09:00:00","14:30:00","future",,
+"RB.CL","RBOB/Crude Light Spread","NYM","USD",0.0001,42000,"America/New_York","09:00:00","14:30:00","future",,
+"FEI","Euribor","LIFFE","EUR",0.005,2500,"Europe/London","09:00:00","17:00:00","future",,
+"FSS","Short Sterling","LIFFE","GBP",0.01,1250,"Europe/London","07:30:00","17:00:00","future",,
