@@ -1,4 +1,4 @@
-"primary_id","description","type","currency","second_currency"
+"primary_id","description","type","currency","counter_currency"
 "USD","US Dollar","currency",,
 "JPY","Japanese Yen","currency",,
 "CAD","Canadian Dollar","currency",,
@@ -12,14 +12,15 @@
 "AED","United Arab Emirates, Dirhams","currency",,
 "KRW","Korea (South), Won","currency",,
 "HKD","Hong Kong Dollar","currency"," ",
-"USDEUR",,"exchange_rate","USD","EUR"
-"USDJPY",,"exchange_rate","USD","JPY"
-"JPYEUR",,"exchange_rate","JPY","EUR"
-"USDAUD",,"exchange_rate","USD","AUD"
-"USDSGD",,"exchange_rate","USD","SGD"
-"EURSGD",,"exchange_rate","EUR","SGD"
-"USDBRL",,"exchange_rate","USD","BRL"
-"EURZAR",,"exchange_rate","EUR","ZAR"
-"EURAED",,"exchange_rate","EUR","AED"
-"USDKRW",,"exchange_rate","USD","KRW"
-"USDHKD",,"exchange_rate","USD","HKD"
+"USDEUR",,"exchange_rate","EUR","USD"
+"EURUSD",,"exchange_rate","USD","EUR"
+"USDJPY",,"exchange_rate","JPY","USD"
+"JPYEUR",,"exchange_rate","EUR","JPY"
+"USDAUD",,"exchange_rate","AUD","USD"
+"USDSGD",,"exchange_rate","SGD","USD"
+"EURSGD",,"exchange_rate","SGD","EUR"
+"USDBRL",,"exchange_rate","BRL","USD"
+"EURZAR",,"exchange_rate","ZAR","EUR"
+"EURAED",,"exchange_rate","AED","EUR"
+"USDKRW",,"exchange_rate","KRW","USD"
+"USDHKD",,"exchange_rate","HKD","USD"

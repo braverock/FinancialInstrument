@@ -334,20 +334,32 @@ is.currency <- function( x ) {
 }
 
 #' constructor for spot exchange rate instruments
+#' 
+#' Currency symbols (like any symbol) may be any combination of alphanumeric characters, 
+#' but the FX market has a convention that says that the first currency in a 
+#' currency pair is the 'target'  and the second currency in the symbol pair 
+#' is the currency the rate ticks in.  So 'EURUSD' can be read as 'USD per 1 EUR'.
+#' 
+#' In \code{FinancialInstrument} the \code{currency} of the instrument should 
+#' be the currency that the spot rate ticks in, so it will typically be the second
+#' currency listed in the symbol. 
+#' 
+#' Thanks to Garrett See for helping sort out the inconsistencies in different naming and calculating conventions. 
 #' @param primary_id string identifier, usually expressed as a currency pair 'USDYEN' or 'EURGBP'
-#' @param currency string identifying front currency
-#' @param second_currency string identifying second currency
+#' @param currency string identifying the currency the exchange rate ticks in
+#' @param counter_currency string identifying the currency which the rate uses as the base 'per 1' multiplier
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param ... any other passthru parameters
+#' @references http://financial-dictionary.thefreedictionary.com/Base+Currency
 #' @export
-exchange_rate <- function (primary_id , currency , second_currency, identifiers = NULL, ...){
+exchange_rate <- function (primary_id , currency , counter_currency, identifiers = NULL, ...){
   # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
 
   if(!exists(currency, where=.instrument,inherits=TRUE)) warning("currency not found") # assumes that we know where to look
-  if(!exists(second_currency, where=.instrument,inherits=TRUE)) warning("second_currency not found") # assumes that we know where to look
+  if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning("counter_currency not found") # assumes that we know where to look
 
   ## now structure and return
-  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., secon_currency=second_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
+  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
