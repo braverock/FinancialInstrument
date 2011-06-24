@@ -316,7 +316,8 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
           currency = primary_id,
           multiplier = 1,
           tick_size= .01,
-          identifiers = identifiers
+          identifiers = identifiers,
+          type = "currency"
   )
   currency_temp <- c(currency_temp,list(...))   
   
