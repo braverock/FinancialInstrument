@@ -4,7 +4,7 @@
 "AUB","UB ","CBOT","USD",0.03125,1000,"America/Chicago","7:20","14:00","17:30","16:00","future","H,M,U,Z",2,"UB","http://www.cmegroup.com/trading/equity-index/international-index/e-mini-msci-eafe.html",
 "BL2","French Wheat","LIFFE","EUR",0.25,50,"Europe/Paris","3:45","11:30",,,"future","F,H,K,Q,X",3,"EBM","http://www.euronext.com/trader/contractspecifications/derivative/wide/contractspecifications-2864-EN.html?euronextCode=EBM-PAR-FUT","No separate electronic trading hours listed "
 "BP","British Pound","CME","USD",0.0001,62500,"America/Chicago","7:20","14:00","17:00:00","16:00","future","H,M,U,Z",2,"6B","http://www.cmegroup.com/trading/fx/g10/british-pound_contract_specifications.html",
-"C","Corn","CBOT","USD",0.0025,5000,"America/Chicago","9:30","13:15","18:00","7:15","future","H,K,N,U,Z",5,"ZC ","http://www.cmegroup.com/trading/agricultural/grain-and-oilseed/corn_contract_specifications.html","Electronic hours are also inclusive of open outcry hours. "
+"ZC","Corn","CBOT","USD",0.0025,5000,"America/Chicago","9:30","13:15","18:00","7:15","future","H,K,N,U,Z",5,"ZC ","http://www.cmegroup.com/trading/agricultural/grain-and-oilseed/corn_contract_specifications.html","Electronic hours are also inclusive of open outcry hours. "
 "CC","Cocoa","ICE-US","USD",1,10,"America/New_York","3:00","13:00",,,"future","H,K,N,U,Z",3,"CY","https://www.theice.com/productguide/ProductDetails.shtml?specId=7",
 "CD","Canadian Dollar","CME","USD",0.0001,100000,"America/Chicago","7:20","14:00","17:00:00","16:00","future","H,M,U,Z",2,"6C","http://www.cmegroup.com/trading/fx/g10/canadian-dollar_contract_specifications.html",
 "CGB","Canada 10yr","ME","CAD",0.0001,100000,"America/Toronto","7:20","14:00",,,"future","H,M,U,Z",2,"CGB","http://www.m-x.ca/produits_taux_int_cgb_en.php","No electronic trading hours listed "
@@ -74,7 +74,7 @@
 "SIN","Nifty 50","NSEI ","USD",0.5,2,"Asia/Singapore","9:00","18:00",,,"future",,0,,,"India "
 "SSG","MSCI Singapore","SGX","SGD",0.1,200,"Asia/Singapore","8:45","11:20",,,"future",,0,,,
 "STW","MSCI Taiwan","SGX","USD",0.1,100,"Asia/Singapore","8:45","15:35",,,"future",,0,,,
-"STXE","Stoxx 50","EUREX","EUR",,,"Europe/Paris","12:50","15:00",,,"future","H,M,U,Z",2,"FESX","http://www.eurexchange.com/trading/products/IDX/STX/BLC/FESX_en.html","Contract values as listed are:EUR 5, EUR 10, EUR 25, EUR 50, EUR 100, EUR 200, CHF 10, USD 1, USD 10, USD 25 or USD 100 per index point of the underlying. AS above no electronic times are posted rather there are pre trading and post trading hours. "
+"STXE","Stoxx 50","EUREX","EUR",1,10,"Europe/Paris","12:50","15:00",,,"future","H,M,U,Z",2,"FESX","http://www.eurexchange.com/trading/products/IDX/STX/BLC/FESX_en.html","Contract values as listed are:EUR 5, EUR 10, EUR 25, EUR 50, EUR 100, EUR 200, CHF 10, USD 1, USD 10, USD 25 or USD 100 per index point of the underlying. AS above no electronic times are posted rather there are pre trading and post trading hours. "
 "SXF","S&P Canada 60","ME","CAD",0.1,200,"America/Toronto","9:30","16:15",,,"future","H,M,U,Z",2,,"http://www.m-x.ca/produits_indices_sxf_en.php","Trading hours also include and early session from 6:0 to 9:15"
 "TFS","Russel 2000","ICE-US","USD",0.1,100,"America/New_York","19:00","17:00",,,"future","H,M,U,Z",2,"TF ","https://www.theice.com/productguide/ProductDetails.shtml?specId=86",
 "URO","Euro","CME","USD",0.0001,125000,"America/Chicago","7:20","14:00","17:00:00","16:00","future","H,M,U,Z",2,"6E","http://www.cmegroup.com/trading/fx/g10/euro-fx_contract_specifications.html",
