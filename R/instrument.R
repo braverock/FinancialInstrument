@@ -182,7 +182,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
   ## and find the existing series from prior periods (probably years or months)
   ## and then add the first_traded and expires to the time series bu splicing
   id<-paste(primary_id, suffix_id,sep="_")
-  temp_series<-try(getInstrument(id),silent=TRUE)
+  temp_series<-try(getInstrument(id, silent=TRUE),silent=TRUE)
   if(inherits(temp_series,"future_series")) {
       message("updating existing first_traded and expires for ",id)
       temp_series$first_traded<-c(temp_series$first_traded,first_traded)
@@ -230,7 +230,7 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
     ## and then add the first_traded and expires to the time series
     if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
     id<-paste(primary_id, suffix_id,sep="_")
-    temp_series<-try(getInstrument(id),silent=TRUE)
+    temp_series<-try(getInstrument(id, silent=TRUE),silent=TRUE)
     if(inherits(temp_series,"option_series")) {
         message("updating existing first_traded and expires for ", id)
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
