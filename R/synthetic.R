@@ -80,25 +80,91 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
     synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type, tick_size=tick_size)
 }
 
-#' @export
-spread <- function(primary_id , currency=NULL , members, memberratio, ..., multiplier=1, identifiers = NULL)
+synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
+    identifiers = NULL, type = c("synthetic.instrument", "synthetic", "instrument")) 
 {
-    synthetic.ratio(primary_id=primary_id , currency=currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = identifiers, ...=..., type=c("spread","synthetic.ratio","synthetic","instrument"))
-}
-
-#' @export
-guaranteed_spread <- function(primary_id , currency , members=NULL, memberratio=c(1,1), ..., multiplier=1, identifiers = NULL)
-{
-    if (hasArg(suffix_id)){
-        suffix_id<-match.call(expand.dots=TRUE)$suffix_id  
-        id<-paste(primary_id, suffix_id,sep="_")
-    } else id<-primary_id 
-
-    
-    if(is.null(members) && hasArg(suffix_id)){
-        #make.names uses a dot to replace illegal chars like the '-', 
-        members<-unlist(strsplit(suffix_id,"[-;:_,\\.]")) # clean up the list to something we can use  
-        members<-paste(primary_id,members,sep='_') # construct a member vector appropriate for a guaranteed spread
+    if (!is.list(members)) {
+        if (length(members) != length(memberratio) | length(members) < 
+            2) {
+            stop("length of members and memberratio must be equal, and contain two or more instruments")
+        }
+        else {
+            memberlist <- list(members = members, memberratio = memberratio, 
+                currencies = vector(), memberpositions = NULL)
+        }
+        for (member in members) {
+            tmp_symbol <- member
+            tmp_instr <- try(getInstrument(member))
+            if (inherits(tmp_instr, "try-error") | !is.instrument(tmp_instr)) {
+                message(paste("Instrument", tmp_symbol, " not found, using currency of", 
+                  currency))
+                memberlist$currencies[member] <- currency
+            }
+            else {
+                memberlist$currencies[member] <- tmp_instr$currency
+            }
+        }
+        names(memberlist$members) <- memberlist$members
+        names(memberlist$memberratio) <- memberlist$members
+        names(memberlist$currencies) <- memberlist$members
     }
-    synthetic.ratio(primary_id=id , currency=currency , members=members, memberratio=memberratio, multiplier=multiplier, identifiers = NULL, ...=..., type=c("guaranteed_spread","spread","synthetic.ratio","synthetic","instrument"))
+    else {
+        warning("passing in members as a list not fully tested")
+        memberlist = members
+    }
+    if (is.null(currency)) 
+        currency <- as.character(memberlist$currencies[1])
+    synthetic(primary_id = primary_id, currency = currency, multiplier = multiplier, 
+        identifiers = identifiers, memberlist = memberlist, memberratio = memberratio, tick_size=tick_size,
+        ... = ..., members = members, type = type)
 }
+
+
+
+#' @export
+spread <- function (primary_id, currency = NULL, members, memberratio, tick_size=NULL,
+    ..., multiplier = 1, identifiers = NULL) 
+{
+    synthetic.instrument(primary_id = primary_id, currency = currency, 
+      members = members, memberratio = memberratio, ...=..., tick_size=tick_size,
+      multiplier = multiplier, identifiers = identifiers, 
+      type = c("spread", "synthetic.instrument", "synthetic", "instrument"))
+}
+
+
+#TODO: butterfly can refer to expirations (futures) or strikes (options)
+butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identifiers=NULL, ...)
+{
+##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
+  if (length(members) == 3) {
+    synthetic.instrument(primary_id=primary_id,currency=currency,members=members,
+	    memberratio=c(1,-2,1), multiplier=1, tick_size=tick_size,
+	    identifiers=NULL, ...=..., type = c('butterfly','spread','synthetic.instrument',
+	    'synthetic','instrument'))
+  } else if (length(members) == 2) {
+      stop('butterfly currently only supports 3 leg spreads (i.e. no spread of spreads yet.)')
+
+  } else stop('A butterfly must either have 3 outright legs or 2 spread legs') 
+  
+}
+
+
+#' @export
+guaranteed_spread <- function (primary_id, currency, members = NULL, memberratio = c(1,-1), ..., 
+    multiplier = 1, identifiers = NULL, tick_size=NULL)
+{
+    if (hasArg(suffix_id)) {
+        suffix_id <- match.call(expand.dots = TRUE)$suffix_id
+        id <- paste(primary_id, suffix_id, sep = "_")
+    }
+    else id <- primary_id
+    if (is.null(members) && hasArg(suffix_id)) {
+        members <- unlist(strsplit(suffix_id, "[-;:_,\\.]"))
+        members <- paste(primary_id, members, sep = "_")
+    }
+    synthetic.instrument(primary_id = id, currency = currency, members = members, 
+	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, 
+	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
+	"synthetic.instrument", "synthetic", "instrument"))
+}
+
