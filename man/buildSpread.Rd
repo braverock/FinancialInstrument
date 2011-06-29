@@ -30,7 +30,7 @@ price column to use to build structure.
 \details{
 The spread and all legs must be defined instruments.
 
-This function can build multileg spreads such as calendars, butterflies, condors, etc. However, the returned series will be univariate. It does not build Bid Ask Mid data like fn_SpreadBuilder2 does.
+This function can build multileg spreads such as calendars, butterflies, condors, etc. However, the returned series will be univariate. It does not build Bid Ask Mid data like fn_SpreadBuilder does.
 }
 \value{
 If \code{auto.assign} is FALSE, a univariate xts object 
@@ -54,6 +54,7 @@ currency("USD")
 stock("SPY","USD",1)
 stock("DIA","USD",1)
 spread("SPYDIA", "USD", c("SPY","DIA"),c(1,-1))
+getSymbols(c("SPY","DIA"))
 buildSpread('SPYDIA')
 head(SPYDIA)
 }

@@ -44,7 +44,7 @@ It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.
 If it cannot find the data, it will get it with a call to getSymbols. 
 
 Prices are multiplied by multipliers and exchange rates to get notional values in USD using the most recent exchange rate.
-The second legs new values are multiplied by the ratio. Then the difference is taken between the new values for leg1 and the new values for leg2.
+The second leg's new values are multiplied by the ratio. Then the difference is taken between the new values for leg1 and the new values for leg2.
 
 \sQuote{make.index.unique} uses the xts function \code{make.index.unique} 
 \sQuote{least.liq} subsets the spread time series, by using the timestamps of the leg that has the fewest rows.
@@ -67,5 +67,15 @@ Currently, this doesn't really support multi-currency spreads.  If an instrument
 
 \seealso{
 buildSpread, synthetic.instrument, formatSpreadPrice
+}
+\examples{
+\dontrun{
+currency("USD")
+stock("SPY")
+stock("DIA")
+getSymbols(c("SPY","DIA"))
+fSB <- fn_SpreadBuilder("SPY","DIA")
+head(fSB)
+}
 }
 
