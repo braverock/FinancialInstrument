@@ -38,11 +38,15 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param type class string, should not be set by users
 #' @param members character vector of instrument identifiers that make up the synthetic
 #' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
+#' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @aliases
 #' synthetic
 #' spread 
 #' synthetic.ratio
 #' guaranteed_spread
+#' calendar_spread
+#' synthetic.instrument
+#' butterfly
 #' @export
 synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic","instrument"))
 {
@@ -133,6 +137,7 @@ spread <- function (primary_id, currency = NULL, members, memberratio, tick_size
 
 
 #TODO: butterfly can refer to expirations (futures) or strikes (options)
+#' @export
 butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identifiers=NULL, ...)
 {
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
@@ -150,7 +155,7 @@ butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identif
 
 
 #' @export
-guaranteed_spread <- function (primary_id, currency, members = NULL, memberratio = c(1,-1), ..., 
+guaranteed_spread <- calendar_spread <- function (primary_id, currency, members = NULL, memberratio = c(1,-1), ..., 
     multiplier = 1, identifiers = NULL, tick_size=NULL)
 {
     if (hasArg(suffix_id)) {

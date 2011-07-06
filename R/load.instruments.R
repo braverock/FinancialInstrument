@@ -140,7 +140,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
 #' @param use_identifier string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'
 #' @param extension file extension, default "rda"
-#' @param src which \code{\linkp[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'
+#' @param src which \code{\link[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'
 #' @seealso \code{\link{load.instruments}} 
 #' \code{\link{getSymbols.FI}}
 #' \code{\link{load.instruments}}
