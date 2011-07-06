@@ -1,18 +1,9 @@
 \name{getSymbols.FI}
 \alias{getSymbols.FI}
 \title{getSymbols method for loading data from split files...}
-\usage{getSymbols.FI(Symbols,
-                            from='2010-01-01',
-                            to=Sys.Date(),
-                            ..., 
-                            env,
-                            dir="",
-                            return.class="xts",
-                            extension="rda",
-                            date_format=NULL,
-							verbose=TRUE,
-							auto.assign=TRUE
-                         )}
+\usage{getSymbols.FI(Symbols, from="2010-01-01", to=Sys.Date(), ..., env,
+    dir="", return.class="xts", extension="rda", date_format,
+    verbose=TRUE, auto.assign=TRUE)}
 \description{getSymbols method for loading data from split files}
 \details{This function should probably get folded back into getSymbols.rda in quantmod.
 
@@ -35,6 +26,5 @@ for example, 2010-12-01 would be assumed to be a file containing 2010.12.01}
 \item{return.class}{only "xts" is currently supported}
 \item{extension}{file extension, default "rda"}
 \item{date_format}{format as per the \code{\link{strptime}}, see Details}
-\item{verbose}{be verbose?}
-\item{auto.assign}{auto assign?}
-}
+\item{verbose}{TRUE/FALSE}
+\item{auto.assign}{TRUE/FALSE}}

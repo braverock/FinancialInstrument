@@ -1,7 +1,9 @@
 \name{setSymbolLookup.FI}
 \alias{setSymbolLookup.FI}
 \title{set quantmod-style SymbolLookup for instruments...}
-\usage{setSymbolLookup.FI(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda', src='FI')}
+\usage{setSymbolLookup.FI(base_dir, ..., split_method=c("days", "common"),
+    storage_method="rda", use_identifier="primary_id", extension="rda",
+    src="FI")}
 \description{set quantmod-style SymbolLookup for instruments}
 \details{This function exists to tell \code{\link[quantmod]{getSymbols}} where to look for your repository of market data.
 
@@ -24,5 +26,4 @@ the data by days, which is why that option is the default.}
 \item{split_method}{string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details}
 \item{use_identifier}{string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'}
 \item{extension}{file extension, default "rda"}
-\item{src}{which getSymbols sub-type to use}
-}
+\item{src}{which \code{\link[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'}}
