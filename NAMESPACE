@@ -1,5 +1,6 @@
 export(buildHierarchy)
 export(buildSpread)
+export(build_spread_symbols)
 export(is.instrument)
 export(instrument)
 export(stock)

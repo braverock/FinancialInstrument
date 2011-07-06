@@ -1,7 +1,7 @@
 Package: FinancialInstrument
 Type: Package
 Title: Financial Instrument Model Infrastructure for R
-Version: 0.4
+Version: 0.4.1
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson, Garrett See
 Maintainer: Peter Carl <peter@braverock.com>
@@ -10,6 +10,6 @@ Description: Infrastructure for defining instruments meta-data and relationships
 URL: https://r-forge.r-project.org/projects/blotter/
 License: GPL
 LazyLoad: yes
-Depends: R (>= 2.11.1), xts, zoo
+Depends: R (>= 2.12.0), xts, zoo
 Suggests: quantmod
 Copyright: (c) 2004 - 2011
