@@ -36,7 +36,7 @@ buildHierarchy <- function(primary_ids, levels, ...) {
         attrs = NA
         for(level in levels){
             attr = unname(tmp_instr[eval(level)])
-            if(!is.na(attrs))
+            if(!all(is.na(attrs)))
                 attrs = cbind(attrs, attr)
             else
                 attrs = attr
