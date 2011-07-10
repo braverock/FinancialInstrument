@@ -13,8 +13,8 @@
 #' @param roots data.frame containing at least columns \code{primary_id} and \code{month_cycle}, see Details
 #' @author Brian G. Peterson
 #' @seealso \code{\link{load.instruments}}
+#' @TODO add more flexibility in input formats for \code{roots}
 #' @export
-#' TODO: add more flexibility in input formats for \code{roots}
 build_series_symbols <- function(roots, yearlist=c(0,1)) {
 	symbols<-''
 	id_col<-grep('primary_id',colnames(roots)) #TODO: check length
@@ -60,7 +60,6 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' @seealso 
 #' \code{\link{load.instruments}}
 #' \code{\link{build_series_symbols}}
-#' @aliases calendar speread
 #' @export
 build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=Sys.Date())
 {
