@@ -19,6 +19,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 
 #' constructors for synthetic instruments
 #' 
+#' THIS FUNCTION HAS BEEN DEPRECATED. Use synthetic.instrument instead.
 #' Simple derivatives like \code{\link{option}} or \code{\link{future}} contracts typically have one underlying instrument.  
 #' While properties like strike and expiration vary for these derivative contracts or series, the underlying is well understood.
 #' 
@@ -39,14 +40,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param members character vector of instrument identifiers that make up the synthetic
 #' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
 #' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
-#' @aliases
-#' synthetic
-#' spread 
-#' synthetic.ratio
-#' guaranteed_spread
-#' calendar_spread
-#' synthetic.instrument
-#' butterfly
+#' @note DEPRECATED
 #' @export
 synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic","instrument"))
 {
@@ -84,6 +78,48 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
     synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type, tick_size=tick_size)
 }
 
+#' synthetic instrument constructors
+#' 
+#' define spreads, guaranteed_spreads, butterflies, and other synthetic instruments
+#'
+#' Simple derivatives like \code{\link{option}} or \code{\link{future}} contracts typically have one underlying instrument.  
+#' While properties like strike and expiration vary for these derivative contracts or series, the underlying is well understood.
+#'
+#' More complex derivatives are typically modeled as baskets of underlying products, and are typically traded over-the-counter or as proprietary in-house products.
+#'
+#' The general \code{synthetic} function is intended to be extended to support these arbitrary baskets of assets.  
+#' 
+#' \code{spread} \code{guaranteed_spread} and \code{butterfly} are wrappers for \code{synthetic.instrument}. \code{synthetic.instrument} will make a call to synthetic to create the final instrument.
+#' 
+#' We welcome assistance from others to model more complex OTC derivatives such as swap products.
+#'
+#' @aliases synthetic.instrument synthetic spread guaranteed_spread butterfly
+#' @usage 
+#' synthetic.instrument(primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size = NULL, identifiers = NULL, type = c("synthetic.instrument", "synthetic", "instrument"))
+#' synthetic(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
+#' spread(primary_id, currency = NULL, members, memberratio, tick_size=NULL,
+#'    ..., multiplier = 1, identifiers = NULL) 
+#'
+#' @param primary_id chr string of primary identifier of instrument to be defined.
+#' @param currency chr string name of currency denomination
+#' @param members vector of primary_ids of member instruments
+#' @param memberratio vector of weights for each leg. negative numbers for selling.
+#' @param \dots any other passthrough parameters
+#' @param mutliplier multiplier of the spread
+#' @param tick_size minimum price change of the spread
+#' @param identifiers identifiers
+#' @param type type of instrument; wrappers do not require this.
+#' @return called for side effect. stores an instrument in .instrument environment
+#' @author author Brian Peterson, Garrett See
+#' @seealso instrument, future, option_series.yahoo
+#' @examples
+#'
+#' \dontrun{
+#' stock('SPY','USD',1)
+#' stock('DIA','USD',1)
+#' spread('SPYDIA','USD',c('SPY','DIA'),c(1,-1))
+#' }
+#' @export
 synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
     identifiers = NULL, type = c("synthetic.instrument", "synthetic", "instrument")) 
 {
@@ -124,7 +160,6 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
 }
 
 
-
 #' @export
 spread <- function (primary_id, currency = NULL, members, memberratio, tick_size=NULL,
     ..., multiplier = 1, identifiers = NULL) 
@@ -136,10 +171,10 @@ spread <- function (primary_id, currency = NULL, members, memberratio, tick_size
 }
 
 
-#TODO: butterfly can refer to expirations (futures) or strikes (options)
 #' @export
 butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identifiers=NULL, ...)
 {
+##TODO: butterfly can refer to expirations (futures) or strikes (options)
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
   if (length(members) == 3) {
     synthetic.instrument(primary_id=primary_id,currency=currency,members=members,

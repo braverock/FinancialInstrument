@@ -2,7 +2,8 @@
 # R (http://r-project.org/) Instrument Class Model
 #
 # Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
@@ -54,13 +55,12 @@ is.instrument <- function( x ) {
 #' before assignment.
 #' 
 #' @param primary_id string describing the unique ID for the instrument
-#' @param ... any other passthru parameters 
+#' @param ... any other passthru parameters, including underlying_id for derivatives -- the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
 #' @param currency string describing the currency ID of an object of type \code{\link{currency}}
 #' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
 #' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param type instrument type to be appended to the class definition, typically not set by user
-#' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
 #' @param assign_i TRUE/FALSE if TRUE, assign the instrument to the .instrument environment, default FALSE
 #' @aliases 
 #' stock
@@ -74,6 +74,7 @@ is.instrument <- function( x ) {
 #' \code{\link{exchange_rate}}
 #' \code{\link{option_series}}
 #' \code{\link{future_series}}
+#' \code{\link{spread}}
 #' \code{\link{load.instruments}}
 #' @export
 instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL, assign_i=FALSE ){
@@ -165,12 +166,18 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @param first_traded string coercible to Date for first trading day
 #' @param expires string coercible to Date for expiration date
 #' @param maturity string coercible to Date for maturity date of bond series
+#' @param callput right of option; call or put
+#' @param payment_schedule not currently being implemented
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param ... any other passthru parameters
 #' @aliases 
 #' option_series
 #' future_series
 #' bond_series
+#' @usage 
+#' future_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...)
+#' option_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...)
+#' bond_series(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL)
 #' @export
 future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
   contract<-try(getInstrument(primary_id))
@@ -252,6 +259,33 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
     }
 }
 
+#' constructor for series of options using yahoo data
+#'
+#' Defines a chain or several chains of options by looking up necessary info from yahoo 
+#' If \code{Exp} is missing it will define only the nearby options. 
+#' If \code{Exp} is NULL it will define all options
+#' 
+#' If \code{first_traded} and/or \code{tick_size} should not be the same for all options being defined, they should be left NULL and defined outside of this function.
+#' @param symbol ticker symbol of the underlying instrument (Currently, should only be stock tickers)
+#' @param Exp Expiration date or dates to be passed to getOptionChain
+#' @param currency currency of underlying and options
+#' @param multiplier contract multiplier. Usually 100 for stock options
+#' @param first_traded first date that contracts are tradeable. Probably not applicable if defining several chains.
+#' @param tick_size minimum price change of options.
+#' @return Called for side-effect. The instrument that is created and stored will inherit option_series, option, and instrument classes. 
+#' @references Yahoo \url{http://finance.yahoo.com}
+#' @author Garrett See
+#' @note Has only been tested with stock options.
+#' The options' currency should be the same as the underlying's.
+#' @seealso \code{\link{option_series}}, \code{\link{instrument}}, quantmod:::getOptionChain
+#' @examples
+#'
+#' \dontrun{
+#' option_series.yahoo('SPY') #only nearby calls and puts
+#' option_series.yahoo('DIA', Exp=NULL) #all chains
+#' ls(.instrument, all.names=TRUE)
+#' }
+#' @export
 option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, first_traded=NULL, tick_size=NULL) {
     #FIXME: identifiers?
     

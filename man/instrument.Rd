@@ -40,13 +40,13 @@ before assignment.}
 \seealso{\code{\link{exchange_rate}}
 \code{\link{option_series}}
 \code{\link{future_series}}
+\code{\link{spread}}
 \code{\link{load.instruments}}}
 \arguments{\item{primary_id}{string describing the unique ID for the instrument}
-\item{...}{any other passthru parameters}
+\item{...}{any other passthru parameters, including underlying_id for derivatives -- the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments}
 \item{currency}{string describing the currency ID of an object of type \code{\link{currency}}}
 \item{multiplier}{numeric multiplier to apply to the price in the instrument currency to get to notional value}
 \item{tick_size}{the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)}
 \item{identifiers}{named list of any other identifiers that should also be stored for this instrument}
 \item{type}{instrument type to be appended to the class definition, typically not set by user}
-\item{underlying_id}{for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments}
 \item{assign_i}{TRUE/FALSE if TRUE, assign the instrument to the .instrument environment, default FALSE}}

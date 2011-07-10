@@ -1,7 +1,8 @@
 \name{future_series}
 \title{constructors for series contracts on instruments such as options and futures...}
-\usage{future_series(primary_id, suffix_id, first_traded, expires,
-    identifiers, ...)}
+\usage{future_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...)
+option_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...)
+bond_series(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL)}
 \description{constructors for series contracts on instruments such as options and futures}
 \details{In custom parameters for these series contracts, we have often found it
 useful to store attributes such as local roll-on and roll-off dates
@@ -14,5 +15,7 @@ useful to store attributes such as local roll-on and roll-off dates
 \item{first_traded}{string coercible to Date for first trading day}
 \item{expires}{string coercible to Date for expiration date}
 \item{maturity}{string coercible to Date for maturity date of bond series}
+\item{callput}{right of option; call or put}
+\item{payment_schedule}{not currently being implemented}
 \item{identifiers}{named list of any other identifiers that should also be stored for this instrument}
 \item{...}{any other passthru parameters}}
