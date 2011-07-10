@@ -36,6 +36,8 @@
 #' @export
 buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, auto.assign=TRUE, env=.GlobalEnv) #overwrite=FALSE
 {
+    has.Mid <- quantmod:::has.Mid #FIXME: this should be exported from quatmod
+    
 ##TODO: test something with a different currency    
     spread_instr <- try(getInstrument(spread_id))
     if (inherits(spread_instr, "try-error") | !is.instrument(spread_instr)) {
