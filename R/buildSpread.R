@@ -1,15 +1,38 @@
-#' construct a price/level series for a spread
+#' construct a price/level series for pre-defined multi-leg spread instrument
 #' 
-#' this function should provide a generic spread series builder.  
-#' 
-#' 
-#' @param spread_id string descrining the primary_id of an instrument of type 'spread 
-#' @param ... any other passthru parameters
-#' @param Dates date range to subset on, will be used for \code{\link[quantmod]{getSymbols}} if the instrument is not available via \code{\link{get}}
-#' @param prefer 
+#' build price series for spreads, butterflies, or other synthetic instruments, 
+#' using metadata of a previously defined synthetic instrument.
+#'
+#' The spread and all legs must be defined instruments.
+#'
+#' This function can build multileg spreads such as calendars, butterflies, condors, etc. 
+#' However, the returned series will be univariate. It does not build Bid Ask Mid data 
+#' like fn_SpreadBuilder does.
+#'
+#' @param spread_id The name of the instrument that contains members and memberratio 
+#' @param Dates date range to subset on, will be used for \code{\link[quantmod]{getSymbols}} 
+#' if the instrument is not available via \code{\link{get}}
+#' @param onelot Should the series be divided by the first leg's ratio?
+#' @param prefer price column to use to build structure.
+#' @param auto.assign assign the spread? If FALSE, the xts object will be returned
+#' @param env environment in which to assign spread.
+#' @return If \code{auto.assign} is FALSE, a univariate xts object 
+#' otherwise, the xts object will be assigned to \code{spread_id} and the \code{spread_id} will be returned.
 #' @seealso 
+#' \code{\link{fn_SpreadBuilder}}
 #' \code{\link{spread}} for instructions on defining the spread
-#' @author bpeterson
+#' @author Brian Peterson, Garrett See
+#' @examples
+#' \dontrun{
+#' currency("USD")
+#' stock("SPY","USD",1)
+#' stock("DIA","USD",1)
+#' getSymbols(c("SPY","DIA")) 
+#'
+#' spread("SPYDIA", "USD", c("SPY","DIA"),c(1,-1)) #define it.
+#' buildSpread('SPYDIA') #build it.
+#' head(SPYDIA)
+#' }
 #' @export
 buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, auto.assign=TRUE, env=.GlobalEnv) #overwrite=FALSE
 {
@@ -126,15 +149,55 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     ret
 }
 
-#' spread builder
-#' @param prod1 product 1 identifier for use by getSymbols and getInstrument
-#' @param prod2 product 1 identifier for use by getSymbols and getInstrument
-#' @param from date string in ISO format YYYY-MM-DD
-#' @param to   date string in ISO format YYYY-MM-DD
-#' @param ratio ratio to calculate
+#' Calculate prices of a spread from 2 instruments.
+#' 
+#' Before calling, both products must be defined as instruments.  
+#'
+#' It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
+#' If it cannot find the data, it will get it with a call to getSymbols. 
+#' 
+#' Prices are multiplied by multipliers and exchange rates to get notional values in USD using the most recent exchange rate.
+#' The second leg's new values are multiplied by the ratio. Then the difference is taken between the new values for leg1 and the new values for leg2.
+#' 
+#' \sQuote{make.index.unique} uses the xts function \code{make.index.unique} 
+#' \sQuote{least.liq} subsets the spread time series, by using the timestamps of the leg that has the fewest rows.
+#' \sQuote{duplicated} removes any duplicate indexes.
+#' \sQuote{price.change} only return rows where there was a price change in the Bid, Mid or Ask Price of the spread.
+#'
+#' @param prod1 chr name of instrument that will be the 1st leg of a 2 leg spread
+#' @param prod2 chr name of instrument that will be the 2nd leg of a 2 leg spread
+#' @param ratio hedge ratio.
+#' @param from from Date to pass through to getSymbols if needed.
+#' @param to to Date to pass through to getSymbols if needed.
 #' @param session_times ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'
-#' @param unique_method method for making the time series unique, see Details
-#' @author Lance Levenson, Brian Peterson
+#' @param unique_method method for making the time series unique
+#' @param \dots any other passthrough parameters 
+#' @return 
+#' an xts object with
+#' Bid, Ask, Mid columns, 
+#' or Open, Close, Adjusted columns, 
+#' or Open, Close columns.
+#' or Price column.
+#' @author Lance Levenson, Brian Peterson, Garrett See
+#' @note Currently, this doesn't really support multi-currency spreads.  
+#' If an instrument is not denominated in USD, it will try to get data for that currency from 
+#' the .GlobalEnv. However, it is unlikey that you would have data stored in an object called e.g. \sQuote{EUR}.
+#' So, it probably won't find the data. This will soon be updated to look for exchange rates. 
+#' Also, a parameter should be added for spread currency instead of requiring that the spread 
+#' be denominated in USD. 
+#' @seealso 
+#' \code{\link{buildSpread}}
+#' \code{\link{synthetic.instrument}}
+#' \code{\formatSpreadPrice}
+#' examples
+#' \dontrun{
+#' currency("USD")
+#' stock("SPY")
+#' stock("DIA")
+#' getSymbols(c("SPY","DIA"))
+#' fSB <- fn_SpreadBuilder("SPY","DIA")
+#' head(fSB)
+#' }
 #' @export
 fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_times=NULL, 
     unique_method=c('make.index.unique','duplicated','least.liq','price.change'), ...)
@@ -298,6 +361,17 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_
     Spread  
 }
 
+#' format the price of a synthetic instrument
+#'
+#' Divides the notional spread price by the spread multiplier and rounds prices to the nearest \code{tick_size}.
+#' @param x xts price series
+#' @param multiplier numeric multiplier (e.g. 1000 for crack spread to get from $ to $/bbl)
+#' @param tick_size minimum price change of the spread
+#' @return price series of same length as \code{x}
+#' @author Garrett See
+#' @seealso
+#' \code{\link{buildSpread}}, \code{\link{fn_SpreadBuilder}}
+#' @export
 formatSpreadPrice <- function(x,multiplier=1,tick_size=0.01) {
   x <- x / multiplier
   round( x / tick_size) * tick_size
@@ -307,7 +381,8 @@ formatSpreadPrice <- function(x,multiplier=1,tick_size=0.01) {
 # R (http://r-project.org/) Instrument Class Model
 #
 # Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
