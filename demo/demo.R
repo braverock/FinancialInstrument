@@ -61,5 +61,6 @@ buildHierarchy( c("IBM","SPY",".IBM"), c("currency", "multiplier"))
 it <- instrument.table()
 head(it)
 
-instrument.table( ,attrs.of='USD') #only show attributes that instrument "USD" also has
+it2 <- instrument.table( ,attrs.of='USD') #only show attributes that instrument "USD" also has
+head(it)
 
