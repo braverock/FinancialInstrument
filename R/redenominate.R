@@ -132,7 +132,7 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
         if (!silent) warning(paste('Nothing to build. Returning data found in', deparse(substitute(env))))
         return(.get_rate(x[1],x[2],env))  
     }
-    #!#---#!#
+    #!#---#!# 
     Bi <- #This, or Bid, should be exported from quantmod
     function (x) 
     {
@@ -158,24 +158,33 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     }
     #!#---#!#
 
+    instr2 <- NULL
+    instr1 <- try(getInstrument(x[1],silent=TRUE))
+    if (is.instrument(instr1)) instr2 <- try(getInstrument(x[2],silent=TRUE))
+    if (is.instrument(instr2)) {
+        mult1 <- as.numeric(instr1$multiplier)
+        mult2 <- as.numeric(instr2$multiplier)
+    } else mult1 <- mult2 <- 1
+    mrat <- mult1 / mult2
+
     if (is.OHLC(x1) && is.OHLC(x2)) {
-        rat <- Op(x1) / Op(x2)
-        rat$Close <- Cl(x1) / Cl(x2)
+        rat <- Op(x1) / Op(x2) * mrat
+        rat$Close <- Cl(x1) / Cl(x2) * mrat
         if (!has.Ad(x1)) x1$Adjusted <- Cl(x1)
         if (!has.Ad(x2)) x2$Adjusted <- Cl(x2)
-        rat$Adjusted <- Ad(x1) / Ad(x2)
+        rat$Adjusted <- Ad(x1) / Ad(x2) * mrat
         colnames(rat) <- paste(rat.sym, c("Open","Close","Adjusted"),sep='.')
     } else if (is.BBO(x1) && is.BBO(x2)) {
-        rat <- Bi(x1)/As(x2)
-        rat$Ask <- As(x1)/Bi(x2)
+        rat <- Bi(x1)/As(x2) * mrat
+        rat$Ask <- As(x1)/Bi(x2) * mrat
         if (has.Mid(x1) && has.Mid(x2)) {
-            rat$Mid <- Mid(x1) / Mid(x2) 
+            rat$Mid <- Mid(x1) / Mid(x2) * mrat 
         } else {
-            rat$Mid <- ((Bi(x1)+As(x1))/2) / ((Bi(x2)+As(x2))/2)
+            rat$Mid <- ((Bi(x1)+As(x1))/2) / ((Bi(x2)+As(x2))/2) * mrat
         }
         colnames(rat) <- paste(rat.sym,c('Bid','Ask','Mid'),sep='.')
     } else if (NCOL(x1) == 1 && NCOL(x2) == 1) {
-        rat <- x1 / x2 #coredata(x1) / coredata(x2)
+        rat <- x1 / x2 * mrat #coredata(x1) / coredata(x2)
     } else if (periodicity(x1)$frequency >= 86400) { 
         #if daily or slower use OHLC and Mid
         if (is.OHLC(x1)) { #If first leg is.OHLC, 2nd leg will be univariate
@@ -184,10 +193,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                    } else if (has.Mid(x2)) {
                         Mid(x2)
                    } else getPrice(x2)
-            rat <- x1[,1] / div
+            rat <- mrat * x1[,1] / div
             if (NCOL(x1) > 1) {
                 for (i in 2:NCOL(x1)) {
-                    rat <- cbind(rat, x1[,i]/div)
+                    rat <- cbind(rat, mrat * x1[,i]/div)
                 }
             }
         } else if (is.OHLC(x2)) { #1st leg will be univariate
@@ -196,10 +205,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                     } else if (has.Mid(x1)) {
                         Mid(x1)
                     } else getPrice(x1)
-            rat <- num / x2[,1]
+            rat <- mrat * num / x2[,1]
             if (NCOL(x2) > 1) {
                 for (i in 2:NCOL(x2)) {
-                    rat <- cbind(rat, num/x2[,i])
+                    rat <- cbind(rat, mrat * num/x2[,i])
                 }                  
             }  
         }    
@@ -213,10 +222,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                     } else if (has.Ad(x2)) {
                         Ad(x2)    
                     } else getPrice(x2)
-            rat <- x1[,1] / div
+            rat <- mrat * x1[,1] / div
             if (NCOL(x1) > 1) {            
                 for (i in 2:NCOL(x1)) {
-                    rat <- cbind(rat, x1[,i]/div)
+                    rat <- cbind(rat, mrat * x1[,i]/div)
                 }
             }
         } else if (is.BBO(x2)) { #1st leg will be univariate
@@ -227,10 +236,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                     } else if (has.Ad(x1)) {
                         Ad(x1)
                     } else getPrice(x1)
-            rat <- num / x2[,1]
+            rat <- mrat * num / x2[,1]
             if (NCOL(x2) > 1){
                 for (i in 2:NCOL(x2)) {
-                    rat <- cbind(rat, num/x2[,i]) 
+                    rat <- cbind(rat, mrat * num/x2[,i]) 
                 }
             }
         }
