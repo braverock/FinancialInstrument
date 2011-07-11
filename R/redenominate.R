@@ -298,7 +298,11 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
         instr <- try(getInstrument(symbol,silent=TRUE))
         if (!is.instrument(instr)) {
             if (is.null(old_base)) stop(paste("If old_base is not provided, ", symbol, ' must be defined.', sep=""))
-        } else old_base <- instr$currency
+            mult <- 1        
+        } else {
+            old_base <- instr$currency
+            mult <- as.numeric(instr$multiplier)    
+        }
         if (is.character(x)) x <- get(symbol,pos=env)
     }
     #Now figure out the exchange rate
@@ -354,7 +358,7 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     assign(rsym,rate,pos=tmpenv)
     assign(symbol,x,pos=tmpenv)
     
-    buildRatio(c(symbol,rsym),env=tmpenv, silent=TRUE)
+    buildRatio(c(symbol,rsym),env=tmpenv, silent=TRUE) / mult
 #TODO: colnames
 #TODO: auto.assign
 }
