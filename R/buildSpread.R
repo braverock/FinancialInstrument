@@ -158,8 +158,9 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 #' If it cannot find the data, it will get it with a call to getSymbols. 
 #' 
-#' Prices are multiplied by multipliers and exchange rates to get notional values in USD using the most recent exchange rate.
-#' The second leg's new values are multiplied by the ratio. Then the difference is taken between the new values for leg1 and the new values for leg2.
+#' Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
+#' The second leg's notional values are multiplied by the ratio.
+#' Then the difference is taken between the notionals of leg1 and the new values for leg2.
 #' 
 #' \sQuote{make.index.unique} uses the xts function \code{make.index.unique} 
 #' \sQuote{least.liq} subsets the spread time series, by using the timestamps of the leg that has the fewest rows.
@@ -168,7 +169,8 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #'
 #' @param prod1 chr name of instrument that will be the 1st leg of a 2 leg spread
 #' @param prod2 chr name of instrument that will be the 2nd leg of a 2 leg spread
-#' @param ratio hedge ratio.
+#' @param ratio hedge ratio. Can be a single number, or a vector of same length as data.
+#' @param currency chr name of currency denomination of the spread
 #' @param from from Date to pass through to getSymbols if needed.
 #' @param to to Date to pass through to getSymbols if needed.
 #' @param session_times ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'
@@ -190,25 +192,23 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' @seealso 
 #' \code{\link{buildSpread}}
 #' \code{\link{synthetic.instrument}}
-#' \code{\formatSpreadPrice}
-#' examples
+#' \code{\link{formatSpreadPrice}}
+#' @examples
 #' \dontrun{
 #' currency("USD")
 #' stock("SPY")
 #' stock("DIA")
 #' getSymbols(c("SPY","DIA"))
 #' fSB <- fn_SpreadBuilder("SPY","DIA")
+#' fSB2 <- fn_SpreadBuilder("SPY","DIA",1.1) 
 #' head(fSB)
 #' }
 #' @export
-fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_times=NULL, 
+fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, to=NULL, session_times=NULL, 
     unique_method=c('make.index.unique','duplicated','least.liq','price.change'), ...)
 {
 ##TODO: don't require from and to to be passed in...use getSymbol defaults.
 ##TODO: allow for different methods for calculating Bid and Ask 
-##TODO: Currently we're expecting ratio to be a univariate vector
-    #print(paste(date," ",prod1,".",prod2,sep=""))
-    
     unique_method<-unique_method[1]
     
     prod1.instr <- try(getInstrument(prod1))
@@ -239,22 +239,15 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_
     
     Mult.1 <- as.numeric(prod1.instr$multiplier) 
     Mult.2 <- as.numeric(prod2.instr$multiplier) 
-    
-    #TODO FIXME we probably need to setSymbolLookup to oanda, and look up the cross rate.
-    #if src is already set, don't reset it
-    if (prod1.instr$currency != 'USD'){
-        Cur.1 <- get(prod1.instr$currency)
-        if (!is.null(to)) {
-            Cur.1 <- as.numeric(last(Cur.1[to]))
-        } else Cur.1 <- as.numeric(last(Cur.1))
-    } else { Cur.1 <- 1 }
-    
-    if (prod2.instr$currency != 'USD'){
-        Cur.2 <- get(prod2.instr$currency)
-        if (!is.null(to)) {
-            Cur.2 <- as.numeric(last(Cur.2[to]))
-        } else Cur.2 <- as.numeric(last(Cur.2)) 
-   } else { Cur.2 <- 1 }
+
+    if (prod1.instr$currency != currency) {  
+        #Cur.1 <- .get_rate(prod1.instr$currency,currency)
+        Data.1 <- redenominate(prod1,currency)
+    }
+    if (prod2.instr$currency != currency) {  
+        #Cur.2 <- .get_rate(prod2.instr$currency,currency)
+        Data.2 <- redenominate(prod2,currency)
+    }
 
     #Determine what type of data it is
     if (is.OHLC(Data.1) && has.Ad(Data.1)) {
@@ -298,28 +291,28 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_
     }
     
     if( is.OHLC(Data.1) ) {
-      M$Open.Price.1 <- M$Open.Price.1 * Mult.1 * Cur.1 
-      M$Close.Price.1 <- M$Close.Price.1 * Mult.1 * Cur.1
-      M$Open.Price.2 <- M$Open.Price.2 * Mult.2 * Cur.2
-      M$Close.Price.2 <- M$Close.Price.2 * Mult.2 * Cur.2
+      M$Open.Price.1 <- M$Open.Price.1 * Mult.1     # * Cur.1 
+      M$Close.Price.1 <- M$Close.Price.1 * Mult.1   # * Cur.1
+      M$Open.Price.2 <- M$Open.Price.2 * Mult.2     # * Cur.2
+      M$Close.Price.2 <- M$Close.Price.2 * Mult.2   # * Cur.2
       
-      open <- M$Open.Price.1 - M$Open.Price.2
-      close <- M$Close.Price.1 - M$Close.Price.2
+      open <- M$Open.Price.1 - M$Open.Price.2 * ratio
+      close <- M$Close.Price.1 - M$Close.Price.2 * ratio
 
       Spread <- cbind(open,close)
       colnames(Spread) <- c('Open.Price','Close.Price')
       if (has.Ad(Data.1)) {
-	M$Adjusted.Price.1 <- M$Adjusted.Price.1 * Mult.1 * Cur.1
-	M$Adjusted.Price.2 <- M$Adjusted.Price.2 * Mult.2 * Cur.2
-	Spread$Adjusted.Price <- M$Adjusted.Price.1 - M$Adjusted.Price.2
+	    M$Adjusted.Price.1 <- M$Adjusted.Price.1 * Mult.1   # * Cur.1
+	    M$Adjusted.Price.2 <- M$Adjusted.Price.2 * Mult.2   # * Cur.2
+	    Spread$Adjusted.Price <- M$Adjusted.Price.1 - M$Adjusted.Price.2 * ratio
       }
       #Spread$Mid.Price <- (Spread$Open.Price + Spread$Close.Price) / 2
     } else
     if (is.BBO(Data.1) ) {
-      M$Bid.Price.1 <- M$Bid.Price.1 * Mult.1 * Cur.1 
-      M$Ask.Price.1 <- M$Ask.Price.1 * Mult.1 * Cur.1
-      M$Bid.Price.2 <- M$Bid.Price.2 * Mult.2 * Cur.2
-      M$Ask.Price.2 <- M$Ask.Price.2 * Mult.2 * Cur.2
+      M$Bid.Price.1 <- M$Bid.Price.1 * Mult.1 # * Cur.1 
+      M$Ask.Price.1 <- M$Ask.Price.1 * Mult.1 # * Cur.1
+      M$Bid.Price.2 <- M$Bid.Price.2 * Mult.2 # * Cur.2
+      M$Ask.Price.2 <- M$Ask.Price.2 * Mult.2 # * Cur.2
       ##TODO: Expand this to work with multiple legs
       bid <- M$Bid.Price.1 - ratio * M$Ask.Price.2
       ask <- M$Ask.Price.1 - ratio * M$Bid.Price.2
@@ -328,10 +321,10 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, from=NULL, to=NULL, session_
       names(Spread) <- c("Bid.Price","Ask.Price")
       Spread$Mid.Price <- (Spread$Bid.Price + Spread$Ask.Price) / 2
     } else {
-    #univariate spread.  Call buildSpread2?
+    #univariate spread. 
       if (ncol(M) > 2) stop('Unrecognized column names.')
       Spread <- M[,1] - ratio * M[,2]
-      colnames(Spread) <- 'Price'
+      colnames(Spread) <- paste(prod1,prod2,'Price',sep='.')
     }
 ##TODO: Test with symbols where each symbol has data on a day that the other one doesn't 
 ##TODO: Add a method that merges Data.1 and Data.2 with all=FALSE and use that index to subset

@@ -1,17 +1,18 @@
 \name{fn_SpreadBuilder}
 \alias{fn_SpreadBuilder}
 \title{Calculate prices of a spread from 2 instruments.}
-\usage{fn_SpreadBuilder(prod1, prod2, ratio=1, from, to, session_times,
-    unique_method=c("make.index.unique", "duplicated", "least.liq",
-    "price.change"), ...)}
+\usage{fn_SpreadBuilder(prod1, prod2, ratio=1, currency="USD", from, to,
+    session_times, unique_method=c("make.index.unique", "duplicated",
+    "least.liq", "price.change"), ...)}
 \description{Calculate prices of a spread from 2 instruments.}
 \details{Before calling, both products must be defined as instruments.  
 
 It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 If it cannot find the data, it will get it with a call to getSymbols. 
 
-Prices are multiplied by multipliers and exchange rates to get notional values in USD using the most recent exchange rate.
-The second leg's new values are multiplied by the ratio. Then the difference is taken between the new values for leg1 and the new values for leg2.
+Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
+The second leg's notional values are multiplied by the ratio.
+Then the difference is taken between the notionals of leg1 and the new values for leg2.
 
 \sQuote{make.index.unique} uses the xts function \code{make.index.unique} 
 \sQuote{least.liq} subsets the spread time series, by using the timestamps of the leg that has the fewest rows.
@@ -34,7 +35,8 @@ be denominated in USD.}
 \code{\link{formatSpreadPrice}}}
 \arguments{\item{prod1}{chr name of instrument that will be the 1st leg of a 2 leg spread}
 \item{prod2}{chr name of instrument that will be the 2nd leg of a 2 leg spread}
-\item{ratio}{hedge ratio.}
+\item{ratio}{hedge ratio. Can be a single number, or a vector of same length as data.}
+\item{currency}{chr name of currency denomination of the spread}
 \item{from}{from Date to pass through to getSymbols if needed.}
 \item{to}{to Date to pass through to getSymbols if needed.}
 \item{session_times}{ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'}
@@ -46,5 +48,6 @@ stock("SPY")
 stock("DIA")
 getSymbols(c("SPY","DIA"))
 fSB <- fn_SpreadBuilder("SPY","DIA")
+fSB2 <- fn_SpreadBuilder("SPY","DIA",1.1) 
 head(fSB)
 }}
