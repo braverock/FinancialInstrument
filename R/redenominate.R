@@ -179,7 +179,9 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     } else if (periodicity(x1)$frequency >= 86400) { 
         #if daily or slower use OHLC and Mid
         if (is.OHLC(x1)) { #If first leg is.OHLC, 2nd leg will be univariate
-            div <- if (has.Mid(x2)) {
+            div <- if (NCOL(x2) == 1) {
+                        x2
+                   } else if (has.Mid(x2)) {
                         Mid(x2)
                    } else getPrice(x2)
             rat <- x1[,1] / div
@@ -189,7 +191,9 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                 }
             }
         } else if (is.OHLC(x2)) { #1st leg will be univariate
-            num <- if (has.Mid(x1)) {
+            num <- if (NCOL(x1) == 1){
+                        x1
+                    } else if (has.Mid(x1)) {
                         Mid(x1)
                     } else getPrice(x1)
             rat <- num / x2[,1]
@@ -202,7 +206,9 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     } else if (periodicity(x1)$frequency < 86400) {
         #if intraday, use BAM and Cl
         if (is.BBO(x1)) { #1st leg is.BBO, 2nd leg will be univariate
-            div <- if (has.Cl(x2)) {
+            div <- if (NCOL(x2) == 1) {
+                        x2
+                    } else if (has.Cl(x2)) {
                         Cl(x2)
                     } else if (has.Ad(x2)) {
                         Ad(x2)    
@@ -214,7 +220,9 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
                 }
             }
         } else if (is.BBO(x2)) { #1st leg will be univariate
-            num <- if (has.Cl(x1)) {
+            num <- if (NCOL(x1) == 1) {
+                        x1
+                    } else if (has.Cl(x1)) {
                         Cl(x1)
                     } else if (has.Ad(x1)) {
                         Ad(x1)
