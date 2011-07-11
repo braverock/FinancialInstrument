@@ -62,5 +62,5 @@ it <- instrument.table()
 head(it)
 
 it2 <- instrument.table( ,attrs.of='USD') #only show attributes that instrument "USD" also has
-head(it)
+head(it2)
 
