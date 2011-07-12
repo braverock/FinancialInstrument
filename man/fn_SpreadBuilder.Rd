@@ -3,11 +3,9 @@
 \title{Calculate prices of a spread from 2 instruments.}
 \usage{fn_SpreadBuilder(prod1, prod2, ratio=1, currency="USD", from, to,
     session_times, unique_method=c("make.index.unique", "duplicated",
-    "least.liq", "price.change"), ...)}
+    "least.liq", "price.change"), silent=FALSE, ...)}
 \description{Calculate prices of a spread from 2 instruments.}
-\details{Before calling, both products must be defined as instruments.  
-
-It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
+\details{It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 If it cannot find the data, it will get it with a call to getSymbols. 
 
 Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
@@ -24,15 +22,11 @@ or Open, Close, Adjusted columns,
 or Open, Close columns.
 or Price column.}
 \author{Lance Levenson, Brian Peterson, Garrett See}
-\note{Currently, this doesn't really support multi-currency spreads.  
-If an instrument is not denominated in USD, it will try to get data for that currency from 
-the .GlobalEnv. However, it is unlikey that you would have data stored in an object called e.g. \sQuote{EUR}.
-So, it probably won't find the data. This will soon be updated to look for exchange rates. 
-Also, a parameter should be added for spread currency instead of requiring that the spread 
-be denominated in USD.}
+\note{requires quantmod}
 \seealso{\code{\link{buildSpread}}
 \code{\link{synthetic.instrument}}
-\code{\link{formatSpreadPrice}}}
+\code{\link{formatSpreadPrice}}
+\code{\link{buildRatio}}}
 \arguments{\item{prod1}{chr name of instrument that will be the 1st leg of a 2 leg spread}
 \item{prod2}{chr name of instrument that will be the 2nd leg of a 2 leg spread}
 \item{ratio}{hedge ratio. Can be a single number, or a vector of same length as data.}
@@ -41,13 +35,16 @@ be denominated in USD.}
 \item{to}{to Date to pass through to getSymbols if needed.}
 \item{session_times}{ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'}
 \item{unique_method}{method for making the time series unique}
+\item{silent}{silence warnings? (FALSE by default)}
 \item{\dots}{any other passthrough parameters}}
 \examples{\dontrun{
 currency("USD")
-stock("SPY")
-stock("DIA")
+stock("SPY", "USD")
+stock("DIA", "USD")
 getSymbols(c("SPY","DIA"))
-fSB <- fn_SpreadBuilder("SPY","DIA")
-fSB2 <- fn_SpreadBuilder("SPY","DIA",1.1) 
+fSB <- fn_SpreadBuilder("SPY","DIA") #can call with names of instrument/xts ojects
+fSB2 <- fn_SpreadBuilder(SPY,DIA) # or you can pass xts objects
+
+fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) #assuming you first somehow calculated the ratio to be a constant 1.1
 head(fSB)
 }}

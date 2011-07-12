@@ -152,8 +152,6 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 }
 
 #' Calculate prices of a spread from 2 instruments.
-#' 
-#' Before calling, both products must be defined as instruments.  
 #'
 #' It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 #' If it cannot find the data, it will get it with a call to getSymbols. 
@@ -175,6 +173,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' @param to to Date to pass through to getSymbols if needed.
 #' @param session_times ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'
 #' @param unique_method method for making the time series unique
+#' @param silent silence warnings? (FALSE by default)
 #' @param \dots any other passthrough parameters 
 #' @return 
 #' an xts object with
@@ -183,47 +182,65 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' or Open, Close columns.
 #' or Price column.
 #' @author Lance Levenson, Brian Peterson, Garrett See
-#' @note Currently, this doesn't really support multi-currency spreads.  
-#' If an instrument is not denominated in USD, it will try to get data for that currency from 
-#' the .GlobalEnv. However, it is unlikey that you would have data stored in an object called e.g. \sQuote{EUR}.
-#' So, it probably won't find the data. This will soon be updated to look for exchange rates. 
-#' Also, a parameter should be added for spread currency instead of requiring that the spread 
-#' be denominated in USD. 
+#' @note requires quantmod
 #' @seealso 
 #' \code{\link{buildSpread}}
 #' \code{\link{synthetic.instrument}}
 #' \code{\link{formatSpreadPrice}}
+#' \code{\link{buildRatio}}
 #' @examples
 #' \dontrun{
 #' currency("USD")
-#' stock("SPY")
-#' stock("DIA")
+#' stock("SPY", "USD")
+#' stock("DIA", "USD")
 #' getSymbols(c("SPY","DIA"))
-#' fSB <- fn_SpreadBuilder("SPY","DIA")
-#' fSB2 <- fn_SpreadBuilder("SPY","DIA",1.1) 
+#' fSB <- fn_SpreadBuilder("SPY","DIA") #can call with names of instrument/xts ojects
+#' fSB2 <- fn_SpreadBuilder(SPY,DIA) # or you can pass xts objects
+#'
+#' fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) #assuming you first somehow calculated the ratio to be a constant 1.1
 #' head(fSB)
 #' }
 #' @export
 fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, to=NULL, session_times=NULL, 
-    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), ...)
+    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), silent=FALSE, ...)
 {
-##TODO: don't require from and to to be passed in...use getSymbol defaults.
 ##TODO: allow for different methods for calculating Bid and Ask 
-    unique_method<-unique_method[1]
-    
-    prod1.instr <- try(getInstrument(prod1))
-    prod2.instr <- try(getInstrument(prod2))
+    if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
+        stop("Please install quantmod before using this function.")
+    }
 
-    if (inherits(prod1.instr,'try-error') || 
-        inherits(prod2.instr,'try-error') ||
-        !is.instrument(prod1.instr) ||
-        !is.instrument(prod2.instr) ) stop("both products must be defined as instruments first.")
+    unique_method<-unique_method[1]
 
     Data.1 <- NULL
     Data.2 <- NULL
     
-    Data.1 <- try(get(as.character(prod1),envir=.GlobalEnv),silent=TRUE) 
-    Data.2 <- try(get(as.character(prod2),envir=.GlobalEnv),silent=TRUE)
+    if (is.xts(prod1)) {
+        Data.1 <- prod1
+        prod1 <- deparse(substitute(prod1))
+    }
+    if (is.xts(prod2)) {
+        Data.2 <- prod2
+        prod2 <- deparse(substitute(prod2))
+    }
+
+    prod1.instr <- try(getInstrument(prod1, silent=TRUE))
+    if (!is.instrument(prod1.instr) || inherits(prod1.instr,'try-error') ) { 
+        if (!silent) warning(paste('could not find instrument ', 
+                                    prod1, '. Using multiplier of 1 and currency of ', 
+                                    currency, sep=''))
+        prod1.instr <- list(multiplier=1,currency=currency)
+    }
+
+    prod2.instr <- try(getInstrument(prod2, silent=TRUE))
+    if (!is.instrument(prod2.instr) || inherits(prod2.instr, 'try-error') ) {
+        if (!silent) warning(paste('could not find instrument ', 
+                                    prod2, '. Using multiplier of 1 and currency of ', 
+                                    currency, sep=''))
+        prod2.instr <- list(multiplier=1,currency=currency)
+    }
+    if (is.null(Data.1)) Data.1 <- try(get(as.character(prod1),envir=.GlobalEnv),silent=TRUE) 
+    if (is.null(Data.2)) Data.2 <- try(get(as.character(prod2),envir=.GlobalEnv),silent=TRUE) 
+
     if (inherits(Data.1, "try-error")) Data.1 <- getSymbols(prod1,auto.assign=FALSE,...) #the dots are for from and to    
     if (inherits(Data.2, "try-error")) Data.2 <- getSymbols(prod2,auto.assign=FALSE,...)
     
@@ -277,7 +294,7 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
         }
         #attr(attr(ret,"index"),"tzone") <- "GMT" # no longer needed?
         #attr(ret,".indexTZ") <- "GMT" # no longer needed?
-	colnames(ret) <- colnames(DF)
+	    colnames(ret) <- colnames(DF)
         ret
     }
     
