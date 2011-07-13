@@ -91,15 +91,14 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' 
 #' \code{spread} \code{guaranteed_spread} and \code{butterfly} are wrappers for \code{synthetic.instrument}. \code{synthetic.instrument} will make a call to synthetic to create the final instrument.
 #' 
+#' The \code{suffix_id} parameter of wrapper functions such as  \code{guaranteed_spread} is presumed to 
+#' be a string describing the \code{members}. 
+#' It will be \code{\link{strsplit} using the regex "[-;:_,\\.]" to create the \code{members} vector,
+#' and potentially combined with a \code{root_id}.
+#' 
 #' We welcome assistance from others to model more complex OTC derivatives such as swap products.
 #'
 #' @aliases synthetic.instrument synthetic spread guaranteed_spread butterfly
-#' @usage 
-#' synthetic.instrument(primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size = NULL, identifiers = NULL, type = c("synthetic.instrument", "synthetic", "instrument"))
-#' synthetic(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
-#' spread(primary_id, currency = NULL, members, memberratio, tick_size=NULL,
-#'    ..., multiplier = 1, identifiers = NULL) 
-#'
 #' @param primary_id chr string of primary identifier of instrument to be defined.
 #' @param currency chr string name of currency denomination
 #' @param members vector of primary_ids of member instruments
@@ -109,6 +108,8 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' @param tick_size minimum price change of the spread
 #' @param identifiers identifiers
 #' @param type type of instrument; wrappers do not require this.
+#' @param root_id instrument identifier for the root contract, default NULL
+#' @param suffix_id identifiers for the member contract suffixes, default NULL, will be split as \code{members}, see Details
 #' @return called for side effect. stores an instrument in .instrument environment
 #' @author author Brian Peterson, Garrett See
 #' @seealso instrument, future, option_series.yahoo
@@ -154,6 +155,7 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
     }
     if (is.null(currency)) 
         currency <- as.character(memberlist$currencies[1])
+	
     synthetic(primary_id = primary_id, currency = currency, multiplier = multiplier, 
         identifiers = identifiers, memberlist = memberlist, memberratio = memberratio, tick_size=tick_size,
         ... = ..., members = members, type = type)
@@ -190,18 +192,40 @@ butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identif
 
 
 #' @export
-guaranteed_spread <- calendar_spread <- function (primary_id, currency, members = NULL, memberratio = c(1,-1), ..., 
-    multiplier = 1, identifiers = NULL, tick_size=NULL)
+guaranteed_spread <- calendar_spread <- function (primary_id, currency=NULL, root_id=NULL, suffix_id=NULL, members = NULL, memberratio = c(1,-1), ..., 
+    multiplier = NULL, identifiers = NULL, tick_size=NULL)
 {
-    if (hasArg(suffix_id)) {
-        suffix_id <- match.call(expand.dots = TRUE)$suffix_id
-        id <- paste(primary_id, suffix_id, sep = "_")
-    }
-    else id <- primary_id
-    if (is.null(members) && hasArg(suffix_id)) {
+
+	if (hasArg(suffix_id)) {
+		if(hasArg(root_id)) {
+			id<- paste(root_id,suffix_id,sep="_")
+		} else {
+			id <- paste(primary_id, suffix_id, sep = "_")
+		}
+    } else id <- primary_id
+    
+    id<-make.names(id) #force syntactically valid primary_id
+    
+	if (is.null(members) && hasArg(suffix_id)) {
+		#construct members from suffix_id and either primary_id or root_id
         members <- unlist(strsplit(suffix_id, "[-;:_,\\.]"))
-        members <- paste(primary_id, members, sep = "_")
-    }
+		if(hasArg(root_id)) {
+			members <- paste(root_id,members, sep ="_")
+		} else {
+			members <- paste(primary_id, members, sep = "_")
+		}		
+	}
+	
+	if(hasArg(root_id)) {
+		# go get other instrument quantities from the root contract
+		root_contract<-getInstrument(root_id)
+		if(is.instrument(root_contract)){
+			if(is.null(currency)) currency <- root_contract$currency
+			if(is.null(multiplier)) multiplier <- root_contract$multiplier
+			if(is.null(tick_size)) tick_size <-  root_contract$tick_size
+		}
+	} 
+	
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
 	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, 
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
