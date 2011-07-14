@@ -93,7 +93,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' 
 #' The \code{suffix_id} parameter of wrapper functions such as  \code{guaranteed_spread} is presumed to 
 #' be a string describing the \code{members}. 
-#' It will be \code{\link{strsplit} using the regex "[-;:_,\\.]" to create the \code{members} vector,
+#' It will be \code{\link{strsplit}} using the regex "[-;:_,\\.]" to create the \code{members} vector,
 #' and potentially combined with a \code{root_id}.
 #' 
 #' We welcome assistance from others to model more complex OTC derivatives such as swap products.
@@ -104,7 +104,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' @param members vector of primary_ids of member instruments
 #' @param memberratio vector of weights for each leg. negative numbers for selling.
 #' @param \dots any other passthrough parameters
-#' @param mutliplier multiplier of the spread
+#' @param multiplier multiplier of the spread
 #' @param tick_size minimum price change of the spread
 #' @param identifiers identifiers
 #' @param type type of instrument; wrappers do not require this.
