@@ -1,6 +1,6 @@
-\name{blotter-package}
-\alias{blotter-package}
-\alias{blotter}
+\name{FinancialInstrument-package}
+\alias{FinancialInstrument-package}
+\alias{FinancialInstrument}
 \docType{package}
 \title{
 Construct, manage and store contract specifications for trading
