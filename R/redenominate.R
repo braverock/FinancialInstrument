@@ -137,14 +137,16 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     function (x) 
     {
         if (has.Bid(x)) 
-            return(x[, grep("Bid", colnames(x), ignore.case = TRUE)])
+            return(x[,has.Bid(x,1)])            
+            #return(x[, grep("Bid", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Bid\"")
     }
     As <- #This, or Ask, should be exported from quantmod
     function (x) 
     {
         if (has.Ask(x)) 
-            return(x[, grep("Ask", colnames(x), ignore.case = TRUE)])
+            return(x[,has.Ask(x,1)])    
+            #return(x[, grep("Ask", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Ask\"")
     }
     has.Mid <- quantmod:::has.Mid
@@ -153,7 +155,8 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     function (x) 
     {
         if (has.Mid(x)) 
-            return(x[, grep("Mid", colnames(x), ignore.case = TRUE)])
+            return(x[,has.Mid(x,1)])            
+            #return(x[, grep("Mid", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Mid\"")
     }
     #!#---#!#
@@ -168,20 +171,22 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     mrat <- mult1 / mult2
 
     if (is.OHLC(x1) && is.OHLC(x2)) {
-        rat <- Op(x1) / Op(x2) * mrat
-        rat$Close <- Cl(x1) / Cl(x2) * mrat
+        op <- Op(x1) / Op(x2) * mrat
+        cl <- Cl(x1) / Cl(x2) * mrat
         if (!has.Ad(x1)) x1$Adjusted <- Cl(x1)
         if (!has.Ad(x2)) x2$Adjusted <- Cl(x2)
-        rat$Adjusted <- Ad(x1) / Ad(x2) * mrat
+        ad <- Ad(x1) / Ad(x2) * mrat
+        rat <- cbind(op,cl,ad)
         colnames(rat) <- paste(rat.sym, c("Open","Close","Adjusted"),sep='.')
     } else if (is.BBO(x1) && is.BBO(x2)) {
-        rat <- Bi(x1)/As(x2) * mrat
-        rat$Ask <- As(x1)/Bi(x2) * mrat
+        bid <- Bi(x1)/As(x2) * mrat
+        ask <- As(x1)/Bi(x2) * mrat
         if (has.Mid(x1) && has.Mid(x2)) {
-            rat$Mid <- Mid(x1) / Mid(x2) * mrat 
+            mid <- Mid(x1) / Mid(x2) * mrat 
         } else {
-            rat$Mid <- ((Bi(x1)+As(x1))/2) / ((Bi(x2)+As(x2))/2) * mrat
+            mid <- ((Bi(x1)+As(x1))/2) / ((Bi(x2)+As(x2))/2) * mrat
         }
+        rat <- cbind(bid,ask,mid)        
         colnames(rat) <- paste(rat.sym,c('Bid','Ask','Mid'),sep='.')
     } else if (NCOL(x1) == 1 && NCOL(x2) == 1) {
         rat <- x1 / x2 * mrat #coredata(x1) / coredata(x2)
@@ -318,7 +323,8 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     function (x) 
     {
         if (has.Mid(x)) 
-            return(x[, grep("Mid", colnames(x), ignore.case = TRUE)])
+            return(x[,has.Mid(x,1)])            
+            #return(x[, grep("Mid", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Mid\"")
     }
     #!#---#!#
