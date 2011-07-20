@@ -17,6 +17,7 @@ otherwise, the xts object will be assigned to \code{spread_id} and the \code{spr
 \seealso{\code{\link{fn_SpreadBuilder}}
 \code{\link{spread}} for instructions on defining the spread}
 \author{Brian Peterson, Garrett See}
+\note{this could also be used to build a basket or a strip by using only positive values in memberratio}
 \arguments{\item{spread_id}{The name of the instrument that contains members and memberratio}
 \item{Dates}{date range to subset on, will be used for \code{\link[quantmod]{getSymbols}} 
 if the instrument is not available via \code{\link{get}}}

@@ -22,6 +22,7 @@
 #' \code{\link{fn_SpreadBuilder}}
 #' \code{\link{spread}} for instructions on defining the spread
 #' @author Brian Peterson, Garrett See
+#' @note this could also be used to build a basket or a strip by using only positive values in memberratio
 #' @examples
 #' \dontrun{
 #' currency("USD")
@@ -38,7 +39,6 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 {
     has.Mid <- quantmod:::has.Mid #FIXME: this should be exported from quatmod
     
-##TODO: test something with a different currency    
     spread_instr <- try(getInstrument(spread_id))
     if (inherits(spread_instr, "try-error") | !is.instrument(spread_instr)) {
         stop(paste("Instrument", spread_instr, " not found, please create it first."))
@@ -48,9 +48,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     #if (!inherits(try(get(spread_id),silent=TRUE), "try-error") && overwrite==FALSE) #Doesn't work..returns vector of FALSE
 	#stop(paste(spread_instr,' price series already exists. Try again with overwrite=TRUE if you wish to replace it.')) 
 
-    spread_currency <- spread_instr$currency
-    stopifnot(is.currency(spread_currency))
-    
+    spread_currency <- spread_instr$currency    
     spread_mult <- as.numeric(spread_instr$multiplier)
     if (is.null(spread_mult) || spread_mult == 0) spread_mult <- 1
     spread_tick <- spread_instr$tick_size
@@ -64,32 +62,11 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     spreadseries <- NULL
     for (i in 1:length(spread_instr$members)) {
         instr <- try(getInstrument(as.character(spread_instr$members[i])))
-        if (inherits(instr, "try-error") | !is.instrument(instr)) {
+        if (inherits(instr, "try-error") || !is.instrument(instr)) {
             stop(paste("Instrument", instr, " not found, please create it first."))
         }
         else {
             instr_currency <- instr$currency
-	        if (i == 1) {
-        		primary_currency = instr_currency
-            }
-	        stopifnot(is.currency(instr_currency))
-            if (!all.equal(primary_currency, instr_currency)) {
-                instr_currency <- instr$currency
-                stopifnot(is.currency(instr_currency))
-                exchange_rate <- try(get(paste(instr_currency, primary_currency, sep = "")))
-                if (inherits(exchange_rate, "try-error")) {
-                    exchange_rate <- try(get(paste(primary_currency, instr_currency, sep = "")))
-                    if (inherits(exchange_rate, "try-error")) {
-                        stop(paste("Exchange Rate", paste(primary_currency, instr_currency, sep = ""), "not found."))
-                    }
-                    else {
-                        exchange_rate <- 1/exchange_rate
-                    }
-                }
-            }
-            else {
-                exchange_rate = 1
-            }
             instr_mult <- as.numeric(instr$multiplier)
             instr_ratio <- spread_instr$memberratio[i]
             instr_prices <- try(get(as.character(spread_instr$members[i],envir=.GlobalEnv)),silent=TRUE)
@@ -128,8 +105,10 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 	          } else pref=colnames(instr_prices)[1]
 	        } else pref=prefer
 	        if (ncol(instr_prices > 1)) instr_prices <- getPrice(instr_prices,prefer=pref)
+            if (instr$currency != spread_currency) 
+                instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
         }
-        instr_norm <- instr_prices * instr_mult * instr_ratio * exchange_rate
+        instr_norm <- instr_prices * instr_mult * instr_ratio
         colnames(instr_norm) <- paste(as.character(spread_instr$members[i]), 
             prefer, sep = ".")
         if (is.null(spreadseries)) 
@@ -244,9 +223,9 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     if (inherits(Data.1, "try-error")) Data.1 <- getSymbols(prod1,auto.assign=FALSE,...) #the dots are for from and to    
     if (inherits(Data.2, "try-error")) Data.2 <- getSymbols(prod2,auto.assign=FALSE,...)
     
-    if ( (is.OHLC(Data.1) && !is.OHLC(Data.2)) || 
+    if ( (all(has.Op(Data.1), has.Cl(Data.2)) && !(all(has.Op(Data.2), has.Cl(Data.2)))) || 
 	(is.BBO(Data.1) && !is.BBO(Data.2)) ||
-	(!is.OHLC(Data.1) && is.OHLC(Data.2)) ||
+	(!(all(has.Op(Data.1), has.Cl(Data.2))) && (all(has.Op(Data.2), has.Cl(Data.2)))) ||
 	(!is.BBO(Data.1) && is.BBO(Data.2)) ) stop('prod1 and prod2 must be the same types of data (BBO,OHLC,etc.)')
     
     if (is.null(from)) from <- max(index(first(Data.1)),index(first(Data.2)))
@@ -267,10 +246,10 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     }
 
     #Determine what type of data it is
-    if (is.OHLC(Data.1) && has.Ad(Data.1)) {
+    if (all(has.Op(Data.1), has.Cl(Data.1), has.Ad(Data.1))) {
       	M <- merge(Op(Data.1)[,1],Cl(Data.1)[,1],Ad(Data.1)[,1],Op(Data.2)[,1],Cl(Data.2)[,1],Ad(Data.2)[,1])
 	colnames(M) <- c("Open.Price.1","Close.Price.1","Adjusted.Price.1","Open.Price.2","Close.Price.2","Adjusted.Price.2")
-    } else if(is.OHLC(Data.1)) {
+    } else if(all(has.Op(Data.1), has.Cl(Data.1))) {
 	M <- merge(Op(Data.1)[,1],Cl(Data.1)[,1],Op(Data.2)[,1],Cl(Data.2)[,1])
 	colnames(M) <- c("Open.Price.1","Close.Price.1","Open.Price.2","Close.Price.2")
     } else if (is.BBO(Data.1)) {
@@ -307,7 +286,7 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
         M <- M[session_times]
     }
     
-    if( is.OHLC(Data.1) ) {
+    if( all(has.Op(Data.1), has.Cl(Data.1)) ) {
       M$Open.Price.1 <- M$Open.Price.1 * Mult.1     # * Cur.1 
       M$Close.Price.1 <- M$Close.Price.1 * Mult.1   # * Cur.1
       M$Open.Price.2 <- M$Open.Price.2 * Mult.2     # * Cur.2
