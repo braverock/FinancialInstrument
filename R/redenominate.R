@@ -38,7 +38,10 @@
         rsym <- paste(ccy2, ccy1, sep="/")
         invert = TRUE
     }
-    rate <- get(rsym,pos=env)
+    rate <- try(get(rsym,pos=env),silent=TRUE)
+    if (inherits(rate,'try-error')) 
+        stop(paste('Could not find exchange rate for ', ccy1, 
+                    ' and ', ccy2, ' in ', deparse(substitute(env)), sep=''))
     rsym <- paste(substr(rsym,1,3), substr(rsym,nchar(rsym)-2,nchar(rsym)),sep="")
     if (invert) {
         rate <- 1/rate  #inverting will reverse High/Low and Bid/Ask
@@ -129,7 +132,7 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     x2 <- try(get(x[2],pos=env),silent=TRUE)
     if (inherits(x1,'try-error') || inherits(x2,'try-error')) {
         #maybe we can get the ratio directly
-        if (!silent) warning(paste('Nothing to build. Returning data found in', deparse(substitute(env))))
+        if (!silent) warning(paste('Nothing to build. Returning data found in', deparse(substitute(env)),'if any.'))
         return(.get_rate(x[1],x[2],env))  
     }
     #!#---#!# 
