@@ -19,6 +19,7 @@
 #' head(USDEUR)
 #' head(EURUSD)
 #' }
+#' @rdname get_rate
 .get_rate <- function(ccy1, ccy2, env=.GlobalEnv) {
     rsym <- NA
     invert <- FALSE
@@ -75,6 +76,7 @@
 #' @author Garrett See
 #' @seealso quantmod:::to.daily, quantmod:::to.period
 #' @export
+#' @rdname to_daily
 .to_daily <- function(x, EOD_time="15:00:00") {
     x <- do.call(rbind, lapply(split(x[paste("T00:00:00/T",EOD_time,sep="")],'days'),'last'))
     xts(x, order.by=as.Date(paste(index(x))))

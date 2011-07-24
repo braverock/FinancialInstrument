@@ -1,15 +1,34 @@
-Package: FinancialInstrument
-Type: Package
-Title: Financial Instrument Model Infrastructure for R
-Version: 0.4.1
-Date: $Date$
-Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson, Garrett See
-Maintainer: Peter Carl <peter@braverock.com>
-Description: Infrastructure for defining instruments meta-data and relationships. Provides support for multi-asset class and multi-currency
-    portfolios.  Still in heavy development.
-URL: https://r-forge.r-project.org/projects/blotter/
-License: GPL
-LazyLoad: yes
-Depends: R (>= 2.12.0), xts, zoo
-Suggests: quantmod
 Copyright: (c) 2004 - 2011
+Package: FinancialInstrument
+Maintainer: Peter Carl <peter@braverock.com>
+License: GPL
+Title: Financial Instrument Model Infrastructure for R
+Type: Package
+LazyLoad: yes
+Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua
+    Ulrich, Brian G. Peterson, Garrett See
+Description: Infrastructure for defining instruments
+    meta-data and relationships. Provides support for
+    multi-asset class and multi-currency portfolios.  Still
+    in heavy development.
+Version: 0.4.2
+URL: https://r-forge.r-project.org/projects/blotter/
+Date: $Date$
+Depends:
+    R (>= 2.12.0),
+    xts,
+    zoo
+Suggests:
+    quantmod
+Collate:
+    'buildHierarchy.R'
+    'buildSpread.R'
+    'build_symbols.R'
+    'instrument.R'
+    'instrument.table.R'
+    'load.instruments.R'
+    'redenominate.R'
+    'splice.R'
+    'splooth.R'
+    'synthetic.R'
+    'volep.R'

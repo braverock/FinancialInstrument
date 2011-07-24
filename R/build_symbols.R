@@ -9,11 +9,11 @@
 #' \code{"Mar,Jun,Sep,Dec"} for quarters as three-letter month abbreviations, etc.
 #' The correct values will vary based on your data source.
 #'
-#' @param yearlist vector of year suffixes to be applied, see Details
+#' TODO add more flexibility in input formats for \code{roots}
+#' #' @param yearlist vector of year suffixes to be applied, see Details
 #' @param roots data.frame containing at least columns \code{primary_id} and \code{month_cycle}, see Details
 #' @author Brian G. Peterson
 #' @seealso \code{\link{load.instruments}}
-#' @TODO add more flexibility in input formats for \code{roots}
 #' @export
 build_series_symbols <- function(roots, yearlist=c(0,1)) {
         symbols<-''

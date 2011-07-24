@@ -136,16 +136,19 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
 }
 
 #' @export
+#' @rdname instrument
 stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
 	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
 }
 
 #' @export
+#' @rdname instrument
 fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
     fund_temp =  instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
 }
 
 #' @export
+#' @rdname instrument
 future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
     if(is.null(underlying_id)) {
         warning("underlying_id should only be NULL for cash-settled futures")
@@ -174,11 +177,8 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' option_series
 #' future_series
 #' bond_series
-#' @usage 
-#' future_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...)
-#' option_series(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...)
-#' bond_series(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL)
 #' @export
+#' @rdname series_instrument
 future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
   contract<-try(getInstrument(primary_id))
   if(!inherits(contract,"future")) stop("futures contract spec must be defined first")
@@ -216,6 +216,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
 }
 
 #' @export
+#' @rdname instrument
 option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
   option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="option")
 
@@ -229,6 +230,7 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 }
 
 #' @export
+#' @rdname series_instrument
 option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...){
     contract<-try(getInstrument(primary_id))
     if(!inherits(contract,"option")) stop("options contract spec must be defined first")
@@ -344,6 +346,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 }
 
 #' @export
+#' @rdname instrument
 currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = NULL, ...){
   ## now structure and return
   currency_temp <- list(primary_id = primary_id,
@@ -399,11 +402,13 @@ exchange_rate <- function (primary_id , currency , counter_currency, identifiers
 
 #TODO  auction dates, coupons, etc for govmt. bonds
 #' @export
+#' @rdname instrument
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
     bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }
 
 #' @export
+#' @rdname series_instrument
 bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL){
     contract<-try(getInstrument(primary_id))
     if(!inherits(contract,"bond")) stop("bonds contract spec must be defined first")
@@ -441,6 +446,10 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 }
     
 #' primary accessor function for getting objects of type 'instrument'
+#' 
+#' This function will search the \code{.instrument} environment, using first the 
+#' \code{primary_id} and then any \code{identifiers} to locate the instrument.
+#' 
 #' @param x string identifier of instrument to retrieve
 #' @param Dates date range to retrieve 'as of', may not currently be implemented
 #' @param silent if TRUE, will not warn on failure, default FALSE

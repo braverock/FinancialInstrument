@@ -12,6 +12,7 @@
 ###############################################################################
 
 #' @export
+#' @rdname synthetic.instrument
 synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
 {
     synthetic_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )    
@@ -163,6 +164,7 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
 
 
 #' @export
+#' @rdname synthetic.instrument
 spread <- function (primary_id, currency = NULL, members, memberratio, tick_size=NULL,
     ..., multiplier = 1, identifiers = NULL) 
 {
@@ -174,6 +176,7 @@ spread <- function (primary_id, currency = NULL, members, memberratio, tick_size
 
 
 #' @export
+#' @rdname synthetic.instrument
 butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identifiers=NULL, ...)
 {
 ##TODO: butterfly can refer to expirations (futures) or strikes (options)
@@ -192,6 +195,7 @@ butterfly <- function(primary_id, currency=NULL, members,tick_size=NULL, identif
 
 
 #' @export
+#' @rdname synthetic.instrument
 guaranteed_spread <- calendar_spread <- function (primary_id, currency=NULL, root_id=NULL, suffix_id=NULL, members = NULL, memberratio = c(1,-1), ..., 
     multiplier = NULL, identifiers = NULL, tick_size=NULL)
 {
@@ -231,4 +235,3 @@ guaranteed_spread <- calendar_spread <- function (primary_id, currency=NULL, roo
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
 	"synthetic.instrument", "synthetic", "instrument"))
 }
-
