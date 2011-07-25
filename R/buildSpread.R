@@ -58,63 +58,63 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
       from <- times$first.time
       to <- times$last.time
     }
-    
+    last.to <- Sys.time()
     spreadseries <- NULL
     for (i in 1:length(spread_instr$members)) {
         instr <- try(getInstrument(as.character(spread_instr$members[i])))
-        if (inherits(instr, "try-error") || !is.instrument(instr)) {
+        if (inherits(instr, "try-error") || !is.instrument(instr)) 
             stop(paste("Instrument", instr, " not found, please create it first."))
-        }
-        else {
-            instr_currency <- instr$currency
-            instr_mult <- as.numeric(instr$multiplier)
-            instr_ratio <- spread_instr$memberratio[i]
-            instr_prices <- try(get(as.character(spread_instr$members[i],envir=.GlobalEnv)),silent=TRUE)
-	        # If we were able to find instr_prices in .GlobalEnv, check to make sure there is data between from and to.
-	        #if we couldn't find it in .GlobalEnv or there's no data between from and to, getSymbols
-	        if (inherits(instr_prices, "try-error") || (!is.null(Dates) && length(instr_prices[Dates]) == 0)) {
-                if (is.null(Dates)) {
-                    warning(paste(spread_instr$members[i],"not found in .GlobalEnv, and no Dates supplied. Trying getSymbols defaults.") )
-                    instr_prices <- getSymbols(as.character(spread_instr$members[i]),auto.assign=FALSE)
-                    from <- first(index(instr_prices))
-                    to <- last(index(instr_prices))
-                } else {
-                    warning(paste('Requested data for', spread_instr$members[i], 'not found in .GlobalEnv. Trying getSymbols.'))
-                    instr_prices <- getSymbols(as.character(spread_instr$members[i]), from = from, to = to, auto.assign=FALSE)
-                }
+        instr_currency <- instr$currency
+        instr_mult <- as.numeric(instr$multiplier)
+        instr_ratio <- spread_instr$memberratio[i]
+        instr_prices <- try(get(as.character(spread_instr$members[i],envir=.GlobalEnv)),silent=TRUE)
+        # If we were able to find instr_prices in .GlobalEnv, check to make sure there is data between from and to.
+        #if we couldn't find it in .GlobalEnv or there's no data between from and to, getSymbols
+        if (inherits(instr_prices, "try-error") || (!is.null(Dates) && length(instr_prices[Dates]) == 0)) {
+            if (is.null(Dates)) {
+                warning(paste(spread_instr$members[i],"not found in .GlobalEnv, and no Dates supplied. Trying getSymbols defaults.") )
+                instr_prices <- getSymbols(as.character(spread_instr$members[i]),auto.assign=FALSE)
+                from <- first(index(instr_prices))
+                to <- last(index(instr_prices))
+            } else {
+                warning(paste('Requested data for', spread_instr$members[i], 'not found in .GlobalEnv. Trying getSymbols.'))
+                instr_prices <- getSymbols(as.character(spread_instr$members[i]), from = from, to = to, auto.assign=FALSE)
             }
-	        if (is.null(Dates)) {
-	            from <- first(index(instr_prices))
-	            to <- last(index(instr_prices))
-	        }
-	        instr_prices <- instr_prices[paste(from,to,sep="::")]
-            ##TODO: if length(prefer > 1), use the first value that exists in colnames(instr_prices)
-            ##	i.e. treat prefer as an ordered vector of preferences.
-	        if (is.null(prefer)) { 
-	          if (is.HLC(instr_prices)) { 
-		        pref='Close'
-	          } else
-	          if (has.Mid(instr_prices)) {
-		        pref='Mid'
-	          } else
-	          if (has.Trade(instr_prices)) {
-		        pref='Trade'
-	          } else
-	          if (has.Price(instr_prices)) {
-		        pref='Price'
-	          } else pref=colnames(instr_prices)[1]
-	        } else pref=prefer
-	        if (ncol(instr_prices > 1)) instr_prices <- getPrice(instr_prices,prefer=pref)
-            if (instr$currency != spread_currency) 
-                instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
         }
+        if (is.null(Dates)) {
+            from <- first(index(instr_prices))
+            to <- last(index(instr_prices))
+        }
+        instr_prices <- instr_prices[paste(from,to,sep="::")]
+        ##TODO: if length(prefer > 1), use the first value that exists in colnames(instr_prices)
+        ##	i.e. treat prefer as an ordered vector of preferences.
+        if (is.null(prefer)) { 
+          if (is.HLC(instr_prices)) { 
+	        pref='Close'
+          } else
+          if (has.Mid(instr_prices)) {
+	        pref='Mid'
+          } else
+          if (has.Trade(instr_prices)) {
+	        pref='Trade'
+          } else
+          if (has.Price(instr_prices)) {
+	        pref='Price'
+          } else pref=colnames(instr_prices)[1]
+        } else pref=prefer
+        if (ncol(instr_prices > 1)) instr_prices <- getPrice(instr_prices,prefer=pref)
+        if (instr$currency != spread_currency) 
+            instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
         instr_norm <- instr_prices * instr_mult * instr_ratio
         colnames(instr_norm) <- paste(as.character(spread_instr$members[i]), 
             prefer, sep = ".")
         if (is.null(spreadseries)) 
             spreadseries <- instr_norm
         else spreadseries = merge(spreadseries, instr_norm)
+        first.from <- max(first.from, start(spreadseries))
+        last.to <- min(last.to, end(spreadseries))
     }
+    spreadseries <- spreadseries[paste(first.from,last.to,sep="/")]
     spreadseries <- na.locf(spreadseries,na.rm=TRUE)
     spreadlevel = xts(rowSums(spreadseries),order.by=index(spreadseries)) #assumes negative memberratio values for shorts in 'memberratio'
     if (onelot) 
