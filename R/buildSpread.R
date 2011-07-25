@@ -58,7 +58,6 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
       from <- times$first.time
       to <- times$last.time
     }
-    last.to <- Sys.time()
     spreadseries <- NULL
     for (i in 1:length(spread_instr$members)) {
         instr <- try(getInstrument(as.character(spread_instr$members[i])))
@@ -108,13 +107,17 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
         instr_norm <- instr_prices * instr_mult * instr_ratio
         colnames(instr_norm) <- paste(as.character(spread_instr$members[i]), 
             prefer, sep = ".")
-        if (is.null(spreadseries)) 
+        if (is.null(spreadseries)) {
             spreadseries <- instr_norm
-        else spreadseries = merge(spreadseries, instr_norm)
-        first.from <- max(first.from, start(spreadseries))
-        last.to <- min(last.to, end(spreadseries))
+            last.from <- start(spreadseries)
+            first.to <- end(spreadseries)        
+        } else {
+            spreadseries = merge(spreadseries, instr_norm)
+            last.from <- max(last.from, start(instr_norm)) 
+            first.to <- min(first.to, end(instr_norm))
+        }    
     }
-    spreadseries <- spreadseries[paste(first.from,last.to,sep="/")]
+    spreadseries <- spreadseries[paste(last.from, first.to, sep="/")]
     spreadseries <- na.locf(spreadseries,na.rm=TRUE)
     spreadlevel = xts(rowSums(spreadseries),order.by=index(spreadseries)) #assumes negative memberratio values for shorts in 'memberratio'
     if (onelot) 
