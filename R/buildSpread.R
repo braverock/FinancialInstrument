@@ -135,9 +135,14 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 
 #' Calculate prices of a spread from 2 instruments.
 #'
+#' Given 2 products, calculate spread values for as many columns as practicable 
+#'
+#' \code{prod1} and \code{prod2} can be the names of instruments, or the xts objects themselves.
+#' Alternatively, \code{prod2} can be omitted, and a vector of 2 instrument names can be given to \code{prod1}. 
+#' See the last example for this usage.
+#' 
 #' It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 #' If it cannot find the data, it will get it with a call to getSymbols. 
-#' 
 #' Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
 #' The second leg's notional values are multiplied by the ratio.
 #' Then the difference is taken between the notionals of leg1 and the new values for leg2.
@@ -147,8 +152,8 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' \sQuote{duplicated} removes any duplicate indexes.
 #' \sQuote{price.change} only return rows where there was a price change in the Bid, Mid or Ask Price of the spread.
 #'
-#' @param prod1 chr name of instrument that will be the 1st leg of a 2 leg spread
-#' @param prod2 chr name of instrument that will be the 2nd leg of a 2 leg spread
+#' @param prod1 chr name of instrument that will be the 1st leg of a 2 leg spread (Can also be xts data for first product)
+#' @param prod2 chr name of instrument that will be the 2nd leg of a 2 leg spread (Can also be xts data for second product)
 #' @param ratio hedge ratio. Can be a single number, or a vector of same length as data.
 #' @param currency chr name of currency denomination of the spread
 #' @param from from Date to pass through to getSymbols if needed.
@@ -181,6 +186,12 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #'
 #' fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) #assuming you first somehow calculated the ratio to be a constant 1.1
 #' head(fSB)
+#'
+#' # Call fn_SpreadBuilder with vector of 2 instrument names
+#' # in 1 arg instead of using both prod1 and prod2.
+#' fSB4 <- fn_SpreadBuilder(c("SPY","DIA"))
+#' #download data and plot the closing values of a spread in one line
+#' chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")))))
 #' }
 #' @export
 fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, to=NULL, session_times=NULL, 
@@ -189,6 +200,11 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
 ##TODO: allow for different methods for calculating Bid and Ask 
     if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
         stop("Please install quantmod before using this function.")
+    }
+
+    if (length(prod1) == 2 && missing(prod2)) {
+        prod2 <- prod1[2]
+        prod1 <- prod1[1]
     }
 
     unique_method<-unique_method[1]

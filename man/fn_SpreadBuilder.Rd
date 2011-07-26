@@ -9,10 +9,12 @@
 }
 \arguments{
   \item{prod1}{chr name of instrument that will be the 1st
-  leg of a 2 leg spread}
+  leg of a 2 leg spread (Can also be xts data for first
+  product)}
 
   \item{prod2}{chr name of instrument that will be the 2nd
-  leg of a 2 leg spread}
+  leg of a 2 leg spread (Can also be xts data for second
+  product)}
 
   \item{ratio}{hedge ratio. Can be a single number, or a
   vector of same length as data.}
@@ -42,16 +44,24 @@
   column.
 }
 \description{
-  It will try to get data for \code{prod1} and \code{prod2}
-  from .GlobalEnv. If it cannot find the data, it will get
-  it with a call to getSymbols.
+  Given 2 products, calculate spread values for as many
+  columns as practicable
 }
 \details{
-  Prices are multiplied by multipliers and exchange rates
-  to get notional values in the currency specified. The
-  second leg's notional values are multiplied by the ratio.
-  Then the difference is taken between the notionals of
-  leg1 and the new values for leg2.
+  \code{prod1} and \code{prod2} can be the names of
+  instruments, or the xts objects themselves.
+  Alternatively, \code{prod2} can be omitted, and a vector
+  of 2 instrument names can be given to \code{prod1}. See
+  the last example for this usage.
+
+  It will try to get data for \code{prod1} and \code{prod2}
+  from .GlobalEnv. If it cannot find the data, it will get
+  it with a call to getSymbols. Prices are multiplied by
+  multipliers and exchange rates to get notional values in
+  the currency specified. The second leg's notional values
+  are multiplied by the ratio. Then the difference is taken
+  between the notionals of leg1 and the new values for
+  leg2.
 
   \sQuote{make.index.unique} uses the xts function
   \code{make.index.unique} \sQuote{least.liq} subsets the
@@ -75,6 +85,12 @@ fSB2 <- fn_SpreadBuilder(SPY,DIA) # or you can pass xts objects
 
 fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) #assuming you first somehow calculated the ratio to be a constant 1.1
 head(fSB)
+
+# Call fn_SpreadBuilder with vector of 2 instrument names
+# in 1 arg instead of using both prod1 and prod2.
+fSB4 <- fn_SpreadBuilder(c("SPY","DIA"))
+#download data and plot the closing values of a spread in one line
+chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")))))
 }
 }
 \author{
