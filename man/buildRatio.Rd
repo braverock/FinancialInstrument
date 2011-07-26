@@ -19,13 +19,15 @@
   Calculates time series of ratio of 2 instruments using
   available data. Returned object will be ratios calculated
   using Bids, Asks, and Mids, or Opens, Closes, and
-  Adjusteds. \code{x} should be a vector of 2 instrument
-  names. An attempt will be made to \code{get} the data for
-  both instruments.  If there are no xts data stored under
-  either of the names, it will try to return prebuilt data
-  with a call to \code{\link{.get_rate}}.
+  Adjusteds.
 }
 \details{
+  \code{x} should be a vector of 2 instrument names. An
+  attempt will be made to \code{get} the data for both
+  instruments.  If there are no xts data stored under
+  either of the names, it will try to return prebuilt data
+  with a call to \code{\link{.get_rate}}.
+
   If the data are not of the same frequency, or are not of
   the same type (OHLC, BBO, etc.) An attempt will be made
   to make them compatible.  Preference is given to the

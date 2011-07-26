@@ -24,8 +24,8 @@
   \item{env}{environment in which to assign spread.}
 }
 \value{
-  If \code{auto.assign} is FALSE, a univariate xts object
-  otherwise, the xts object will be assigned to
+  If \code{auto.assign} is FALSE, a univariate xts object.
+  Otherwise, the xts object will be assigned to
   \code{spread_id} and the \code{spread_id} will be
   returned.
 }

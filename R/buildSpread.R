@@ -16,8 +16,8 @@
 #' @param prefer price column to use to build structure.
 #' @param auto.assign assign the spread? If FALSE, the xts object will be returned
 #' @param env environment in which to assign spread.
-#' @return If \code{auto.assign} is FALSE, a univariate xts object 
-#' otherwise, the xts object will be assigned to \code{spread_id} and the \code{spread_id} will be returned.
+#' @return If \code{auto.assign} is FALSE, a univariate xts object. 
+#' Otherwise, the xts object will be assigned to \code{spread_id} and the \code{spread_id} will be returned.
 #' @seealso 
 #' \code{\link{fn_SpreadBuilder}}
 #' \code{\link{spread}} for instructions on defining the spread
@@ -141,7 +141,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 #' Alternatively, \code{prod2} can be omitted, and a vector of 2 instrument names can be given to \code{prod1}. 
 #' See the last example for this usage.
 #' 
-#' It will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
+#' If \code{prod1} and \code{prod2} are names (not xts data), it will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
 #' If it cannot find the data, it will get it with a call to getSymbols. 
 #' Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
 #' The second leg's notional values are multiplied by the ratio.

@@ -27,11 +27,13 @@
   currency (base).
 }
 \description{
+
+}
+\details{
   If \code{x} is the name of an instrument, old_base is not
   required and will become whatever is in the currency slot
   of the instrument. Otherwise, old_base must be provided.
-}
-\details{
+
   If you want to convert to JPY something that is
   denominated in EUR, you must have data for the EURJPY (or
   JPYEUR) exchange rate. If you don't have data for EURJPY,

@@ -54,14 +54,15 @@
   of 2 instrument names can be given to \code{prod1}. See
   the last example for this usage.
 
-  It will try to get data for \code{prod1} and \code{prod2}
-  from .GlobalEnv. If it cannot find the data, it will get
-  it with a call to getSymbols. Prices are multiplied by
-  multipliers and exchange rates to get notional values in
-  the currency specified. The second leg's notional values
-  are multiplied by the ratio. Then the difference is taken
-  between the notionals of leg1 and the new values for
-  leg2.
+  If \code{prod1} and \code{prod2} are names (not xts
+  data), it will try to get data for \code{prod1} and
+  \code{prod2} from .GlobalEnv. If it cannot find the data,
+  it will get it with a call to getSymbols. Prices are
+  multiplied by multipliers and exchange rates to get
+  notional values in the currency specified. The second
+  leg's notional values are multiplied by the ratio. Then
+  the difference is taken between the notionals of leg1 and
+  the new values for leg2.
 
   \sQuote{make.index.unique} uses the xts function
   \code{make.index.unique} \sQuote{least.liq} subsets the
