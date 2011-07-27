@@ -44,7 +44,9 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' \code{contracts_ahead} should contain a comma-delimited string describing
 #' the cycle on which the guaranteed calendar spreads are to be consructed,
 #' e.g. '1' for one-month spreads, '1,3' for one and three month spreads,
-#' '1,6,12' for 1, 6, and 12 month spreads, etc.
+#' '1,6,12' for 1, 6, and 12 month spreads, etc.  
+#' For quarterly symbols, the correct \code{contracts_ahead} may be 
+#' something like '1,2,4' for quarterly, bi-annual, and annual spreads.  
 #'
 #' \code{active_months} is a numeric field indicating how many months including  
 #' the month of the \code{start_date} the contract is available to trade.  
@@ -109,7 +111,7 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
                         contractName<-makeNameCal(Data$primary_id[i],workingContractMonthLet,workingContractYearNum,newCalMonthLetter,newCalYearNumber)
                         calRow<-cbind(contractName,dataRow$type[1])
                         #Other data would be added here.  Take in a row from root contracts, add other details (EG timezone, currency, etc...)
-                        calFrame<-rbind(calFrame,contractName)
+                        calFrame<-rbind(calFrame,calRow)
                 }
                 return(calFrame)
         }
@@ -146,12 +148,12 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
 			#rbind it to the contractFrame
 		}
 
-                for(j in 1:(Data$active_months[i]-1)){
-                        yearsAhead=trunc(j/length(monthsTraded))%%10 #aka if it's 10+ years ahead, since the year is one digit, for contracts further out than 10 years, you'll get 0, 1, 2, 3 instead of 10, 11, 12, etc.
-                        monthContractsAhead=j%%length(monthsTraded)
-                        currentContractNum<-as.numeric(contractTable[which(contractTable[,1]==currentContractMonthLet),2])
-                        monthIndex=currentContractNum+monthContractsAhead
-                        if(monthIndex>length(monthsTraded)){
+        for(j in 1:(Data$active_months[i]-1)){
+            yearsAhead=trunc(j/length(monthsTraded))%%10 #aka if it's 10+ years ahead, since the year is one digit, for contracts further out than 10 years, you'll get 0, 1, 2, 3 instead of 10, 11, 12, etc.
+            monthContractsAhead=j%%length(monthsTraded)
+            currentContractNum<-as.numeric(contractTable[which(contractTable[,1]==currentContractMonthLet),2])
+            monthIndex=currentContractNum+monthContractsAhead
+            if(monthIndex>length(monthsTraded)){
 				yearsAhead<-(yearsAhead+1)%%10
 				monthIndex=monthIndex-length(monthsTraded)
 			}
@@ -166,16 +168,16 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
 				#rbind it to the contractFrame
 			}
 		}
-        }
+    }
 
-        rownames(contractFrame)<-NULL
-        colnames(contractFrame)<-c("RICs","type")
+    rownames(contractFrame)<-NULL
+    colnames(contractFrame)<-c("RICs","type")
 
-        if(!is.null(outputfile)){
-                write.csv(contractFrame,outputfile) 
-        } else {
-                return(contractFrame)
-        }
+    if(!is.null(outputfile)){
+            write.csv(contractFrame,outputfile) 
+    } else {
+            return(contractFrame)
+    }
 }
 
 ###############################################################################
