@@ -46,7 +46,7 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' e.g. '1' for one-month spreads, '1,3' for one and three month spreads,
 #' '1,6,12' for 1, 6, and 12 month spreads, etc.  
 #' For quarterly symbols, the correct \code{contracts_ahead} may be 
-#' something like '1,2,4' for quarterly, bi-annual, and annual spreads.  
+#' something like '1,2,3' for quarterly, bi-annual, and annual spreads.  
 #'
 #' \code{active_months} is a numeric field indicating how many months including  
 #' the month of the \code{start_date} the contract is available to trade.  
@@ -98,8 +98,13 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
 		contractIndex<-c(1:length(monthsTraded))
 		contractTable<-cbind(monthsTraded,contractIndex)
 		for(k in 1:length(calContracts)){
-			yearsAhead=trunc(calContracts[k]/length(monthsTraded))%%10
-			monthContractsAhead=calContracts[k]%%length(monthsTraded)
+            if(length(monthsTraded)==12 & calContracts[k]>1){
+                yearsAhead = trunc((calContracts[k]-1)/length(monthsTraded))%%10
+                monthContractsAhead=(calContracts[k]-1)%%length(monthsTraded)
+            } else {
+                yearsAhead=trunc(calContracts[k]/length(monthsTraded))%%10
+                monthContractsAhead=calContracts[k]%%length(monthsTraded)
+            }
 			workingContractNum<-as.numeric(contractTable[which(contractTable[,1]==workingContractMonthLet),2])
 			monthIndex=workingContractNum+monthContractsAhead
 			if(monthIndex>length(monthsTraded)){
@@ -171,7 +176,7 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
     }
 
     rownames(contractFrame)<-NULL
-    colnames(contractFrame)<-c("RICs","type")
+    colnames(contractFrame)<-c("symbol","type")
 
     if(!is.null(outputfile)){
             write.csv(contractFrame,outputfile) 
