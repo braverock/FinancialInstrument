@@ -14,6 +14,7 @@
 "HKD","Hong Kong Dollar","currency"," ",
 "USDEUR",,"exchange_rate","EUR","USD"
 "EURUSD",,"exchange_rate","USD","EUR"
+"EURGBP",,"exchange_rate","GBP","EUR"
 "USDJPY",,"exchange_rate","JPY","USD"
 "JPYEUR",,"exchange_rate","EUR","JPY"
 "USDAUD",,"exchange_rate","AUD","USD"
