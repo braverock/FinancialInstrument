@@ -34,10 +34,11 @@
   \item{primary_id}{string describing the unique ID for the
   instrument}
 
-  \item{...}{any other passthru parameters, including
-  underlying_id for derivatives -- the identifier of the
-  instrument that this one is derived from, may be NULL for
-  cash settled instruments}
+  \item{...}{any other passthru parameters, including}
+
+  \item{underlying_id}{for derivatives, the identifier of
+  the instrument that this one is derived from, may be NULL
+  for cash settled instruments}
 
   \item{currency}{string describing the currency ID of an
   object of type \code{\link{currency}}}

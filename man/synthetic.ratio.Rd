@@ -21,7 +21,10 @@
   identifiers that should also be stored for this
   instrument}
 
-  \item{...}{any other passthru parameters}
+  \item{...}{any other passthru parameters such as
+  tick_size -- the tick increment of the instrument price
+  in it's trading venue, as numeric quantity (e.g. 1/8 is
+  .125)}
 
   \item{type}{class string, should not be set by users}
 
@@ -30,10 +33,6 @@
 
   \item{memberratio}{numeric vector of ratio relationships
   between members, e.g. c(4,3) for a 4:3 spread}
-
-  \item{tick_size}{the tick increment of the instrument
-  price in it's trading venue, as numeric quantity (e.g.
-  1/8 is .125)}
 }
 \description{
   THIS FUNCTION HAS BEEN DEPRECATED. Use

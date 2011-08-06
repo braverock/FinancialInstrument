@@ -36,11 +36,10 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param currency string describing the currency ID of an object of type \code{\link{currency}}
 #' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
 #' @param identifiers character vector of any other identifiers that should also be stored for this instrument
-#' @param ... any other passthru parameters 
+#' @param ... any other passthru parameters such as tick_size -- the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @param type class string, should not be set by users
 #' @param members character vector of instrument identifiers that make up the synthetic
 #' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
-#' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @note DEPRECATED
 #' @export
 synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic","instrument"))

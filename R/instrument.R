@@ -55,7 +55,8 @@ is.instrument <- function( x ) {
 #' before assignment.
 #' 
 #' @param primary_id string describing the unique ID for the instrument
-#' @param ... any other passthru parameters, including underlying_id for derivatives -- the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
+#' @param ... any other passthru parameters, including 
+#' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
 #' @param currency string describing the currency ID of an object of type \code{\link{currency}}
 #' @param multiplier numeric multiplier to apply to the price in the instrument currency to get to notional value
 #' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
@@ -180,6 +181,12 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @export
 #' @rdname series_instrument
 future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
+  if (!identical(primary_id,gsub("_","",primary_id)) && missing(suffix_id)) { 
+  #if primary_id has an underscore in it and there is no suffix_id
+      ss <- strsplit(primary_id, "_")[[1]]      
+      primary_id <- ss[1]
+      suffix_id <- ss[2]
+  }
   contract<-try(getInstrument(primary_id))
   if(!inherits(contract,"future")) stop("futures contract spec must be defined first")
 
@@ -472,3 +479,30 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE){
     }
     #TODO add Date support to instrument, to get the proper value given a specific date
 }
+
+
+#' add or change an attribute of an instrument
+#' 
+#' This function will add or overwrite the data stored in the specified slot of the specified instrument.
+#' @param primary_id primary_id of the instrument that will be updated
+#' @param attr name of the slot that will be added or changed
+#' @param value what to assign to the \code{attr} slot of the \code{primary_id} instrument
+#' @return called for side-effect
+#' @examples
+#' \dontrun{
+#' currency("USD")
+#' stock("SPY","USD")
+#' instrument_attr('USD','description',"U.S. Dollar")
+#' instrument_attr("SPY", "description", 'An ETF')
+#' getInstrument("USD")
+#' getInstrument("SPY")
+#' }
+#' @export
+instrument_attr <- function(primary_id, attr, value) {
+    instr <- try(getInstrument(primary_id))
+    if (inherits(instr, 'try-error') || !is.instrument(instr))
+        stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
+    instr[[attr]] <- value
+    assign(primary_id, instr, pos=.instrument)
+}
+

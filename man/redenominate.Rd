@@ -27,7 +27,7 @@
   currency (base).
 }
 \description{
-
+  Redenominate (change the base of) an instrument
 }
 \details{
   If \code{x} is the name of an instrument, old_base is not

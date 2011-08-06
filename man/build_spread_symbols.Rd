@@ -42,7 +42,10 @@
   string describing the cycle on which the guaranteed
   calendar spreads are to be consructed, e.g. '1' for
   one-month spreads, '1,3' for one and three month spreads,
-  '1,6,12' for 1, 6, and 12 month spreads, etc.
+  '1,6,12' for 1, 6, and 12 month spreads, etc. For
+  quarterly symbols, the correct \code{contracts_ahead} may
+  be something like '1,2,3' for quarterly, bi-annual, and
+  annual spreads.
 
   \code{active_months} is a numeric field indicating how
   many months including the month of the \code{start_date}

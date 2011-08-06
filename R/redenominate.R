@@ -264,7 +264,7 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
 
 #' Redenominate (change the base of) an instrument
 #'
-#' 
+#' Redenominate (change the base of) an instrument
 #'
 #' If \code{x} is the name of an instrument, old_base is not required 
 #' and will become whatever is in the currency slot of the instrument.  
