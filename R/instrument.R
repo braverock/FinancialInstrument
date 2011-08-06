@@ -488,13 +488,18 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE){
 #' @param attr name of the slot that will be added or changed
 #' @param value what to assign to the \code{attr} slot of the \code{primary_id} instrument
 #' @return called for side-effect
+#' @note you can remove an attribute/slot from an instrument by calling this function with \code{value=NULL}
 #' @examples
 #' \dontrun{
 #' currency("USD")
 #' stock("SPY","USD")
-#' instrument_attr('USD','description',"U.S. Dollar")
-#' instrument_attr("SPY", "description", 'An ETF')
+#' instrument_attr("USD","description","U.S. Dollar")
+#' instrument_attr("SPY", "description", "An ETF")
 #' getInstrument("USD")
+#' getInstrument("SPY")
+#' 
+#' #Call with value=NULL to remove an attribute
+#' instrument_attr("SPY", "description", NULL)
 #' getInstrument("SPY")
 #' }
 #' @export
