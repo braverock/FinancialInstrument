@@ -8,7 +8,7 @@
   \item{x}{the suffix_id to be parsed}
 
   \item{silent}{silence warnings? (warning will usually be
-  about infering a 4 digit year from a 1 or 2 digit year)}
+  about inferring a 4 digit year from a 1 or 2 digit year)}
 }
 \value{
   an object of class \sQuote{suffix.list} which is a list
@@ -33,11 +33,11 @@
   These would be recognized as Sep 2011 single stock
   futures: 1CU1, 1CU11, 1CSEP11, 1DU1 (dividend protected)
 
-  These would be recognized as Adjusted futures: cm.30 ==
-  30 day constant maturity future cc.OI == continuous
-  contract rolled when Open Interest rolls cc.Vol ==
-  continuous contract roll when Volumn rolls cc.Exp.1 ==
-  continuous contract rolled 1 day before Expiration
+  These would be recognized as Adjusted futures: cm.30 (30
+  day constant maturity future), cc.OI (continuous contract
+  rolled when Open Interest rolls), cc.Vol (continuous
+  contract roll when Volumn rolls), cc.Exp.1 (continuous
+  contract rolled 1 day before Expiration)
 
   Synthetics only return a value for the $type slot: U1.Z1
   --> type == calendar, spread; U11.Z11 --> type ==

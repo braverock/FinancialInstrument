@@ -76,10 +76,10 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' 1CU1, 1CU11, 1CSEP11, 1DU1 (dividend protected)
 #'
 #' These would be recognized as Adjusted futures:
-#' cm.30 == 30 day constant maturity future
-#' cc.OI == continuous contract rolled when Open Interest rolls
-#' cc.Vol == continuous contract roll when Volumn rolls
-#' cc.Exp.1 == continuous contract rolled 1 day before Expiration
+#' cm.30 (30 day constant maturity future),
+#' cc.OI (continuous contract rolled when Open Interest rolls),
+#' cc.Vol (continuous contract roll when Volumn rolls),
+#' cc.Exp.1 (continuous contract rolled 1 day before Expiration)
 #'
 #' Synthetics only return a value for the $type slot:
 #' U1.Z1 --> type == calendar, spread; 
@@ -87,7 +87,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' SPY.DIA --> type == synthetic; 
 #' 110917C125.110917P125 --> type == option_spread, spread
 #' @param x the suffix_id to be parsed
-#' @param silent silence warnings? (warning will usually be about infering a 4 digit year from a 1 or 2 digit year)
+#' @param silent silence warnings? (warning will usually be about inferring a 4 digit year from a 1 or 2 digit year)
 #' @return an object of class \sQuote{suffix.list} which is a list containing \sQuote{type} of instrument, 
 #' \sQuote{month} of expiration, \sQuote{year} of expiration, \sQuote{strike} price of option, 
 #' \sQuote{right} of option (\dQuote{C} or \dQuote{P}), \sQuote{cm} (maturity in days of a constant maturity contract),
