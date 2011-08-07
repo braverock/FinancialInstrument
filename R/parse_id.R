@@ -8,12 +8,16 @@
 #' to handle most ids even if the underscore is missing). 
 #' After splitting \code{x} into a root_id and suffix_id, the suffix_id is 
 #' passed to \code{\link{parse_suffix}} (see also) for further processing.
+#' 
+#' TODO: add support for bond_series.  
 #' @param x the id to be parsed (e.g. \sQuote{ES_U11}, \sQuote{SPY_111217C130})
 #' @param silent silence warnings?
 #' @param root character name of instrument root_id.  Optionally provide this to make parsing easier.
 #' @return a list of class \sQuote{id.list} containing \sQuote{root} and \sQuote{suffix} as well as 
 #' what is returned from \code{\link{parse_suffix}} (type, month, year, strike, right, cm, cc)
 #' @author Garrett See
+#' @note this function will identify \code{x} as an \code{\link{exchange_rate}} only if it is 
+#' 6 characters long and made up of 2 previously defined \code{\link{currency}} instruments.
 #' @seealso \code{\link{parse_suffix}}
 #' @examples
 #' parse_id("ES_Z11")
@@ -21,9 +25,21 @@
 #' parse_id("SPY_111217C130")
 #' @export
 parse_id <- function(x, silent=TRUE, root=NULL) {
+    sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate'
     if (!is.null(root)) {
             suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
             suffix <- gsub("_","",x) #take out the underscore if there is one
+    } else if (identical(integer(0), grep("[0-9]",x))) { 
+        #if there are no numbers in the id, then it has no year, so it is not a recognized future or option
+        root <- x
+        suffix <- ""
+        if (nchar(x) == 6) {
+            if (is.instrument(getInstrument(substr(x,1,3),silent=TRUE)) 
+                && is.instrument(getInstrument(substr(x,4,6),silent=TRUE))) {
+                type <- c('exchange_rate', 'root')
+                sufftype <- FALSE
+            }
+        }
     } else if (identical(x, gsub('_','',x))) { #no underscore; have to guess what is root and what is suffix       
         hasdot <- !identical(integer(0),grep("\\.",x))        
         if (!silent) 
@@ -57,7 +73,8 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         suffix <- strsplit(x,"_")[[1]][2]
     }
     suff <- parse_suffix(suffix, silent=silent)
-    structure(list(root=root, suffix=suffix, type=suff$type, month=suff$month, 
+    if (sufftype) type <- suff$type
+    structure(list(root=root, suffix=suffix, type=type, month=suff$month, 
                     year=suff$year, strike=suff$strike, right=suff$right, 
                     cm=suff$cm, cc=suff$cc),class='id.list')
 }

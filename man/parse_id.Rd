@@ -33,6 +33,14 @@
   After splitting \code{x} into a root_id and suffix_id,
   the suffix_id is passed to \code{\link{parse_suffix}}
   (see also) for further processing.
+
+  TODO: add support for bond_series.
+}
+\note{
+  this function will identify \code{x} as an
+  \code{\link{exchange_rate}} only if it is 6 characters
+  long and made up of 2 previously defined
+  \code{\link{currency}} instruments.
 }
 \examples{
 parse_id("ES_Z11")
