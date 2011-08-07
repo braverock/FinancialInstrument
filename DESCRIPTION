@@ -32,3 +32,5 @@ Collate:
     'splooth.R'
     'synthetic.R'
     'volep.R'
+    'parse_id.R'
+    'MonthCodes.R'
