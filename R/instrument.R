@@ -54,6 +54,11 @@ is.instrument <- function( x ) {
 #' prior to further processing (and presumably assignment) or to test your parameters
 #' before assignment.
 #' 
+#' \code{future} and \code{option} are used to define the contract specs of a series of instruments.  The
+#' \code{primary_id} for these can begin with 1 or 2 dots if you need to avoid overwriting another instrument.
+#' For example, if you have a \code{stock} with \sQuote{SPY} as the \code{primary_id}, you could use 
+#' \sQuote{.SPY} as the \code{primary_id} of the \code{option} specs, and \sQuote{..SPY} as the 
+#' \code{primary_id} of the single stock \code{future} specs. (or vice versa)
 #' @param primary_id string describing the unique ID for the instrument
 #' @param ... any other passthru parameters, including 
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
@@ -162,15 +167,23 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 
 #' constructors for series contracts on instruments such as options and futures
 #' 
+#' constructors for series contracts on instruments such as options and futures
+#'
 #' In custom parameters for these series contracts, we have often found it
 #' useful to store attributes such as local roll-on and roll-off dates
-#' (rolling not on the \code{first_listed} or \code{expires}
+#' (rolling not on the \code{first_listed} or \code{expires}.  
+#'
+#' For \code{future_series} and \code{option_series} you may either provide a \code{primary_id}, or both 
+#' a \code{root_id} and \code{suffix_id}.
 #' @param primary_id string describing the unique ID for the instrument
+#' @param root_id string product code or underlying_id, usually something like 'ES' or 'CL' for futures, 
+#' or the underlying stock symbol (maybe preceded with a dot) for equity options.
 #' @param suffix_id string suffix that should be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year
 #' @param first_traded string coercible to Date for first trading day
 #' @param expires string coercible to Date for expiration date
 #' @param maturity string coercible to Date for maturity date of bond series
 #' @param callput right of option; call or put
+#' @param strike strike price of option
 #' @param payment_schedule not currently being implemented
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param ... any other passthru parameters
@@ -178,36 +191,66 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' option_series
 #' future_series
 #' bond_series
+#' @examples
+#' \dontrun{
+#' currency("USD")
+#' future("ES","USD",multiplier=50, tick_size=0.25)
+#' future_series('ES_U1')
+#' future_series(root_id='ES',suffix_id='Z11')
+#' stock('SPY','USD')
+#' option('.SPY','USD',multiplier=100,underlying_id='SPY')
+#' #can use either .SPY or SPY for the root_id. 
+#' #it will find the one that is option specs.
+#' option_series('SPY_110917C125', expires='2011-09-16')
+#' option_series(root_id='SPY',suffix_id='111022P125')
+#' option_series(root_id='.SPY',suffix_id='111119C130')
+#' }
 #' @export
 #' @rdname series_instrument
-future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
-  if (!identical(primary_id,gsub("_","",primary_id)) && missing(suffix_id)) { 
-  #if primary_id has an underscore in it and there is no suffix_id
-      ss <- strsplit(primary_id, "_")[[1]]      
-      primary_id <- ss[1]
-      suffix_id <- ss[2]
-  }
-  contract<-try(getInstrument(primary_id))
-  if(!inherits(contract,"future")) stop("futures contract spec must be defined first")
+future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
+  if (missing(primary_id)) {
+      if (all(is.null(c(root_id,suffix_id))))
+          stop('must provide either a primary_id or both a root_id and a suffix_id')
+      else primary_id <- paste(root_id, suffix_id, sep="_")
+  } 
 
+  pid <- parse_id(primary_id)
+  if (is.null(root_id)) root_id <- pid$root
+  if (is.null(suffix_id)) suffix_id <- pid$suffix
+  if (is.null(expires)) {
+    expires <- paste(pid$year, sprintf("%02d",match(pid$month, toupper(month.abb))),sep='-') 
+    #if expires now has an NA in it, set it back to NULL
+    if (!identical(integer(0), grep("NA",expires))) expires <- NULL
+  }
+
+  contract<-try(getInstrument(root_id,silent=TRUE))
+  if(!inherits(contract,"future")) {
+      contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
+      if(!inherits(contract,"future")) {
+          contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
+          if (!inherits(contract,"future")) 
+            stop("futures contract spec must be defined first")
+      }
+  }
+  
   # TODO add check for Date equivalent in first_traded and expires
 
   ## with futures series we probably need to be more sophisticated,
   ## and find the existing series from prior periods (probably years or months)
   ## and then add the first_traded and expires to the time series bu splicing
-  id<-paste(primary_id, suffix_id,sep="_")
-  temp_series<-try(getInstrument(id, silent=TRUE),silent=TRUE)
+  temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
   if(inherits(temp_series,"future_series")) {
-      message("updating existing first_traded and expires for ",id)
+      message("updating existing first_traded and expires for ",primary_id)
       temp_series$first_traded<-c(temp_series$first_traded,first_traded)
       temp_series$expires<-c(temp_series$expires,expires)
-      assign(id, temp_series, envir=as.environment(.instrument))
+      assign(primary_id, temp_series, envir=as.environment(.instrument))
   } else {
       dargs<-list(...)
       dargs$currency=NULL
       dargs$multiplier=NULL
       dargs$type=NULL
-      temp_series = instrument( primary_id = id,
+      temp_series = instrument( primary_id = primary_id,
+                                 root_id = root_id,
                                  suffix_id=suffix_id,
                                  currency = contract$currency,
                                  multiplier = contract$multiplier,
@@ -216,6 +259,7 @@ future_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
                                  expires = expires,
                                  identifiers = identifiers,
                                  type=c("future_series", "future"),
+                                 underlying_id = contract$underlying_id,
                                  ...=dargs,
                                  assign_i=TRUE
                               ) 
@@ -238,22 +282,50 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 
 #' @export
 #' @rdname series_instrument
-option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NULL, callput=c("call","put"), identifiers = NULL, ...){
-    contract<-try(getInstrument(primary_id))
-    if(!inherits(contract,"option")) stop("options contract spec must be defined first")
+option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_traded=NULL, 
+                            expires=NULL, callput=c("call","put"), strike=NULL, identifiers = NULL, ...){
+    if (missing(primary_id) ) {
+        if (all(is.null(c(root_id,suffix_id)))) 
+            stop('must provide either a primary_id or both a root_id and a suffix_id')
+        else primary_id <- paste(root_id, suffix_id, sep="_")
+    } 
+
+    pid <- parse_id(primary_id)
+    if (is.null(root_id)) root_id <- pid$root
+    if (is.null(suffix_id)) suffix_id <- pid$suffix
+    if (is.null(strike)) {
+        if (is.na(pid$strike)) stop('strike must be provided.')
+        strike <- pid$strike
+    }
+    if (is.null(expires)) {
+        expires <- paste(pid$year, sprintf("%02d",match(pid$month, toupper(month.abb))),sep='-') 
+        #if expires has an NA in it, set it back to NULL
+        if (!identical(integer(0), grep("NA",expires))) expires <- NULL 
+    }
+    contract<-try(getInstrument(root_id,silent=TRUE))
+    if(!inherits(contract,"option")) {
+        contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
+        if(!inherits(contract,"option")) {
+            contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
+            if(!inherits(contract,"option")) 
+                stop("options contract spec must be defined first")
+        }
+    }    
+    
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)
     ## and then add the first_traded and expires to the time series
-    if(length(callput)==2) stop("value of callput must be specified as 'call' or 'put'")
-    id<-paste(primary_id, suffix_id,sep="_")
-    temp_series<-try(getInstrument(id, silent=TRUE),silent=TRUE)
+    if(length(callput)==2) callput <- switch(pid$right, C='call', P='put')
+    if (is.null(callput)) stop("value of callput must be specified as 'call' or 'put'")
+    temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
     if(inherits(temp_series,"option_series")) {
-        message("updating existing first_traded and expires for ", id)
+        message("updating existing first_traded and expires for ", primary_id)
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
         temp_series$expires<-c(temp_series$expires,expires)
-        assign(id, temp_series, envir=as.environment(.instrument))
+        assign(primary_id, temp_series, envir=as.environment(.instrument))
     } else {
-        temp_series = instrument( primary_id = id,
+        temp_series = instrument( primary_id = primary_id,
+                                    root_id = root_id,
                                     suffix_id = suffix_id,
                                     currency = contract$currency,
                                     multiplier = contract$multiplier,
@@ -261,6 +333,9 @@ option_series <- function(primary_id , suffix_id, first_traded=NULL, expires=NUL
                                     first_traded = first_traded,
                                     expires = expires,
                                     identifiers = identifiers,
+                                    callput = callput,
+                                    strike = strike,
+                                    underlying_id = contract$underlying_id,
                                     ...,
                                     type=c("option_series", "option"),
                                     assign_i=TRUE

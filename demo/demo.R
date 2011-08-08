@@ -23,7 +23,13 @@ stock("DIA","USD")
 option(".IBM","USD",multiplier=100,tick_size=.01, underlying_id="IBM")
 
 #Define tradeable option_series instrument 
-option_series(".IBM","20110716C175", expires="2011-07-16", callput='call',underlying_id='IBM')
+# (the expiration date in the suffix_id is a Saturday. 
+# You may want to use the Friday before that in 'expires')
+option_series(root_id="IBM", suffix_id="110716C175", expires="2011-07-15", callput='call',underlying_id='IBM')
+# Also note that even though we defined the root with a primary_id of '.IBM', 
+# 'option_series' will still be able to find it when we call it with root_id='IBM' 
+option_series(primary_id='IBM_110917P175', expires='2011-09-16')
+option_series('IBM_110917C175') #magically figures everthing out...however, expires will be '2011-09' with no day.
 
 #Or use yahoo to help define the specs and all near-term options
 option_series.yahoo('SPY')
@@ -32,6 +38,16 @@ option_series.yahoo('SPY')
 #load.instruments("./FinancialInstrument/data/currencies.csv")
 #load.instruments("./FinancialInstrument/data/root_contracts.csv")
 #load.instruments("./FinancialInstrument/data/future_series.csv")
+
+# Define a futures root
+future("ES",'USD',multiplier=50)
+future_series(root_id='ES', suffix_id='Z11', expires='2011-12-16')
+# or use magic if you are okay with an 'expires' that is just YYYY-MM
+future_series("ES_U11")
+# future_series("ESM2") #this would work, but it is recommended to use the underscore to avoid ambiguity.
+future_series("ES_M2")
+# You can later update the expiration date manually if you like
+instrument_attr("ES_M2", 'expires', '2012-06-15')
 
 # bond & bond future
 

@@ -106,6 +106,16 @@
   \code{instrument} prior to further processing (and
   presumably assignment) or to test your parameters before
   assignment.
+
+  \code{future} and \code{option} are used to define the
+  contract specs of a series of instruments.  The
+  \code{primary_id} for these can begin with 1 or 2 dots if
+  you need to avoid overwriting another instrument. For
+  example, if you have a \code{stock} with \sQuote{SPY} as
+  the \code{primary_id}, you could use \sQuote{.SPY} as the
+  \code{primary_id} of the \code{option} specs, and
+  \sQuote{..SPY} as the \code{primary_id} of the single
+  stock \code{future} specs. (or vice versa)
 }
 \seealso{
   \code{\link{exchange_rate}} \code{\link{option_series}}
