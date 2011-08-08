@@ -137,20 +137,22 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   }
   class(tmpinstr)<-tclass
   
-  if(assign_i)  assign(primary_id, tmpinstr, envir=as.environment(.instrument) )
-  else return(tmpinstr) 
+  if(assign_i)  {
+      assign(primary_id, tmpinstr, envir=as.environment(.instrument) )
+      return(primary_id)  
+  } else return(tmpinstr) 
 }
 
 #' @export
 #' @rdname instrument
 stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
-	stock_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
 }
 
 #' @export
 #' @rdname instrument
 fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
-    fund_temp =  instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
+    instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
 }
 
 #' @export
@@ -162,7 +164,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
         if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
     }
 
-    future_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
 }
 
 #' constructors for series contracts on instruments such as options and futures
@@ -209,9 +211,17 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @rdname series_instrument
 future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
   if (missing(primary_id)) {
-      if (all(is.null(c(root_id,suffix_id))))
+      if (all(is.null(c(root_id,suffix_id)))) {
           stop('must provide either a primary_id or both a root_id and a suffix_id')
-      else primary_id <- paste(root_id, suffix_id, sep="_")
+      } else {
+          if (is.null(suffix_id)) {
+              sdate <- gsub("-","",expires)
+              if (is.null(expires) || nchar(sdate) < 6) stop("must provide either 'expires' or 'suffix_id'")
+              suffix_id <- paste(M2C()[as.numeric(substr(sdate,5,6))], substr(sdate,3,4),sep="")              
+          }
+          primary_id <- paste(root_id, suffix_id, sep="_")
+      }
+
   } 
 
   pid <- parse_id(primary_id)
@@ -249,20 +259,20 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       dargs$currency=NULL
       dargs$multiplier=NULL
       dargs$type=NULL
-      temp_series = instrument( primary_id = primary_id,
-                                 root_id = root_id,
-                                 suffix_id=suffix_id,
-                                 currency = contract$currency,
-                                 multiplier = contract$multiplier,
-        						 tick_size=contract$tick_size,
-        						 first_traded = first_traded,
-                                 expires = expires,
-                                 identifiers = identifiers,
-                                 type=c("future_series", "future"),
-                                 underlying_id = contract$underlying_id,
-                                 ...=dargs,
-                                 assign_i=TRUE
-                              ) 
+      instrument( primary_id = primary_id,
+                 root_id = root_id,
+                 suffix_id=suffix_id,
+                 currency = contract$currency,
+                 multiplier = contract$multiplier,
+				 tick_size=contract$tick_size,
+				 first_traded = first_traded,
+                 expires = expires,
+                 identifiers = identifiers,
+                 type=c("future_series", "future"),
+                 underlying_id = contract$underlying_id,
+                 ...=dargs,
+                 assign_i=TRUE
+                ) 
   }
 }
 
@@ -277,7 +287,7 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
       if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
   }
   ## now structure and return
-  option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=TRUE )
+  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=TRUE )
 }
 
 #' @export
@@ -287,8 +297,20 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
     if (missing(primary_id) ) {
         if (all(is.null(c(root_id,suffix_id)))) 
             stop('must provide either a primary_id or both a root_id and a suffix_id')
-        else primary_id <- paste(root_id, suffix_id, sep="_")
-    } 
+        else { #if you give it only a root_id it will make the suffix_id using expires, callput, and strike
+            if (is.null(suffix_id)) {
+                sdate <- try(as.Date(expires),silent=TRUE)
+                if (inherits(sdate,'try-error')) stop("expires is missing or of incorrect format")
+                sright <- try(switch(callput, call="C", put="P"),silent=TRUE)
+                if (inherits(sright,'try-error')) 
+                    stop("must provide 'callput' or a 'suffix_id' from which 'callput' can be inferred.")
+                if (is.null(strike)) 
+                    stop("must provide 'strike' or a 'suffix_id' from which 'strike' can be inferred.")
+                suffix_id <- paste(format(sdate,'%y%m%d'), sright, strike)
+            }
+            primary_id <- paste(root_id, suffix_id, sep="_")
+        }
+    }
 
     pid <- parse_id(primary_id)
     if (is.null(root_id)) root_id <- pid$root
@@ -299,8 +321,8 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
     }
     if (is.null(expires)) {
         expires <- paste(pid$year, sprintf("%02d",match(pid$month, toupper(month.abb))),sep='-') 
-        #if expires has an NA in it, set it back to NULL
-        if (!identical(integer(0), grep("NA",expires))) expires <- NULL 
+        if (!identical(integer(0), grep("NA",expires))) 
+            stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
     contract<-try(getInstrument(root_id,silent=TRUE))
     if(!inherits(contract,"option")) {
@@ -323,23 +345,24 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
         temp_series$expires<-c(temp_series$expires,expires)
         assign(primary_id, temp_series, envir=as.environment(.instrument))
+        primary_id
     } else {
-        temp_series = instrument( primary_id = primary_id,
-                                    root_id = root_id,
-                                    suffix_id = suffix_id,
-                                    currency = contract$currency,
-                                    multiplier = contract$multiplier,
-                                    tick_size=contract$tick_size,
-                                    first_traded = first_traded,
-                                    expires = expires,
-                                    identifiers = identifiers,
-                                    callput = callput,
-                                    strike = strike,
-                                    underlying_id = contract$underlying_id,
-                                    ...,
-                                    type=c("option_series", "option"),
-                                    assign_i=TRUE
-                                ) 
+        instrument( primary_id = primary_id,
+                    root_id = root_id,
+                    suffix_id = suffix_id,
+                    currency = contract$currency,
+                    multiplier = contract$multiplier,
+                    tick_size=contract$tick_size,
+                    first_traded = first_traded,
+                    expires = expires,
+                    identifiers = identifiers,
+                    callput = callput,
+                    strike = strike,
+                    underlying_id = contract$underlying_id,
+                    ...,
+                    type=c("option_series", "option"),
+                    assign_i=TRUE
+                  ) 
     }
 }
 
@@ -385,9 +408,10 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 		optnames <- unname(do.call(c, led))	#FIXME: Is this a reasonable way to get rownames?		
 	} else 	optnames <- locals(opts) #c(rownames(opts$calls),rownames(opts$puts))
 	
+    idout <- NULL
     for (r in optnames) {
         si <- gsub(symbol,"",r) #suffix_id
-        expiry <- paste('20',substr(si,1,6),sep="")
+        expiry <- substr(si,1,6)
         right <- substr(si,7,7)
         strike <- as.numeric(substr(si,8,15))/1000
 #        local <- paste(symbol, si, sep="   ")      
@@ -415,7 +439,9 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 				                    currency=currency, 
 				                    multiplier=multiplier, 
 				                    tick_size=tick_size, 
-				                    expires=expiry, 
+				                    expires=as.Date(paste(paste('20', substr(expiry,1,2),sep=""), 
+                                                    substr(expiry,3,4), 
+                                                    substr(expiry,5,6),sep="-")), 
 				                    callput=switch(right, C="call", P="put"), #to be consistent with the other option_series function	
 				                    strike=strike, 
 				                    underlying_id=symbol, 
@@ -423,8 +449,10 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 				                    defined.by='yahoo', assign_i=TRUE
                                 )    
 #		option_series(primary_id=primary_id, suffix_id=si, exires=expiry, currency=currency,
-#                        callput = switch(right,C='call',P='put'))
+#                        callput = switch(right,C='call',P='put'))   
+        idout <- c(idout, primary_id)    
     }
+    idout
 }
 
 #' @export
@@ -442,6 +470,7 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
   
   class(currency_temp)<-c("currency","instrument")
   assign(primary_id, currency_temp, envir=as.environment(.instrument) )
+  primary_id
 }
 
 #' class test for object supposedly of type 'currency'
@@ -479,14 +508,14 @@ exchange_rate <- function (primary_id , currency , counter_currency, identifiers
   if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning("counter_currency not found") # assumes that we know where to look
 
   ## now structure and return
-  exrate_temp=  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
+  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
 #' @export
 #' @rdname instrument
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
-    bond_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }
 
 #' @export
