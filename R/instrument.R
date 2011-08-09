@@ -306,7 +306,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
                     stop("must provide 'callput' or a 'suffix_id' from which 'callput' can be inferred.")
                 if (is.null(strike)) 
                     stop("must provide 'strike' or a 'suffix_id' from which 'strike' can be inferred.")
-                suffix_id <- paste(format(sdate,'%y%m%d'), sright, strike)
+                suffix_id <- paste(format(sdate,'%y%m%d'), sright, strike, sep="")
             }
             primary_id <- paste(root_id, suffix_id, sep="_")
         }
