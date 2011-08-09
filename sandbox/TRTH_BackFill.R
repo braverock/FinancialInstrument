@@ -192,10 +192,10 @@ instr_s<-unique(files.xts[,'name.new'])
 for(i in 1:length(instr_s)){
     instr<-getInstrument(instr_s[i])
     if(is.instrument(instr)){ 
-        files.xts[grep(instr_s[i],files.xts[,'name.new']),'type']<-as.character(instr$type[1])
+        files.xts['name.new'==instr_s,'type']<-as.character(instr$type[1])
     } else {
-        print(instr, 'does not appear to be an instrument, setting it to', default_type)
-        files.xts[grep(instr_s[i],files.xts[,'name.new']),'type']<-default_type
+        print(paste(instr_s[i], 'does not appear to be an instrument, setting it to', default_type))
+        files.xts['name.new'==instr_s,'type']<-default_type
     }
 }
 
