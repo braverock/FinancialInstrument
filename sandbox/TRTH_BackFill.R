@@ -1,7 +1,8 @@
 ##############################################################################
 #                     Reuters Backfill Configuration Parameters              #         
 ##############################################################################
-config_file <- "/full/path/to/config.csv" # full path to the config file with instrument metadata in it
+instrument_file <- '/full/path/to/instruments.rda' #where your instrument metadata is stored
+
 archive_dir <- "/full/path/to/archives/" # where the split CSV, job reports, and gz files will be stored
 path.output <- "/full/path/to/output/" # root dir where the .rda files for the xts will be placed
 
@@ -27,6 +28,7 @@ Date <- Sys.Date()
 
 require(xts)
 require(quantmod)
+require(FinancialInstrument)
 require(doMC)
 #require(sendmailR) # for email on failure
 #error.codes<-read.csv('curl.errors.csv',stringsAsFactors=FALSE,header=TRUE,row.names=1)
@@ -51,11 +53,8 @@ while(!listflag)#try to download file list
         #sendmail(email_to,email_from,"error downloading Reuters file list",msg=tmpmsg)
         Sys.sleep(1800)
     } else listflag=TRUE
+    
 }
-
-# or to start from the file list
-#
-
 
 # now we're past the while loop, so we have a file list
 Reuters.report <- Reuters[grep("report",Reuters)]
@@ -63,6 +62,10 @@ Reuters.output <-  Reuters[-c(grep("report",Reuters),grep("confirmation",Reuters
 Reuters.output <-  Reuters.output[grep(job.name,Reuters.output)]
 
 Reuters.new <- Reuters.output[!(Reuters.output %in% Archive.output)]
+
+# or to start from the file list
+# Reuters.output <-  Archive.output[grep(job.name,Archive.output)]
+# Reuters.new <- Reuters.output
 
 
 for(i in 1:length(Reuters.new))
@@ -188,22 +191,29 @@ for(k in 1:length(files.csv))
 
 # now get instrument data
 files.xts$type<-rep(NA,nrow(files.xts))
+missing_i<-''
 instr_s<-unique(files.xts[,'name.new'])
 for(i in 1:length(instr_s)){
     instr<-getInstrument(instr_s[i])
     if(is.instrument(instr)){ 
-        files.xts['name.new'==instr_s,'type']<-as.character(instr$type[1])
+        files.xts[files.xts$name.new ==instr_s[i],]$type<-as.character(instr$type[1])
     } else {
         print(paste(instr_s[i], 'does not appear to be an instrument, setting it to', default_type))
-        files.xts['name.new'==instr_s,'type']<-default_type
+        files.xts[files.xts$name.new==instr_s[i],]$type<-default_type
+        missing_i<-c(missing_i,instr_s[i])
     }
 }
+missing_i<-missing_i[-1]
+missing_i<-data.frame(symbol=missing_i,type=default_type)
+write.csv(missing_i,file=paste(archive_dir,'missing_instruments.csv',sep='')) 
 
 ##If trying to fix a broken set:
 #files.csv<-'';for(dir in list.files(getwd(),pattern="20")) {files.csv<-c(files.csv,list.files(paste(getwd(),'/',dir,'/',sep=''),pattern=".csv"))}[-1]
 #files.xts<-NULL
 #for(l in 1:length(files.csv)) { rsplit<-as.vector(strsplit(files.csv[l],'.',fixed=TRUE)[[1]]); files.xts<-rbind(files.xts,cbind(rsplit[4],paste(rsplit[1],rsplit[2],rsplit[3],sep='.'))); print(files.xts[l,])}
 #colnames(files.xts)<-c('name.new','date.format')
+
+save(files.xts,file='files.xts.tmp.rda')
 
 H <- read.csv(paste(path.output,"Archives/#RIC.Date[G].csv",sep=""),header=FALSE,stringsAsFactors=FALSE)
 H <- H[nrow(H),]
@@ -365,8 +375,9 @@ files.rm <- list.files(archive_dir)
 files.rm <- files.rm[-grep(".csv.gz",files.rm)]
 files.rm <- files.rm[grep(".csv",files.rm)]
 file.remove(files.rm)
+file.remove('files.xts.tmp.rda')
 
-
+rm(missing_i)
 rm(Out)
 
 ###############################################################################
