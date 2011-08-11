@@ -1,5 +1,6 @@
 export(bond)
 export(bond_series)
+export(buildBasket)
 export(buildHierarchy)
 export(buildRatio)
 export(build_series_symbols)

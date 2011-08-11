@@ -41,7 +41,8 @@
 
   \item{\dots}{any other passthrough parameters}
 
-  \item{multiplier}{multiplier of the spread}
+  \item{multiplier}{multiplier of the spread (1 / divisor
+  for price weighted baskets)}
 
   \item{tick_size}{minimum price change of the spread}
 

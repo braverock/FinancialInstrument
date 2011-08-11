@@ -15,7 +15,7 @@
 #' @rdname synthetic.instrument
 synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
 {
-    synthetic_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )    
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )    
 }
 
 #' constructors for synthetic instruments
@@ -104,7 +104,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' @param members vector of primary_ids of member instruments
 #' @param memberratio vector of weights for each leg. negative numbers for selling.
 #' @param \dots any other passthrough parameters
-#' @param multiplier multiplier of the spread
+#' @param multiplier multiplier of the spread (1 / divisor for price weighted baskets)
 #' @param tick_size minimum price change of the spread
 #' @param identifiers identifiers
 #' @param type type of instrument; wrappers do not require this.

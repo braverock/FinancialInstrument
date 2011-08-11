@@ -9,6 +9,7 @@
 #' However, the returned series will be univariate. It does not build Bid Ask Mid data 
 #' like fn_SpreadBuilder does.
 #'
+#' TODO: allow for multiplier (divisor) that is a vector.
 #' @param spread_id The name of the instrument that contains members and memberratio 
 #' @param Dates date range to subset on, will be used for \code{\link[quantmod]{getSymbols}} 
 #' if the instrument is not available via \code{\link{get}}
@@ -33,7 +34,9 @@
 #' spread("SPYDIA", "USD", c("SPY","DIA"),c(1,-1)) #define it.
 #' buildSpread('SPYDIA') #build it.
 #' head(SPYDIA)
+#'
 #' }
+#' @rdname buildSpread
 #' @export
 buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, auto.assign=TRUE, env=.GlobalEnv) #overwrite=FALSE
 {
@@ -48,7 +51,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     #if (!inherits(try(get(spread_id),silent=TRUE), "try-error") && overwrite==FALSE) #Doesn't work..returns vector of FALSE
 	#stop(paste(spread_instr,' price series already exists. Try again with overwrite=TRUE if you wish to replace it.')) 
 
-    spread_currency <- spread_instr$currency    
+    spread_currency <- spread_instr$currency 
     spread_mult <- as.numeric(spread_instr$multiplier)
     if (is.null(spread_mult) || spread_mult == 0) spread_mult <- 1
     spread_tick <- spread_instr$tick_size
@@ -66,10 +69,10 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
         instr_currency <- instr$currency
         instr_mult <- as.numeric(instr$multiplier)
         instr_ratio <- spread_instr$memberratio[i]
-        instr_prices <- try(get(as.character(spread_instr$members[i],envir=.GlobalEnv)),silent=TRUE)
+        instr_prices <- try(get(as.character(spread_instr$members[i]),envir=.GlobalEnv),silent=TRUE)
         # If we were able to find instr_prices in .GlobalEnv, check to make sure there is data between from and to.
         #if we couldn't find it in .GlobalEnv or there's no data between from and to, getSymbols
-        if (inherits(instr_prices, "try-error") || (!is.null(Dates) && length(instr_prices[Dates]) == 0)) {
+        if (inherits(instr_prices, "try-error") || length(instr_prices) < 2 || (!is.null(Dates) && length(instr_prices[Dates]) == 0)) {
             if (is.null(Dates)) {
                 warning(paste(spread_instr$members[i],"not found in .GlobalEnv, and no Dates supplied. Trying getSymbols defaults.") )
                 instr_prices <- getSymbols(as.character(spread_instr$members[i]),auto.assign=FALSE)
@@ -101,7 +104,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
 	        pref='Price'
           } else pref=colnames(instr_prices)[1]
         } else pref=prefer
-        if (ncol(instr_prices > 1)) instr_prices <- getPrice(instr_prices,prefer=pref)
+        if (!is.logical(instr_prices) || ncol(instr_prices) > 1) instr_prices <- getPrice(instr_prices,prefer=pref)
         if (instr$currency != spread_currency) 
             instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
         instr_norm <- instr_prices * instr_mult * instr_ratio
@@ -124,14 +127,19 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
         spreadlevel = spreadlevel/abs(spread_instr$memberratio[1]) #abs() takes care of things like a crack spread which is -3:2:1.
     colnames(spreadlevel) <- paste(spread_id,pref,sep='.')
     #Divide by multiplier and round according to tick_size of spread_instr
-    if (is.null(spread_tick) || spread_tick == 0) ret <- spreadlevel/spread_mult
-    else ret <- round((spreadlevel / spread_mult) / spread_tick, spread_tick) * spread_tick
+    if (is.null(spread_tick) || spread_tick == 0) ret <- spreadlevel*spread_mult
+    else ret <- round((spreadlevel * spread_mult) / spread_tick, spread_tick) * spread_tick
     if (auto.assign) {
         assign(spread_id, ret, pos=env)
         ret <- spread_id
-    } else 
+    }
     ret
 }
+
+#' @rdname buildSpread
+#' @export
+buildBasket <- buildSpread
+
 
 #' Calculate prices of a spread from 2 instruments.
 #'

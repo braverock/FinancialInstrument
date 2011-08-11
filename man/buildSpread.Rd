@@ -1,8 +1,12 @@
 \name{buildSpread}
+\alias{buildBasket}
 \alias{buildSpread}
 \title{construct a price/level series for pre-defined multi-leg spread instrument}
 \usage{
   buildSpread(spread_id, Dates = NULL, onelot = TRUE,
+  prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
+
+  buildBasket(spread_id, Dates = NULL, onelot = TRUE,
   prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
 }
 \arguments{
@@ -41,6 +45,8 @@
   calendars, butterflies, condors, etc. However, the
   returned series will be univariate. It does not build Bid
   Ask Mid data like fn_SpreadBuilder does.
+
+  TODO: allow for multiplier (divisor) that is a vector.
 }
 \note{
   this could also be used to build a basket or a strip by
@@ -56,6 +62,7 @@ getSymbols(c("SPY","DIA"))
 spread("SPYDIA", "USD", c("SPY","DIA"),c(1,-1)) #define it.
 buildSpread('SPYDIA') #build it.
 head(SPYDIA)
+
 }
 }
 \author{

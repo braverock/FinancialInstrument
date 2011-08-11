@@ -50,7 +50,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
         if (file.exists(file)){
             filedata<-read.csv(file,stringsAsFactors=FALSE, ...=...)
         } else {
-            stop("The specified file",file,"does not seem to exist, maybe specify the full path?")
+            stop("The specified file ",file," does not seem to exist, maybe specify the full path?")
         }        
     } else {
         filedata<-metadata
@@ -65,7 +65,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
         set_primary<-FALSE
     }
     if(!any(grepl('type',colnames(filedata)))) {
-        warning("metadata does not appear to contain instrument type, using",default_type,". This may produce incorrect valuations.")
+        warning("metadata does not appear to contain instrument type, using ",default_type,". This may produce incorrect valuations.")
         filedata$type<-rep(default_type,nrow(filedata))
     }
     dotargs<-list('...')
@@ -115,7 +115,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 				try(do.call("instrument",arg))
 			}
         } else {   
-            warning(filedata[rn,id_col],"already exists in the .instrument environment")
+            warning(filedata[rn,id_col]," already exists in the .instrument environment")
         } # end instrument check
     } # end loop on rows
 }
