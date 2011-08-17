@@ -1,25 +1,29 @@
 ##############################################################################
 #                     Reuters Backfill Configuration Parameters              #         
 ##############################################################################
-instrument_file <- '/full/path/to/instruments.rda' #where your instrument metadata is stored
-
-archive_dir <- "/full/path/to/archives/" # where the split CSV, job reports, and gz files will be stored
-path.output <- "/full/path/to/output/" # root dir where the .rda files for the xts will be placed
-
-job.name <- "mybackfill" # the Reuters TRTH job name
-
-username <- "username" #TRTH user name, usually your email address
-password <- "password" #TRTH password
-image <- TRUE
-default_type='future_series'
-default_type='guaranteed_spread'
-
-email_to <- 'someuser@somehost.com'
-email_from <- 'someuser@somehost.com'
-
-no.cores <- 1 # for foreach
+#
+# You should create a configuration file that includes the following
+#
+#instrument_file <- '/full/path/to/instruments.rda' #where your instrument metadata is stored
+#
+#archive_dir <- "/full/path/to/archives/" # where the split CSV, job reports, and gz files will be stored
+#path.output <- "/full/path/to/output/" # root dir where the .rda files for the xts will be placed
+#
+#job.name <- "mybackfill" # the Reuters TRTH job name
+#
+#username <- "username" #TRTH user name, usually your email address
+#password <- "password" #TRTH password
+#image <- TRUE
+#default_type='future_series'
+#default_type='guaranteed_spread'
+#
+#email_to <- 'someuser@somehost.com'
+#email_from <- 'someuser@somehost.com'
+#
+#no.cores <- 1 # for foreach
 ##############################################################################
-
+config_file<-'/full/path/to/TRTH_config_file.R'
+source(config_file)
 
 Sys.umask("0002")
 
@@ -205,7 +209,7 @@ for(i in 1:length(instr_s)){
 }
 missing_i<-missing_i[-1]
 missing_i<-data.frame(symbol=missing_i,type=default_type)
-write.csv(missing_i,file=paste(archive_dir,'missing_instruments.csv',sep='')) 
+write.csv(missing_i,file=paste(archive_dir,'missing_instruments.CSV',sep='')) 
 
 ##If trying to fix a broken set:
 #files.csv<-'';for(dir in list.files(getwd(),pattern="20")) {files.csv<-c(files.csv,list.files(paste(getwd(),'/',dir,'/',sep=''),pattern=".csv"))}[-1]
