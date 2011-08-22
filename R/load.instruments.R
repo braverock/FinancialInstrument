@@ -245,7 +245,7 @@ getSymbols.FI <- function(Symbols,
     default.return.class <- return.class
     default.dir <- dir
     default.extension <- extension
-    default.split_method <- split_method
+    default.split_method <- split_method[1]
        
     for(i in 1:length(Symbols)) {
         return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
@@ -279,7 +279,7 @@ getSymbols.FI <- function(Symbols,
         split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
         split_method <- ifelse(is.null(split_method), default.split_method, split_method)
 
-        switch(split_method,
+        switch(split_method[1],
                 days={
                     fr<-NULL
                     StartDate <- as.Date(from) 
