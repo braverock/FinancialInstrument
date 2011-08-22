@@ -208,6 +208,8 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' @param dir if not specified in getSymbolLookup, directory string to use.  default ""
 #' @param return.class only "xts" is currently supported
 #' @param extension file extension, default "rda"
+#' @param split_method string specifying the method used to split the files, currently \sQuote{days} or \sQuote{common}, see \code{\link{setSymbolLookup.FI}}
+#' @param use_identifier optional. identifier used to construct the \code{primary_id} of the instrument. If you use this, you must have previously defined the \code{\link{instrument}} 
 #' @param date_format format as per the \code{\link{strptime}}, see Details
 #' @param verbose TRUE/FALSE
 #' @param auto.assign TRUE/FALSE
@@ -226,6 +228,8 @@ getSymbols.FI <- function(Symbols,
                             dir="",
                             return.class="xts",
                             extension="rda",
+                            split_method = c("days", "common"),
+                            use_identifier,
                             date_format=NULL,
 							verbose=TRUE,
 							auto.assign=TRUE
@@ -241,12 +245,30 @@ getSymbols.FI <- function(Symbols,
     default.return.class <- return.class
     default.dir <- dir
     default.extension <- extension
+    default.split_method <- split_method
        
     for(i in 1:length(Symbols)) {
         return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
         return.class <- ifelse(is.null(return.class),default.return.class, return.class)
         dir <- getSymbolLookup()[[Symbols[[i]]]]$dir
         dir <- ifelse(is.null(dir),default.dir, dir)
+        #if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it 
+        #first, find out what the instrument name is
+        instr_str <- NA
+        if(!missing(use_identifier)) { 
+            tmp_instr <- try(getInstrument(Symbols[[i]], silent=FALSE))
+            if (inherits(tmp_instr,'try-error') || !is.instrument(tmp_instr)) 
+                stop("must define instrument first to call with 'use_identifier'")
+            if (!use_identifier=='primary_id') {
+                instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
+            } else  instr_str <- make.names(tmp_instr[[use_identifier]])
+        }
+        symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str)
+        ndc<-nchar(dir)
+        if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
+        ssd <- strsplit(dir,"/")[[1]]
+        if (ssd[length(ssd)] != symbol) dir <- paste(dir,symbol,sep="/")
+
         if(!dir=="" && !file.exists(dir)) {
             cat("\ndirectory ",dir," does not exist, skipping\n")
             next
@@ -254,7 +276,10 @@ getSymbols.FI <- function(Symbols,
         extension <- getSymbolLookup()[[Symbols[[i]]]]$extension
         extension <- ifelse(is.null(extension),default.extension, extension)
         if(verbose) cat("loading ",Symbols[[i]],".....")
-        switch(getSymbolLookup()[[Symbols[[i]]]]$split_method,
+        split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
+        split_method <- ifelse(is.null(split_method), default.split_method, split_method)
+
+        switch(split_method,
                 days={
                     fr<-NULL
                     StartDate <- as.Date(from) 

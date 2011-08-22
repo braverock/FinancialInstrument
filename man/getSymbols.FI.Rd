@@ -4,7 +4,8 @@
 \usage{
   getSymbols.FI(Symbols, from = "2010-01-01", to =
   Sys.Date(), ..., env, dir = "", return.class = "xts",
-  extension = "rda", date_format = NULL, verbose = TRUE,
+  extension = "rda", split_method = c("days", "common"),
+  use_identifier, date_format = NULL, verbose = TRUE,
   auto.assign = TRUE)
 }
 \arguments{
@@ -27,6 +28,15 @@
   \item{return.class}{only "xts" is currently supported}
 
   \item{extension}{file extension, default "rda"}
+
+  \item{split_method}{string specifying the method used to
+  split the files, currently \sQuote{days} or
+  \sQuote{common}, see \code{\link{setSymbolLookup.FI}}}
+
+  \item{use_identifier}{optional. identifier used to
+  construct the \code{primary_id} of the instrument. If you
+  use this, you must have previously defined the
+  \code{\link{instrument}}}
 
   \item{date_format}{format as per the
   \code{\link{strptime}}, see Details}
