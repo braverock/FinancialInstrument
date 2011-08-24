@@ -28,7 +28,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
     sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate'
     if (!is.null(root)) {
             suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
-            suffix <- gsub("_","",x) #take out the underscore if there is one
+            suffix <- gsub("_","",suffix) #take out the underscore if there is one
     } else if (identical(integer(0), grep("[0-9]",x))) { 
         #if there are no numbers in the id, then it has no year, so it is not a recognized future or option
         root <- x
