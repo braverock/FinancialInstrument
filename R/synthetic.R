@@ -13,7 +13,7 @@
 
 #' @export
 #' @rdname synthetic.instrument
-synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type=c("synthetic", "instrument"))
+synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, ..., members=NULL, type="synthetic")
 {
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )    
 }
@@ -42,7 +42,7 @@ synthetic <- function(primary_id , currency , multiplier=1, identifiers = NULL, 
 #' @param memberratio numeric vector of ratio relationships between members, e.g. c(4,3) for a 4:3 spread
 #' @note DEPRECATED
 #' @export
-synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic","instrument"))
+synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic"))
 {
     #TODO make sure that with options/futures or other  instruments that we have you use the base contract
     if(!is.list(members)){
@@ -122,7 +122,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' }
 #' @export
 synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
-    identifiers = NULL, type = c("synthetic.instrument", "synthetic", "instrument")) 
+    identifiers = NULL, type = c("synthetic.instrument", "synthetic")) 
 {
     if (!is.list(members)) {
         if (length(members) != length(memberratio) | length(members) < 
@@ -232,5 +232,5 @@ guaranteed_spread <- calendar_spread <- function (primary_id, currency=NULL, roo
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
 	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, 
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
-	"synthetic.instrument", "synthetic", "instrument"))
+	"synthetic.instrument", "synthetic"))
 }

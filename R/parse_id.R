@@ -9,7 +9,7 @@
 #' After splitting \code{x} into a root_id and suffix_id, the suffix_id is 
 #' passed to \code{\link{parse_suffix}} (see also) for further processing.
 #' 
-#' TODO: add support for bond_series.  
+#' TODO: add support for bond_series.
 #' @param x the id to be parsed (e.g. \sQuote{ES_U11}, \sQuote{SPY_111217C130})
 #' @param silent silence warnings?
 #' @param root character name of instrument root_id.  Optionally provide this to make parsing easier.
@@ -76,7 +76,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
     if (sufftype) type <- suff$type
     structure(list(root=root, suffix=suffix, type=type, month=suff$month, 
                     year=suff$year, strike=suff$strike, right=suff$right, 
-                    cm=suff$cm, cc=suff$cc),class='id.list')
+                    cm=suff$cm, cc=suff$cc, format=suff$format),class='id.list')
 }
 
 #' parse a suffix_id
@@ -108,7 +108,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' @return an object of class \sQuote{suffix.list} which is a list containing \sQuote{type} of instrument, 
 #' \sQuote{month} of expiration, \sQuote{year} of expiration, \sQuote{strike} price of option, 
 #' \sQuote{right} of option (\dQuote{C} or \dQuote{P}), \sQuote{cm} (maturity in days of a constant maturity contract),
-#' \sQuote{cc} (method for calculating a continuous contract).
+#' \sQuote{cc} (method for calculating a continuous contract), \sQuote{format} (string that indicates the format of the unparsed id).
 #' @author Garrett See
 #' @seealso \code{\link{parse_id}}
 #' @examples
@@ -124,6 +124,7 @@ parse_suffix <- function(x, silent=TRUE) {
     year <- 0
     strike <- NA
     right <- NA
+    format <- NA
     if (x == "") {
         type <- "root"
     } else if (!identical(gsub("cm.","",x), x)) {
@@ -131,12 +132,14 @@ parse_suffix <- function(x, silent=TRUE) {
     #on the vix would look like VX_cm.30 
         type <- c('outright', 'cm')
         cm <- as.numeric(strsplit(x,"\\.")[[1]][2])
+        format <- 'cm'
     } else if (!identical(gsub("cc.","",x),x)) {
     #cc.OI for rolling on Open Interest, 
     #cc.Vol for rolling on Volume, 
     #cc.Exp.1 for rolling 1 day before Expiration date.  (Exp.0 would be rolling on expiration)    
         type <- c('outright', 'cc')
         cc <- gsub('cc.','',x)
+        format <- 'cc'
     } else if (nchar(x) > 7 && (any(substr(x,7,7) == c("C","P")) || any(substr(x,9,9) == c("C","P"))) ) {
         # if the 7th or 9th char is a "C" or "P", it's an option
         # 110917C125 or 20110917C125
@@ -145,20 +148,22 @@ parse_suffix <- function(x, silent=TRUE) {
             || (hasdot 
                 && !is.na(as.numeric(strsplit(x,"\\.")[[1]][2])))) {
                 #&& nchar(strsplit(x,"\\.")[[1]][2]) <= 2)) {
-        #if it doesn't have a dot, or it does have dot, but what follows 
-        #the dot is numeric, then it's an option outright
+            #if it doesn't have a dot, or it does have dot, but what follows 
+            #the dot is numeric, then it's an option outright
             if (any(substr(x,7,7) == c("C","P"))) {
                 type <- c("outright","option")
                 month <- toupper(month.abb[as.numeric(substr(x,3,4))])
                 year <- 2000 + as.numeric(substr(x,1,2))
                 strike <- as.numeric(substr(x,8,nchar(x)))
                 right <- substr(x,7,7)
+                format <- 'opt2'    
             } else if (any(substr(x,9,9) == c("C","P"))) {
                 type <- c("outright","option")
                 month <- toupper(month.abb[as.numeric(substr(x,5,6))])
                 year <- as.numeric(substr(x,1,4))
                 strike <- as.numeric(substr(x,10,nchar(x)))
                 right <- substr(x,9,9)
+                format <- 'opt4'
             } else stop("how did you get here?")
         } else type <- c("option_spread","spread")
     } else if (!identical(gsub("\\.","",x),x)) { #has a dot. U1.Z1, U11.Z11, SPY.DIA, 
@@ -173,7 +178,7 @@ parse_suffix <- function(x, silent=TRUE) {
             if (inherits(s2,'try-error')) {
                 s2 <- parse_id(s[2],silent=TRUE)
             }
-            #if (s1$
+            
             if (all(c(s1$type,s2$type) == 'root')) {
                 type='synthetic'
             } else { 
@@ -191,6 +196,7 @@ parse_suffix <- function(x, silent=TRUE) {
         suff <- parse_suffix(substr(x,3,nchar(x)),silent=silent)
         month <- suff$month
         year <- suff$year
+        format <- paste('xx', suff$format, sep="")
     } else if (nchar(x) == 2) { #U1
         if (substr(x,1,1) %in% M2C() && !is.na(as.numeric(substr(x,2,2)))) {
             type <- c("outright","future")
@@ -198,6 +204,7 @@ parse_suffix <- function(x, silent=TRUE) {
             year <- as.numeric(substr(x,2,2)) + 2010
             if (!silent)
                 warning("Converting 1 digit year to 4 digit year assumes there are no futures before 2010")
+            format <- 'CY'
         } else if (is.na(as.numeric(x))) type <- 'root'
     } else if (nchar(x) == 3) { #U11
         if (substr(x,1,1) %in% M2C() && !is.na(as.numeric(substr(x,2,3)))) {
@@ -207,35 +214,28 @@ parse_suffix <- function(x, silent=TRUE) {
             if (year > 2040) year <- year - 100
             if (!silent)
                 warning('Converting 2 digit year to 4 digit year will result in a year between 1941 and 2040')
+            format <- 'CYY'
         } else type <- 'root'
     } else if (nchar(x) == 4) { #SEP1, VXU1, 0911
         if (toupper(substr(x, 1, 3)) %in% toupper(C2M()) && !is.na(as.numeric(substr(x,4,4)))) { 
             #sep1, Sep1, SEP1
             suff <- paste(M2C(tolower(substr(x,1,3))), substr(x,4,4), sep="") #convert from Sep1 to U1
-            return(parse_suffix(suff,silent=silent)) #call recursively with 2 character suffix
+            out <- parse_suffix(suff,silent=silent) #call recursively with 2 character suffix
+            out$format <- 'MMMY'
+            return(out) 
         } else if (substr(x,3,3) %in% M2C() && !is.na(as.numeric(substr(x,4,4)))) {
-            n <- suppressWarnings(as.numeric(substr(x,1,1)))
-            if (is.na(n) || n != 1) { #first char will be 1 if it's a single stock future
-                #xxU1, VXU1 #ignore the 1st 2 characters, and 
-                #call recursively with nchar==2 suffix
-                return(parse_suffix(substr(x,3,4),silent=silent)) 
-            }
-            #Single Stock Futures, SPY_1CU1, SPY_1DU1 (1DU1 is the OCX.NoDivRisk)
-            if (substr(x,1,2) == "1C" ) {  #1CU1
-                type <- c('outright', 'SSF')
-            } else if (substr(x,1,2) == "1D") {  #1DU1
-               type <- c('outright', 'SSF', 'NoDivRisk')
-            } else { #shouldn't ever get here...it would have to be something like 11U1
-                stop("unknown 4 char suffix that begins with 1")
-            }
-            suff <- parse_suffix(substr(x,3,4), silent=silent)
+            #xxU1, VXU1 #ignore the 1st 2 characters, and call recursively with 2 character suffix
+            suff <- parse_suffix(substr(x,3,4),silent=silent) 
             month <- suff$month
-            year <- suff$year         
+            year <- suff$year
+            format <- 'xxCY'
         } else if (!is.na(as.numeric(x))) { 
             #0911
             #convert to U11 and call recursively
             suff <- paste(M2C()[as.numeric(substr(x,1,2))], substr(x, 3,4), sep="")
-            return(parse_suffix(suff,silent=silent)) 
+            out <- parse_suffix(suff,silent=silent)
+            out$format <- "NNNN"
+            return(out) 
         } else {
             if (!silent)
                 warning("Could not parse 4 character suffix")
@@ -249,10 +249,12 @@ parse_suffix <- function(x, silent=TRUE) {
             month <- toupper(substr(x,1,3))
             year <- as.numeric(substr(x,4,5)) + 2000
             if (!silent) warning('Converting 2 digit year to 4 digit year assumes there are no futures before 2000')
+            format <- 'MMMYY'
        } else if (!is.na(as.numeric(substr(x,2,5))) && (substr(x,1,1) %in% M2C()) ) {
             #U2011
             month <- toupper(C2M(substr(x,1,1)))
             year <- as.numeric(substr(x,2,5))
+            format <- 'CYYYY'
        }
     } else if (nchar(x) == 6) {
         #201109, 092011, 091611
@@ -266,8 +268,9 @@ parse_suffix <- function(x, silent=TRUE) {
             type <- c("outright","future")
             month <- toupper(substr(x,1,3))
             year <- as.numeric(substr(x, 4,7))
+            format <- 'MMMYYYY'
         }    
     } 
-    structure(list(type=type, month=month,year=year, strike=strike, right=right, cm=cm, cc=cc), class='suffix.list')
+    structure(list(type=type, month=month,year=year, strike=strike, right=right, cm=cm, cc=cc, format=format), class='suffix.list')
 }
 

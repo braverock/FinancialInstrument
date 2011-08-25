@@ -8,12 +8,12 @@
 \usage{
   synthetic(primary_id, currency, multiplier = 1,
   identifiers = NULL, ..., members = NULL, type =
-  c("synthetic", "instrument"))
+  "synthetic")
 
   synthetic.instrument(primary_id, currency, members,
   memberratio, ..., multiplier = 1, tick_size = NULL,
   identifiers = NULL, type = c("synthetic.instrument",
-  "synthetic", "instrument"))
+  "synthetic"))
 
   spread(primary_id, currency = NULL, members, memberratio,
   tick_size = NULL, ..., multiplier = 1, identifiers =

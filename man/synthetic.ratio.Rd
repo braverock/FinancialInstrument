@@ -4,7 +4,7 @@
 \usage{
   synthetic.ratio(primary_id, currency, members,
   memberratio, ..., multiplier = 1, identifiers = NULL,
-  type = c("synthetic.ratio", "synthetic", "instrument"))
+  type = c("synthetic.ratio", "synthetic"))
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the

@@ -17,7 +17,8 @@
   price of option, \sQuote{right} of option (\dQuote{C} or
   \dQuote{P}), \sQuote{cm} (maturity in days of a constant
   maturity contract), \sQuote{cc} (method for calculating a
-  continuous contract).
+  continuous contract), \sQuote{format} (string that
+  indicates the format of the unparsed id).
 }
 \description{
   extract information from the suffix_id of an instrument

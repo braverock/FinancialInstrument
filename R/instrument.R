@@ -123,7 +123,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(!is.numeric(multiplier) | length(multiplier) > 1) stop("multiplier must be a single number")
   if(!is.null(tick_size) && (!is.numeric(tick_size) | length(tick_size) > 1)) stop("tick_size must be NULL or a single number")
   
-  if(is.null(type)) tclass="instrument" else tclass = c(type,"instrument")
+  if(is.null(type)) tclass="instrument" else tclass = unique(c(type,"instrument"))
 
   tmpinstr <- list(primary_id = primary_id,
                    currency = currency,
