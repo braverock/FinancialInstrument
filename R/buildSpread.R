@@ -149,10 +149,10 @@ buildBasket <- buildSpread
 #' Alternatively, \code{prod2} can be omitted, and a vector of 2 instrument names can be given to \code{prod1}. 
 #' See the last example for this usage.
 #' 
-#' If \code{prod1} and \code{prod2} are names (not xts data), it will try to get data for \code{prod1} and \code{prod2} from .GlobalEnv.  
-#' If it cannot find the data, it will get it with a call to getSymbols. 
+#' If \code{prod1} and \code{prod2} are names (not xts data), it will try to get data for \code{prod1} and \code{prod2} 
+#' from \code{env} (.GlobalEnv by default).  If it cannot find the data, it will get it with a call to getSymbols. 
 #' Prices are multiplied by multipliers and exchange rates to get notional values in the currency specified.
-#' The second leg's notional values are multiplied by the ratio.
+#' The second leg's notional values are multiplied by \code{ratio}.
 #' Then the difference is taken between the notionals of leg1 and the new values for leg2.
 #' 
 #' \sQuote{make.index.unique} uses the xts function \code{make.index.unique} 
@@ -168,8 +168,10 @@ buildBasket <- buildSpread
 #' @param to to Date to pass through to getSymbols if needed.
 #' @param session_times ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'
 #' @param unique_method method for making the time series unique
+#' @param auto.assign if \code{TRUE} (the default) the constructed spread will be stored in symbol created with \code{\link{make_spread_id}}. instrument metadata will also be created and stored with the same primary_id.
+#' @param env if \code{auto.assign} is \code{TRUE} this is the environment in which to store the data (.GlobalEnv by default) 
 #' @param silent silence warnings? (FALSE by default)
-#' @param \dots any other passthrough parameters 
+#' @param \dots other arguments to pass to \code{getSymbols} and/or \code{\link{make_spread_id}}
 #' @return 
 #' an xts object with
 #' Bid, Ask, Mid columns, 
@@ -199,11 +201,12 @@ buildBasket <- buildSpread
 #' # in 1 arg instead of using both prod1 and prod2.
 #' fSB4 <- fn_SpreadBuilder(c("SPY","DIA"))
 #' #download data and plot the closing values of a spread in one line
-#' chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")))))
+#' chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")),auto.assign=FALSE)))
 #' }
 #' @export
 fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, to=NULL, session_times=NULL, 
-    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), silent=FALSE, ...)
+    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), silent=FALSE, 
+    auto.assign=TRUE, env=.GlobalEnv, ...)
 {
 ##TODO: allow for different methods for calculating Bid and Ask 
     if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
@@ -372,12 +375,43 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
                 
             }
     )
-##TODO: look to see if there is an instrument defined for this spread (using whatever is the spread naming convention).
-## If it is not defined, then define it, adding fn_SpreadBuilder to the type, or indicating in some other way that it was
-## auto-defined.
-
-    Spread  
+    if (auto.assign) { #store the data in 
+        members <- c(prod1,prod2)
+        id <- make_spread_id(members, ...) #can pass 'root' or 'format' through dots
+        spread(id, currency=currency, members=members, memberratio=c(1,-ratio), defined.by='fn_SpreadBuilder')
+        assign(id, Spread, pos=env)
+        id
+    } else Spread  
 }
+
+
+#' construct a primary_id for a spread instrument from the primary_ids of its members
+#'
+#' @param x vector of member primary_ids
+#' @param root optional character string of root_id to use.
+#' @param format string indicating how to format the suffix_ids of the spread.  If \code{NULL} (the default), or \code{FALSE}, no formatting will be done.  the See \code{\link{format_id}} for other accepted values for \code{format}
+#' @return character string that can be used as a primary_id for a \code{\link{spread}} instrument
+#' @author Garrett See
+#' @seealso \code{\link{spread}}, \code{\link{build_spread_symbols}},  \code{\link{build_series_symbols}}
+#' @examples
+#' ids <- c('VX_aug1','VX_U11')
+#' make_spread_id(ids, format='CY')
+#' make_spread_id(ids, format=FALSE)
+#' make_spread_id(c("VIX_JAN11","VIX_FEB11"),root='VX',format='CY')
+#' @export
+make_spread_id <- function(x, root=NULL, format=NULL){
+#    if (length(x) != 2) stop("x must be a vector of length 2")
+    if (is.null(root)) {
+        root <- unlist(unique(sapply(x, parse_id)['root',]))
+    }
+    if (length(root) != 1) return(paste(format_id(x, format=format),collapse="."))
+    suff <- paste(unlist(unique(sapply(x,parse_id)['suffix',])),collapse='.')
+	#if (is.character(format)) suff <- paste(sapply(strsplit(suff,"\\.")[[1]], format_id, format=format, parse='suffix'), collapse=".")
+    if (!is.null(format) && is.character(format)) 
+		suff <- paste(format_id(strsplit(suff,"\\.")[[1]], format=format, parse='suffix'), collapse=".")
+    return(paste(root,suff, sep="_"))        
+}
+
 
 #' format the price of a synthetic instrument
 #'

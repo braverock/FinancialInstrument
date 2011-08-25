@@ -135,7 +135,7 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
         }
         for (member in members) {
             tmp_symbol <- member
-            tmp_instr <- try(getInstrument(member))
+            tmp_instr <- try(getInstrument(member, silent=TRUE))
             if (inherits(tmp_instr, "try-error") | !is.instrument(tmp_instr)) {
                 message(paste("Instrument", tmp_symbol, " not found, using currency of", 
                   currency))
@@ -234,3 +234,7 @@ guaranteed_spread <- calendar_spread <- function (primary_id, currency=NULL, roo
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
 	"synthetic.instrument", "synthetic"))
 }
+
+
+
+

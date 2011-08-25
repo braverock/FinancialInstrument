@@ -5,7 +5,8 @@
   fn_SpreadBuilder(prod1, prod2, ratio = 1, currency =
   "USD", from = NULL, to = NULL, session_times = NULL,
   unique_method = c("make.index.unique", "duplicated",
-  "least.liq", "price.change"), silent = FALSE, ...)
+  "least.liq", "price.change"), silent = FALSE, auto.assign
+  = TRUE, env = .GlobalEnv, ...)
 }
 \arguments{
   \item{prod1}{chr name of instrument that will be the 1st
@@ -34,9 +35,19 @@
   \item{unique_method}{method for making the time series
   unique}
 
+  \item{auto.assign}{if \code{TRUE} (the default) the
+  constructed spread will be stored in symbol created with
+  \code{\link{make_spread_id}}. instrument metadata will
+  also be created and stored with the same primary_id.}
+
+  \item{env}{if \code{auto.assign} is \code{TRUE} this is
+  the environment in which to store the data (.GlobalEnv by
+  default)}
+
   \item{silent}{silence warnings? (FALSE by default)}
 
-  \item{\dots}{any other passthrough parameters}
+  \item{\dots}{other arguments to pass to \code{getSymbols}
+  and/or \code{\link{make_spread_id}}}
 }
 \value{
   an xts object with Bid, Ask, Mid columns, or Open, Close,
@@ -56,13 +67,14 @@
 
   If \code{prod1} and \code{prod2} are names (not xts
   data), it will try to get data for \code{prod1} and
-  \code{prod2} from .GlobalEnv. If it cannot find the data,
-  it will get it with a call to getSymbols. Prices are
-  multiplied by multipliers and exchange rates to get
-  notional values in the currency specified. The second
-  leg's notional values are multiplied by the ratio. Then
-  the difference is taken between the notionals of leg1 and
-  the new values for leg2.
+  \code{prod2} from \code{env} (.GlobalEnv by default).  If
+  it cannot find the data, it will get it with a call to
+  getSymbols. Prices are multiplied by multipliers and
+  exchange rates to get notional values in the currency
+  specified. The second leg's notional values are
+  multiplied by \code{ratio}. Then the difference is taken
+  between the notionals of leg1 and the new values for
+  leg2.
 
   \sQuote{make.index.unique} uses the xts function
   \code{make.index.unique} \sQuote{least.liq} subsets the
@@ -91,7 +103,7 @@ head(fSB)
 # in 1 arg instead of using both prod1 and prod2.
 fSB4 <- fn_SpreadBuilder(c("SPY","DIA"))
 #download data and plot the closing values of a spread in one line
-chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")))))
+chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")),auto.assign=FALSE)))
 }
 }
 \author{
