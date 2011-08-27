@@ -615,3 +615,26 @@ instrument_attr <- function(primary_id, attr, value) {
     assign(primary_id, instr, pos=.instrument)
 }
 
+#' instrument class print method
+#' 
+#' @method print instrument
+#' @S3method print instrument
+#' @keywords internal
+print.instrument <- function(x, ...) {
+  max.name <- max(sapply(names(x), nchar), na.rm=TRUE) + 1
+  for(i in seq_along(x)) {
+    xi <- unlist(x[[i]])
+    nx <- names(x)
+    nxi <- names(xi)
+    if(!is.null(nxi)) {
+      fxi <- format(rbind(nxi,xi))
+      cat(encodeString(nx[i], width=max.name), noquote(fxi[1,]), "\n")
+      cat(encodeString("",    width=max.name), noquote(fxi[2,]), "\n")
+    } else {
+      if(is.null(xi)) xi <- "NULL"
+      cat(encodeString(nx[i], width=max.name), noquote(xi), "\n")
+    }
+  }
+  invisible(x)
+}
+
