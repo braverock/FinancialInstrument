@@ -145,6 +145,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' \code{\link{getSymbols.FI}}
 #' \code{\link{load.instruments}}
 #' \code{\link[quantmod]{setSymbolLookup}}
+#' @importFrom zoo as.Date
 #' @export
 setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda', src='FI'){
     # check that base_dir exists

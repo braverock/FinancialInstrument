@@ -5,13 +5,13 @@ License: GPL
 Title: Financial Instrument Model Infrastructure for R
 Type: Package
 LazyLoad: yes
-Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua
-    Ulrich, Brian G. Peterson, Garrett See
+Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+    Joshua Ulrich, Brian G. Peterson, Garrett See
 Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
-    multi-asset class and multi-currency portfolios.  Still
-    in heavy development.
-Version: 0.4.5
+    multi-asset class and multi-currency portfolios.  
+    Still in heavy development.
+Version: 0.5
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
