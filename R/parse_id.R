@@ -27,17 +27,37 @@
 parse_id <- function(x, silent=TRUE, root=NULL) {
     sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate'
     if (!is.null(root)) {
-            suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
-            suffix <- gsub("_","",suffix) #take out the underscore if there is one
+        suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
+        suffix <- gsub("_","",suffix) #take out the underscore if there is one
     } else if (identical(integer(0), grep("[0-9]",x))) { 
         #if there are no numbers in the id, then it has no year, so it is not a recognized future or option
-        root <- x
-        suffix <- ""
-        if (nchar(x) == 6) {
-            if (is.instrument(getInstrument(substr(x,1,3),silent=TRUE)) 
-                && is.instrument(getInstrument(substr(x,4,6),silent=TRUE))) {
-                type <- c('exchange_rate', 'root')
-                sufftype <- FALSE
+        if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),1), TRUE)) { 
+            #only 1 dot, so it's not a fly
+            #SPY.DIA, EUR.USD, SPY110917C122.5, T2010917P25
+            if (suppressWarnings(!is.na(as.numeric(strsplit(x,"\\.")[[1]][2])))) { #probably an option with a decimal in the strike
+                #if we take out all the numbers, periods, and dashes, 
+                #we should be left with the ticker and either "C" or "P"                
+                root <- gsub("[0-9.-]","",x) #now it looks like SPYC or TP
+                root <- substr(root, 1,nchar(root)-1)
+                suffix <- gsub(root,"",x) #whatever isn't the root
+            } else { #probably a synthetic: SPY.DIA, GLD.EUR
+                suffix <- x
+                root <- x
+            }
+        } else if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),2), TRUE)) { 
+            #2 dots, so we'll treat it as a fly, although it could be a basket
+            #SPY.DIA.QQQ, 
+            suffix <- x
+            root <- x
+        } else {
+            root <- x
+            suffix <- ""
+            if (nchar(x) == 6) {
+                if (is.instrument(getInstrument(substr(x,1,3),silent=TRUE)) 
+                    && is.instrument(getInstrument(substr(x,4,6),silent=TRUE))) {
+                    type <- c('exchange_rate', 'root')
+                    sufftype <- FALSE
+                }
             }
         }
     } else if (identical(x, gsub('_','',x))) { #no underscore; have to guess what is root and what is suffix       
@@ -50,19 +70,6 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         } else if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
             root <- substr(x,1,2)
             suffix <- substr(x,3,nchar(x))
-        } else if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),1), TRUE)) { 
-            #only 1 dot, so it's not a fly
-            #SPY.DIA, EUR.USD, SPY110917C122.5, T2010917P25
-            if (!is.na(as.numeric(strsplit(x,"\\.")[[1]][2]))) { #probably an option with a decimal in the strike
-                #if we take out all the numbers, periods, and dashes, 
-                #we should be left with the ticker and either "C" or "P"                
-                root <- gsub("[0-9.-]","",x) #now it looks like SPYC or TP
-                root <- substr(root, 1,nchar(root)-1)
-                suffix <- gsub(root,"",x) #whatever isn't the root
-            } else { #probably a synthetic: SPY.DIA, GLD.EUR
-                suffix <- x
-                root <- x
-            }
         } else {
             root <- gsub("[0-9.-]","",x) #now it looks like SPYC or TP
             root <- substr(root, 1,nchar(root)-1)
@@ -142,7 +149,7 @@ parse_suffix <- function(x, silent=TRUE) {
         format <- 'cc'
     } else if (nchar(x) > 7 && (any(substr(x,7,7) == c("C","P")) || any(substr(x,9,9) == c("C","P"))) ) {
         # if the 7th or 9th char is a "C" or "P", it's an option
-        # 110917C125 or 20110917C125
+        # 110917C125 or 20110917C125 or 110917C00012500 or 20110917C00012500
         hasdot <- !identical(integer(0),grep("\\.",x))
         if (!hasdot
             || (hasdot 
@@ -155,6 +162,7 @@ parse_suffix <- function(x, silent=TRUE) {
                 month <- toupper(month.abb[as.numeric(substr(x,3,4))])
                 year <- 2000 + as.numeric(substr(x,1,2))
                 strike <- as.numeric(substr(x,8,nchar(x)))
+                if (nchar(x) >= 15) strike <- strike/100                 
                 right <- substr(x,7,7)
                 format <- 'opt2'    
             } else if (any(substr(x,9,9) == c("C","P"))) {
@@ -162,6 +170,7 @@ parse_suffix <- function(x, silent=TRUE) {
                 month <- toupper(month.abb[as.numeric(substr(x,5,6))])
                 year <- as.numeric(substr(x,1,4))
                 strike <- as.numeric(substr(x,10,nchar(x)))
+                if (nchar(x) >= 15) strike <- strike/100
                 right <- substr(x,9,9)
                 format <- 'opt4'
             } else stop("how did you get here?")
@@ -184,6 +193,24 @@ parse_suffix <- function(x, silent=TRUE) {
             } else { 
                 type=c('calendar','spread')
             }
+        } else if (identical(all.equal(nchar(x) - nchar(gsub("\\.","",x)),2), TRUE)) { #2 dots; it's a fly
+            #U1.Z1.H2, U11.Z11.H12, SPY.DIA.QQQ
+            s <- strsplit(x, "\\.")[[1]]
+            s1 <- try(parse_suffix(s[1],silent=TRUE),silent=TRUE)
+            s2 <- try(parse_suffix(s[2],silent=TRUE),silent=TRUE)
+            s3 <- try(parse_suffix(s[3],silent=TRUE),silent=TRUE)
+            if (inherits(s1,'try-error')) s1 <- parse_id(s[1],silent=TRUE)
+            if (inherits(s2,'try-error')) s2 <- parse_id(s[2],silent=TRUE)
+            if (inherits(s3,'try-error')) s3 <- parse_id(s[3],silent=TRUE)          
+            if (all(c(s1$type,s2$type,s3$type) == 'root')) {
+                type='synthetic' #don't really know if it's fly-like or a basket
+            } else { 
+                type=c('butterfly','spread')
+            }
+            format <- unique(c(s1$format, s2$format, s3$format))
+        } else {
+            if (!silent) warning("limited functionality for suffix that implies more than 3 instruments")
+            type='synthetic' #condors, baskets, strips, packs/bundles,     
         }
     ##End check for suffixes with a dot
     } else if (any(substr(x,1,2) == c("1C","1D"))) { # Single-stock future (SSF) 
@@ -207,7 +234,7 @@ parse_suffix <- function(x, silent=TRUE) {
             format <- 'CY'
         } else if (is.na(as.numeric(x))) type <- 'root'
     } else if (nchar(x) == 3) { #U11
-        if (substr(x,1,1) %in% M2C() && !is.na(as.numeric(substr(x,2,3)))) {
+        if (substr(x,1,1) %in% M2C() && suppressWarnings(!is.na(as.numeric(substr(x,2,3))))) {
             type <- c("outright","future")
             month <- toupper(C2M(substr(x,1,1)))
             year <- as.numeric(substr(x,2,3)) + 2000

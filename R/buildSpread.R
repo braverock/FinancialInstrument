@@ -409,7 +409,8 @@ make_spread_id <- function(x, root=NULL, format=NULL){
 	#if (is.character(format)) suff <- paste(sapply(strsplit(suff,"\\.")[[1]], format_id, format=format, parse='suffix'), collapse=".")
     if (!is.null(format) && is.character(format)) 
 		suff <- paste(format_id(strsplit(suff,"\\.")[[1]], format=format, parse='suffix'), collapse=".")
-    return(paste(root,suff, sep="_"))        
+    id <- paste(root,suff, sep="_")
+    return(make.names(id))
 }
 
 

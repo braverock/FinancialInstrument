@@ -167,6 +167,59 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
 }
 
+#' Get the root contract specs for an instrument
+#' 
+#' Get a \code{future} or \code{option} object
+#' 
+#' \code{get_option} and \code{get_future} are wrappers, and they are called internally by \code{\link{future_series}} and \code{\link{option_series}}
+#' 
+#' \code{\link{future}} and \code{\link{option}} objects may have a primary_id that 
+#' begins with 1 or 2 dots (in order to avoid naming conflics).  For example, the root specs
+#' for options (or futures) on the stock with ticker "SPY" may be stored with a primary_id 
+#' of "SPY", ".SPY", or "..SPY"
+#'
+#' This function will try calling \code{\link{getInstrument}} using each possible primary_id
+#' until it finds the instrument that is of appropriate \code{type}.
+#' @param root_id string (e.g. "ES", ".ES", or "..ES" for e-mini S&P 500 futures)
+#' @param type character. type of instrument to look for ("future" or "option"). Alternatively, can be numeric: 1 for "future" or 2 for "option"
+#' @return an object of class \code{type}
+#' @author Garrett See
+#' @seealso \code{\link{getInstrument}}
+#' @examples
+#' \dontrun{
+#' option('.SPY',currency("USD"),100,underlying_id=stock("SPY","USD"))
+#' future("..SPY","USD", 100, underlying_id="SPY")
+#' getRoot("SPY", 'future')
+#' getRoot("SPY", 'option')
+#' }
+#' @export
+getRoot <- function(root_id, type=c('future','option')) {
+    if (is.numeric(type)) type <- c('future','option')[type]
+    type <- type[[1]]    
+    #first try to get the instrument with primary_id == root_id, and return it if successful
+    contract <- try(getInstrument(root_id, silent=TRUE))
+    if (inherits(contract, type)) return(contract)
+    #if not successful, strip out the dots and add them back 1 at a time to the beginning of root_id
+    root_id <- gsub("\\.","",root_id)
+    contract<-try(getInstrument(root_id,silent=TRUE))
+    if(!inherits(contract,type)) {
+        contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
+        if(!inherits(contract,type)) {
+            contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
+            if (!inherits(contract,type)) {
+                stop(paste(type, "contract spec must be defined first"))
+            }
+        }
+    }
+    contract
+}
+
+#' @rdname getRoot
+get_option <- function(root_id) getRoot(root_id, type='option')
+#' @rdname getRoot
+get_future <- function(root_id) getRoot(root_id, type='future')
+
+
 #' constructors for series contracts on instruments such as options and futures
 #' 
 #' constructors for series contracts on instruments such as options and futures
@@ -233,15 +286,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
     if (!identical(integer(0), grep("NA",expires))) expires <- NULL
   }
 
-  contract<-try(getInstrument(root_id,silent=TRUE))
-  if(!inherits(contract,"future")) {
-      contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
-      if(!inherits(contract,"future")) {
-          contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
-          if (!inherits(contract,"future")) 
-            stop("futures contract spec must be defined first")
-      }
-  }
+  contract<-get_future(root_id)
   
   # TODO add check for Date equivalent in first_traded and expires
 
@@ -324,15 +369,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         if (!identical(integer(0), grep("NA",expires))) 
             stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
-    contract<-try(getInstrument(root_id,silent=TRUE))
-    if(!inherits(contract,"option")) {
-        contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
-        if(!inherits(contract,"option")) {
-            contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
-            if(!inherits(contract,"option")) 
-                stop("options contract spec must be defined first")
-        }
-    }    
+    contract<-get_option(root_id)
     
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)

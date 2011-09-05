@@ -6,8 +6,8 @@
 \alias{synthetic.instrument}
 \title{synthetic instrument constructors}
 \usage{
-  synthetic(primary_id, currency, multiplier = 1,
-  identifiers = NULL, ..., members = NULL, type =
+  synthetic(primary_id = NULL, currency = NULL, multiplier
+  = 1, identifiers = NULL, ..., members = NULL, type =
   "synthetic")
 
   synthetic.instrument(primary_id, currency, members,
@@ -15,17 +15,17 @@
   identifiers = NULL, type = c("synthetic.instrument",
   "synthetic"))
 
-  spread(primary_id, currency = NULL, members, memberratio,
-  tick_size = NULL, ..., multiplier = 1, identifiers =
-  NULL)
+  spread(primary_id = NULL, currency = NULL, members,
+  memberratio, tick_size = NULL, ..., multiplier = 1,
+  identifiers = NULL)
 
-  butterfly(primary_id, currency = NULL, members, tick_size
-  = NULL, identifiers = NULL, ...)
+  butterfly(primary_id = NULL, currency = NULL, members,
+  tick_size = NULL, identifiers = NULL, ...)
 
-  guaranteed_spread(primary_id, currency = NULL, root_id =
-  NULL, suffix_id = NULL, members = NULL, memberratio =
-  c(1, -1), ..., multiplier = NULL, identifiers = NULL,
-  tick_size = NULL)
+  guaranteed_spread(primary_id = NULL, currency = NULL,
+  root_id = NULL, suffix_id = NULL, members = NULL,
+  memberratio = c(1, -1), ..., multiplier = NULL,
+  identifiers = NULL, tick_size = NULL)
 }
 \arguments{
   \item{primary_id}{chr string of primary identifier of
@@ -92,6 +92,11 @@
   \code{\link{strsplit}} using the regex "[-;:_,\\.]" to
   create the \code{members} vector, and potentially
   combined with a \code{root_id}.
+
+  The wrappers will build \code{primary_id} if is NULL,
+  either by combining \code{root_id} and \code{suffix_id},
+  or by passing \code{members} in a call to
+  \code{\link{make_spread_id}}
 
   We welcome assistance from others to model more complex
   OTC derivatives such as swap products.

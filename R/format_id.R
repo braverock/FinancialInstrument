@@ -216,6 +216,7 @@ prev.future_id <- function(id, month_cycle=seq(3,12,3), root=NULL, format=NULL) 
 #' sort_ids(ids)
 #' @export
 sort_ids <- function(ids, ...) {
+    if (is.null(ids)) return(NULL)
     f <- function(x, ...) {
         pid <- parse_id(x, ...)
         as.Date(paste(pid$year,pid$month,15,sep=''),format="%Y%b%d")
