@@ -138,10 +138,10 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
         for (member in members) {
             tmp_instr <- try(getInstrument(member, silent=TRUE))
             if (inherits(tmp_instr, "try-error") | !is.instrument(tmp_instr)) {                
-                cat(paste("Instrument ", member, " not found, ",sep=""))
                 if(missing(currency) || is.null(currency)) {
                     stop("'currency' must be provided if member instruments are not defined") 
-                } else cat("using currency of", currency, "\n")
+                    warning(paste("Instrument", member, "not found, using currency of", currency))                
+                } 
                 memberlist$currencies[member] <- currency
             }
             else {
