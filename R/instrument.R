@@ -656,22 +656,11 @@ instrument_attr <- function(primary_id, attr, value) {
 #' 
 #' @method print instrument
 #' @S3method print instrument
+#' @author Joshua Ulrich, Garrett See
 #' @keywords internal
 print.instrument <- function(x, ...) {
-  max.name <- max(sapply(names(x), nchar), na.rm=TRUE) + 1
-  for(i in seq_along(x)) {
-    xi <- unlist(x[[i]])
-    nx <- names(x)
-    nxi <- names(xi)
-    if(!is.null(nxi)) {
-      fxi <- format(rbind(nxi,xi))
-      cat(encodeString(nx[i], width=max.name), noquote(fxi[1,]), "\n")
-      cat(encodeString("",    width=max.name), noquote(fxi[2,]), "\n")
-    } else {
-      if(is.null(xi)) xi <- "NULL"
-      cat(encodeString(nx[i], width=max.name), noquote(xi), "\n")
-    }
-  }
+  str(unclass(SPY), comp.str="", no.list=TRUE, give.head=FALSE,
+    give.length=FALSE, give.attr=FALSE, nest.lev=-1, indent.str="")
   invisible(x)
 }
 

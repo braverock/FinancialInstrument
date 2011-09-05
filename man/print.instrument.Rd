@@ -7,5 +7,8 @@
 \description{
   instrument class print method
 }
+\author{
+  Joshua Ulrich, Garrett See
+}
 \keyword{internal}
 
