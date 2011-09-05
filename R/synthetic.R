@@ -46,38 +46,7 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
 #' @export
 synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., multiplier=1, identifiers = NULL, type=c("synthetic.ratio","synthetic"))
 {
-    #TODO make sure that with options/futures or other  instruments that we have you use the base contract
-    if(!is.list(members)){
-        if(length(members)!=length(memberratio) | length(members)<2){
-            stop("length of members and memberratio must be equal, and contain two or more instruments")
-        } else {
-            memberlist<-list(members=members,memberratio=memberratio,currencies=vector(),memberpositions=NULL)   
-        }
-        for(member in members) {
-            tmp_symbol<-member
-            tmp_instr<-try(getInstrument(member))
-            if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
-                message(paste("Instrument",tmp_symbol," not found, using currency of",currency))
-                memberlist$currencies[member]<-currency
-            } else {
-                memberlist$currencies[member]<-tmp_instr$currency                
-            }
-        }
-        names(memberlist$members)<-memberlist$members
-        names(memberlist$memberratio)<- memberlist$members
-        names(memberlist$currencies)<- memberlist$members
-    } else {
-        # TODO do some sanity checking here on the list elements
-        warning("passing in members as a list not fully tested")
-        memberlist=members
-    }
-    if(is.null(currency)) currency<- as.character(memberlist$currencies[1]) #use the currency of the front leg
-
-    if (hasArg(tick_size)){
-        tick_size<-match.call(expand.dots=TRUE)$tick_size  
-    } else tick_size<-0 
-
-    synthetic(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, members=memberlist , memberratio=memberratio, ...=... ,type=type, tick_size=tick_size)
+    .Deprecated(new='synthetic.instrument',package='FinancialInstrument') 
 }
 
 #' synthetic instrument constructors
@@ -123,7 +92,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' \dontrun{
 #' stock('SPY','USD',1)
 #' stock('DIA','USD',1)
-#' spread('SPYDIA','USD',c('SPY','DIA'),c(1,-1))
+#' spread('SPY.DIA','USD',c('SPY','DIA'),c(1,-1))
 #' }
 #' @export
 synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 

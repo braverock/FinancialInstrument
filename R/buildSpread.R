@@ -65,7 +65,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     for (i in 1:length(spread_instr$members)) {
         instr <- try(getInstrument(as.character(spread_instr$members[i])))
         if (inherits(instr, "try-error") || !is.instrument(instr)) 
-            stop(paste("Instrument", instr, " not found, please create it first."))
+            stop(paste("Instrument", spread_instr$members[i], " not found, please create it first."))
         instr_currency <- instr$currency
         instr_mult <- as.numeric(instr$multiplier)
         instr_ratio <- spread_instr$memberratio[i]

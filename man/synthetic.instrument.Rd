@@ -105,7 +105,7 @@
 \dontrun{
 stock('SPY','USD',1)
 stock('DIA','USD',1)
-spread('SPYDIA','USD',c('SPY','DIA'),c(1,-1))
+spread('SPY.DIA','USD',c('SPY','DIA'),c(1,-1))
 }
 }
 \author{
