@@ -659,7 +659,7 @@ instrument_attr <- function(primary_id, attr, value) {
 #' @author Joshua Ulrich, Garrett See
 #' @keywords internal
 print.instrument <- function(x, ...) {
-  str(unclass(SPY), comp.str="", no.list=TRUE, give.head=FALSE,
+  str(unclass(x), comp.str="", no.list=TRUE, give.head=FALSE,
     give.length=FALSE, give.attr=FALSE, nest.lev=-1, indent.str="")
   invisible(x)
 }
