@@ -32,7 +32,8 @@
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the
-  instrument}
+  instrument. Most of the wrappers allow this to be a
+  vector.}
 
   \item{...}{any other passthru parameters, including}
 

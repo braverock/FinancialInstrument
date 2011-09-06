@@ -18,7 +18,8 @@
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the
-  instrument}
+  instrument. May be a vector for \code{future_series} and
+  \code{option_series}}
 
   \item{root_id}{string product code or underlying_id,
   usually something like 'ES' or 'CL' for futures, or the
@@ -60,8 +61,9 @@
   \code{first_listed} or \code{expires}.
 
   For \code{future_series} and \code{option_series} you may
-  either provide a \code{primary_id}, or both a
-  \code{root_id} and \code{suffix_id}.
+  either provide a \code{primary_id} (or vector of
+  \code{primary_id}s), OR both a \code{root_id} and
+  \code{suffix_id}.
 }
 \examples{
 \dontrun{
@@ -76,6 +78,9 @@ option('.SPY','USD',multiplier=100,underlying_id='SPY')
 option_series('SPY_110917C125', expires='2011-09-16')
 option_series(root_id='SPY',suffix_id='111022P125')
 option_series(root_id='.SPY',suffix_id='111119C130')
+#multiple series instruments at once.
+future_series(c("ES_H12","ES_M12"))
+option_series(c("SPY_110917C115","SPY_110917P115"))
 }
 }
 

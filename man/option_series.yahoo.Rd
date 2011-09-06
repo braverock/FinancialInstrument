@@ -6,8 +6,9 @@
   multiplier = 100, first_traded = NULL, tick_size = NULL)
 }
 \arguments{
-  \item{symbol}{ticker symbol of the underlying instrument
-  (Currently, should only be stock tickers)}
+  \item{symbol}{character vector of ticker symbols of the
+  underlying instruments (Currently, should only be stock
+  tickers)}
 
   \item{Exp}{Expiration date or dates to be passed to
   getOptionChain}

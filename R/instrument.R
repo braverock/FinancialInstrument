@@ -59,7 +59,7 @@ is.instrument <- function( x ) {
 #' For example, if you have a \code{stock} with \sQuote{SPY} as the \code{primary_id}, you could use 
 #' \sQuote{.SPY} as the \code{primary_id} of the \code{option} specs, and \sQuote{..SPY} as the 
 #' \code{primary_id} of the single stock \code{future} specs. (or vice versa)
-#' @param primary_id string describing the unique ID for the instrument
+#' @param primary_id string describing the unique ID for the instrument. Most of the wrappers allow this to be a vector.
 #' @param ... any other passthru parameters, including 
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
 #' @param currency string describing the currency ID of an object of type \code{\link{currency}}
@@ -146,18 +146,26 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
 #' @export
 #' @rdname instrument
 stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+    if (is.null(currency)) stop ("'currency' is a required argument")
+    if (length(primary_id) > 1) return(unname(sapply(primary_id, stock, 
+        currency=currency, multiplier=multiplier, tick_size=tick_size, identifiers=identifiers, ...=...)))
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
 }
 
 #' @export
 #' @rdname instrument
 fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+    if (is.null(currency)) stop ("'currency' is a required argument")
+    if (length(primary_id) > 1) return(unname(sapply(primary_id, fund,
+        currency=currency, multiplier=multiplier, tick_size=tick_size, identifiers=identifiers, ...=...)))
     instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
 }
 
 #' @export
 #' @rdname instrument
 future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+    if (length(primary_id) > 1) stop('primary_id must be of length 1')
+    if (missing(currency)) stop("'currency' is a required argument")
     if(is.null(underlying_id)) {
         warning("underlying_id should only be NULL for cash-settled futures")
     } else {
@@ -228,9 +236,9 @@ get_future <- function(root_id) getRoot(root_id, type='future')
 #' useful to store attributes such as local roll-on and roll-off dates
 #' (rolling not on the \code{first_listed} or \code{expires}.  
 #'
-#' For \code{future_series} and \code{option_series} you may either provide a \code{primary_id}, or both 
-#' a \code{root_id} and \code{suffix_id}.
-#' @param primary_id string describing the unique ID for the instrument
+#' For \code{future_series} and \code{option_series} you may either provide a \code{primary_id} (or vector of \code{primary_id}s), 
+#' OR both a \code{root_id} and \code{suffix_id}.
+#' @param primary_id string describing the unique ID for the instrument. May be a vector for \code{future_series} and \code{option_series}
 #' @param root_id string product code or underlying_id, usually something like 'ES' or 'CL' for futures, 
 #' or the underlying stock symbol (maybe preceded with a dot) for equity options.
 #' @param suffix_id string suffix that should be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year
@@ -259,6 +267,9 @@ get_future <- function(root_id) getRoot(root_id, type='future')
 #' option_series('SPY_110917C125', expires='2011-09-16')
 #' option_series(root_id='SPY',suffix_id='111022P125')
 #' option_series(root_id='.SPY',suffix_id='111119C130')
+#' #multiple series instruments at once.
+#' future_series(c("ES_H12","ES_M12"))
+#' option_series(c("SPY_110917C115","SPY_110917P115"))
 #' }
 #' @export
 #' @rdname series_instrument
@@ -274,9 +285,13 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
           }
           primary_id <- paste(root_id, suffix_id, sep="_")
       }
-
-  } 
-
+  } else if (length(primary_id) > 1) {
+      if (!is.null(expires) || !is.null(first_traded)) 
+          stop("'first_traded' and 'expires' must be NULL if calling with multiple primary_ids")
+      return(unname(sapply(primary_id, future_series,
+          root_id=root_id, suffix_id=suffix_id, first_traded=first_traded, 
+          expires=expires, identifiers = identifiers, ...=...)))
+  }
   pid <- parse_id(primary_id)
   if (is.null(root_id)) root_id <- pid$root
   if (is.null(suffix_id)) suffix_id <- pid$suffix
@@ -299,6 +314,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       temp_series$first_traded<-c(temp_series$first_traded,first_traded)
       temp_series$expires<-c(temp_series$expires,expires)
       assign(primary_id, temp_series, envir=as.environment(.instrument))
+      primary_id
   } else {
       dargs<-list(...)
       dargs$currency=NULL
@@ -324,8 +340,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
 #' @export
 #' @rdname instrument
 option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
-  option_temp = instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="option")
-
+  if (length(primary_id) > 1) stop("'primary_id' must be of length 1")
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled options")
   } else {
@@ -355,8 +370,13 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
             }
             primary_id <- paste(root_id, suffix_id, sep="_")
         }
+    } else if (length(primary_id) > 1) {
+      if (!is.null(expires) || !is.null(first_traded)) 
+          stop("'first_traded' and 'expires' must be NULL if calling with multiple primary_ids")         
+      return(unname(sapply(primary_id, option_series, 
+          root_id=root_id, suffix_id=suffix_id, first_traded=first_traded,
+          expires=expires, callput=callput, strike=strike, identifiers=identifiers, ...=...)))
     }
-
     pid <- parse_id(primary_id)
     if (is.null(root_id)) root_id <- pid$root
     if (is.null(suffix_id)) suffix_id <- pid$suffix
@@ -379,8 +399,8 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
     temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
     if(inherits(temp_series,"option_series")) {
         message("updating existing first_traded and expires for ", primary_id)
-        temp_series$first_traded<-c(temp_series$first_traded,first_traded)
-        temp_series$expires<-c(temp_series$expires,expires)
+        temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
+        temp_series$expires<-unique(c(temp_series$expires,expires))
         assign(primary_id, temp_series, envir=as.environment(.instrument))
         primary_id
     } else {
@@ -410,7 +430,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
 #' If \code{Exp} is NULL it will define all options
 #' 
 #' If \code{first_traded} and/or \code{tick_size} should not be the same for all options being defined, they should be left NULL and defined outside of this function.
-#' @param symbol ticker symbol of the underlying instrument (Currently, should only be stock tickers)
+#' @param symbol character vector of ticker symbols of the underlying instruments (Currently, should only be stock tickers)
 #' @param Exp Expiration date or dates to be passed to getOptionChain
 #' @param currency currency of underlying and options
 #' @param multiplier contract multiplier. Usually 100 for stock options
@@ -495,7 +515,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 #' @export
 #' @rdname instrument
 currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = NULL, ...){
-  ## now structure and return
+  if (length(primary_id) > 1) return(unname(sapply(primary_id, currency, identifiers=identifiers, ...=...)))
   currency_temp <- list(primary_id = primary_id,
           currency = primary_id,
           multiplier = 1,
@@ -504,7 +524,6 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
           type = "currency"
   )
   currency_temp <- c(currency_temp,list(...))   
-  
   class(currency_temp)<-c("currency","instrument")
   assign(primary_id, currency_temp, envir=as.environment(.instrument) )
   primary_id
@@ -515,7 +534,7 @@ currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = N
 #' @export
 is.currency <- function( x ) {
 #FIXME: This should not get instrument, but it will break everyone's code if I change it. -Garrett
-  x<-getInstrument(x)       
+  x<-getInstrument(x, silent=TRUE)
   inherits( x, "currency" )
 }
 
@@ -538,9 +557,18 @@ is.currency <- function( x ) {
 #' @param ... any other passthru parameters
 #' @references http://financial-dictionary.thefreedictionary.com/Base+Currency
 #' @export
-exchange_rate <- function (primary_id , currency , counter_currency, identifiers = NULL, ...){
+exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency = NULL, identifiers = NULL, ...){
   # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
-
+  if (is.null(primary_id) && !is.null(currency) && !is.null(counter_currency)) {
+    primary_id <- c(outer(counter_currency,currency,paste,sep=""))
+  } else if (is.null(primary_id) && (is.null(currency) || is.null(counter_currency))) 
+    stop("Must provide either 'primary_id' or both 'currency' and 'counter_currency'")
+  if (length(primary_id) > 1) return(unname(sapply(primary_id, exchange_rate, identifiers=identifiers, ...=...)))
+  
+  if (is.null(currency) && is.null(counter_currency)) {
+    currency <- substr(primary_id,4,6)
+    counter_currency <- substr(primary_id,1,3)
+  }
   if(!exists(currency, where=.instrument,inherits=TRUE)) warning("currency not found") # assumes that we know where to look
   if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning("counter_currency not found") # assumes that we know where to look
 
@@ -552,6 +580,8 @@ exchange_rate <- function (primary_id , currency , counter_currency, identifiers
 #' @export
 #' @rdname instrument
 bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
+    if (missing(currency)) stop ("'currency' is a required argument")
+    if (length(primary_id) > 1) stop("'primary_id' must be of length 1 for this function")
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
 }
 
