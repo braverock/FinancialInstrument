@@ -29,7 +29,7 @@
 
   These would be recognized as a call with a strike of
   122.5 that expires Sep 17, 2011: 110917C122.5,
-  20110917C122.5
+  20110917C122.5, 110917C00122500, 20110917C00122500
 
   These would be recognized as Sep 2011 single stock
   futures: 1CU1, 1CU11, 1CSEP11, 1DU1 (dividend protected)

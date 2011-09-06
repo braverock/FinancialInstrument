@@ -14,7 +14,7 @@
 #' @param silent silence warnings?
 #' @param root character name of instrument root_id.  Optionally provide this to make parsing easier.
 #' @return a list of class \sQuote{id.list} containing \sQuote{root} and \sQuote{suffix} as well as 
-#' what is returned from \code{\link{parse_suffix}} (type, month, year, strike, right, cm, cc)
+#' what is returned from \code{\link{parse_suffix}} (type, month, year, strike, right, cm, cc, format)
 #' @author Garrett See
 #' @note this function will identify \code{x} as an \code{\link{exchange_rate}} only if it is 
 #' 6 characters long and made up of 2 previously defined \code{\link{currency}} instruments.
@@ -94,7 +94,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' U1, U11, SEP1, SEP11, U2011, Sep2011, SEP2011
 #' 
 #' These would be recognized as a call with a strike of 122.5 that expires Sep 17, 2011:
-#' 110917C122.5, 20110917C122.5
+#' 110917C122.5, 20110917C122.5, 110917C00122500, 20110917C00122500
 #'
 #' These would be recognized as Sep 2011 single stock futures:
 #' 1CU1, 1CU11, 1CSEP11, 1DU1 (dividend protected)
@@ -149,7 +149,7 @@ parse_suffix <- function(x, silent=TRUE) {
         format <- 'cc'
     } else if (nchar(x) > 7 && (any(substr(x,7,7) == c("C","P")) || any(substr(x,9,9) == c("C","P"))) ) {
         # if the 7th or 9th char is a "C" or "P", it's an option
-        # 110917C125 or 20110917C125 or 110917C00012500 or 20110917C00012500
+        # 110917C125 or 20110917C125 or 110917C00125000 or 20110917C00125000
         hasdot <- !identical(integer(0),grep("\\.",x))
         if (!hasdot
             || (hasdot 
@@ -162,7 +162,7 @@ parse_suffix <- function(x, silent=TRUE) {
                 month <- toupper(month.abb[as.numeric(substr(x,3,4))])
                 year <- 2000 + as.numeric(substr(x,1,2))
                 strike <- as.numeric(substr(x,8,nchar(x)))
-                if (nchar(x) >= 15) strike <- strike/100                 
+                if (nchar(x) >= 15) strike <- strike/1000                 
                 right <- substr(x,7,7)
                 format <- 'opt2'    
             } else if (any(substr(x,9,9) == c("C","P"))) {
@@ -170,7 +170,7 @@ parse_suffix <- function(x, silent=TRUE) {
                 month <- toupper(month.abb[as.numeric(substr(x,5,6))])
                 year <- as.numeric(substr(x,1,4))
                 strike <- as.numeric(substr(x,10,nchar(x)))
-                if (nchar(x) >= 15) strike <- strike/100
+                if (nchar(x) >= 15) strike <- strike/1000
                 right <- substr(x,9,9)
                 format <- 'opt4'
             } else stop("how did you get here?")

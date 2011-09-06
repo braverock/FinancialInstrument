@@ -17,7 +17,7 @@
   a list of class \sQuote{id.list} containing \sQuote{root}
   and \sQuote{suffix} as well as what is returned from
   \code{\link{parse_suffix}} (type, month, year, strike,
-  right, cm, cc)
+  right, cm, cc, format)
 }
 \description{
   Extract/infer descriptive information about an instrument
