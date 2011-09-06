@@ -35,9 +35,9 @@ option_series('IBM_110917C175') #magically figures everthing out...however, expi
 option_series.yahoo('SPY')
 #option_series.yahoo("SPY",Exp=NULL) # would define all options on SPY
 
-#load.instruments("./FinancialInstrument/data/currencies.csv")
-#load.instruments("./FinancialInstrument/data/root_contracts.csv")
-#load.instruments("./FinancialInstrument/data/future_series.csv")
+#load.instruments(system.file("data/currencies.csv",package='FinancialInstrument'))
+#load.instruments(system.file("data/root_contracts.csv",package='FinancialInstrument'))
+#load.instruments(system.file("data/future_series.csv",package='FinancialInstrument'))
 
 # Define a futures root
 future("ES",'USD',multiplier=50)
@@ -62,10 +62,10 @@ synthetic("BMW.USD","USD",1,members=c("BMW","EURUSD"))
 
 # Define a spread
 getSymbols(c("SPY","DIA")) #download the data for both legs
-SPYDIA.fSB <- fn_SpreadBuilder("SPY","DIA") #build a 2 leg spread with multiple columns
+SPYDIA.fSB <- fn_SpreadBuilder("SPY","DIA", auto.assign=FALSE) #build a 2 leg spread with multiple columns
 #or define the spread first
-spread("SPYDIA", "USD", members=c("SPY","DIA"), memberratio=c(1,-1))
-SPYDIA.bS <- buildSpread("SPYDIA", auto.assign=FALSE) #and build it (could be multiple-leg)
+spread("SPY.DIA", "USD", members=c("SPY","DIA"), memberratio=c(1,-1))
+SPYDIA.bS <- buildSpread("SPY.DIA", auto.assign=FALSE) #and build it (could be multiple-leg)
 
 SPYDIA.rat <- buildRatio(c("SPY","DIA")) #calculate ratios of prices
 

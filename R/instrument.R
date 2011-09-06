@@ -291,6 +291,11 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       return(unname(sapply(primary_id, future_series,
           root_id=root_id, suffix_id=suffix_id, first_traded=first_traded, 
           expires=expires, identifiers = identifiers, ...=...)))
+  } else if (is.null(root_id) && !is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+      #if we have primary_id, but primary_id looks like a root_id, and we have suffix_id and don't have root_id
+      #then primary_id is really root_id and we need to replace primary_id
+      root_id <- primary_id
+      primary_id <- paste(root_id, suffix_id, sep="_")
   }
   pid <- parse_id(primary_id)
   if (is.null(root_id)) root_id <- pid$root

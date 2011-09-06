@@ -64,12 +64,26 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         hasdot <- !identical(integer(0),grep("\\.",x))        
         if (!silent) 
             warning("id of future_series should have an underscore in it. Trying to parse anyway.")
-        if (nchar(x) <= 3) {
-            root <- substr(x, 1, nchar(x))
-            suffix <- ""
-        } else if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
-            root <- substr(x,1,2)
-            suffix <- substr(x,3,nchar(x))
+        if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
+            if (!is.null(parse_suffix(substr(x,3,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,3,nchar(x)))$format)) {
+                root <- substr(x,1,2)
+                suffix <- substr(x,3,nchar(x))
+            } else if (!is.null(parse_suffix(substr(x,4,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,4,nchar(x)))$format)) {
+                root <- substr(x,1,3)        
+                suffix <- substr(x,4,nchar(x))
+            } else if (!is.null(parse_suffix(substr(x,2,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,2,nchar(x)))$format)) {
+                root <- substr(x,1,1)
+                suffix <- substr(x,2,nchar(x))
+            } else if (nchar(x) <= 3) {
+                root <- substr(x, 1, nchar(x))
+                suffix <- "" 
+            } else { 
+                root <- substr(x,1,4)
+                suffix <- substr(x,5,nchar(x))
+            }
         } else {
             root <- gsub("[0-9.-]","",x) #now it looks like SPYC or TP
             root <- substr(root, 1,nchar(root)-1)

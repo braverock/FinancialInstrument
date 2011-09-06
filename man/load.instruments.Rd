@@ -53,6 +53,13 @@
   or as custom fields.  See \code{\link{instrument}} for
   more information on custom fields.
 }
+\examples{
+\dontrun{
+load.instruments(system.file('data/currencies.csv',package='FinancialInstrument'))
+load.instruments(system.file('data/root_contracts.csv',package='FinancialInstrument'))
+load.instruments(system.file('data/future_series.csv',package='FinancialInstrument'))
+}
+}
 \seealso{
   \code{\link{instrument}} \code{\link{setSymbolLookup.FI}}
   \code{\link[quantmod]{getSymbols}}

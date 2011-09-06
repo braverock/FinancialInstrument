@@ -42,6 +42,12 @@
 #' \code{\link{setSymbolLookup.FI}} 
 #' \code{\link[quantmod]{getSymbols}} 
 #' \code{\link{getSymbols.FI}}
+#' @examples
+#' \dontrun{
+#' load.instruments(system.file('data/currencies.csv',package='FinancialInstrument'))
+#' load.instruments(system.file('data/root_contracts.csv',package='FinancialInstrument'))
+#' load.instruments(system.file('data/future_series.csv',package='FinancialInstrument'))
+#' }
 #' @export
 load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_type='stock') {
 
