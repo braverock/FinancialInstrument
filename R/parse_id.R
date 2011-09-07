@@ -65,16 +65,16 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         if (!silent) 
             warning("id of future_series should have an underscore in it. Trying to parse anyway.")
         if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
-            if (!is.null(parse_suffix(substr(x,3,nchar(x)))) && 
-                    !is.na(parse_suffix(substr(x,3,nchar(x)))$format)) {
+            if (suppressWarnings(!is.null(parse_suffix(substr(x,3,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,3,nchar(x)))$format))) {
                 root <- substr(x,1,2)
                 suffix <- substr(x,3,nchar(x))
-            } else if (!is.null(parse_suffix(substr(x,4,nchar(x)))) && 
-                    !is.na(parse_suffix(substr(x,4,nchar(x)))$format)) {
+            } else if (suppressWarnings(!is.null(parse_suffix(substr(x,4,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,4,nchar(x)))$format))) {
                 root <- substr(x,1,3)        
                 suffix <- substr(x,4,nchar(x))
-            } else if (!is.null(parse_suffix(substr(x,2,nchar(x)))) && 
-                    !is.na(parse_suffix(substr(x,2,nchar(x)))$format)) {
+            } else if (suppressWarnings(!is.null(parse_suffix(substr(x,2,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,2,nchar(x)))$format))) {
                 root <- substr(x,1,1)
                 suffix <- substr(x,2,nchar(x))
             } else if (nchar(x) <= 3) {
@@ -239,16 +239,16 @@ parse_suffix <- function(x, silent=TRUE) {
         year <- suff$year
         format <- paste('xx', suff$format, sep="")
     } else if (nchar(x) == 2) { #U1
-        if (substr(x,1,1) %in% M2C() && !is.na(as.numeric(substr(x,2,2)))) {
+        if (substr(x,1,1) %in% M2C() && !is.na(suppressWarnings(as.numeric(substr(x,2,2))))) {
             type <- c("outright","future")
             month <- toupper(C2M(substr(x,1,1)))
             year <- as.numeric(substr(x,2,2)) + 2010
             if (!silent)
                 warning("Converting 1 digit year to 4 digit year assumes there are no futures before 2010")
             format <- 'CY'
-        } else if (is.na(as.numeric(x))) type <- 'root'
+        } else if (suppressWarnings(is.na(as.numeric(x)))) type <- 'root'
     } else if (nchar(x) == 3) { #U11
-        if (substr(x,1,1) %in% M2C() && suppressWarnings(!is.na(as.numeric(substr(x,2,3))))) {
+        if (substr(x,1,1) %in% M2C() && !is.na(suppressWarnings(as.numeric(substr(x,2,3))))) {
             type <- c("outright","future")
             month <- toupper(C2M(substr(x,1,1)))
             year <- as.numeric(substr(x,2,3)) + 2000
@@ -258,7 +258,7 @@ parse_suffix <- function(x, silent=TRUE) {
             format <- 'CYY'
         } else type <- 'root'
     } else if (nchar(x) == 4) { #SEP1, VXU1, 0911
-        if (toupper(substr(x, 1, 3)) %in% toupper(C2M()) && !is.na(as.numeric(substr(x,4,4)))) { 
+        if (toupper(substr(x, 1, 3)) %in% toupper(C2M()) && !is.na(suppressWarnings(as.numeric(substr(x,4,4))))) { 
             #sep1, Sep1, SEP1
             suff <- paste(M2C(tolower(substr(x,1,3))), substr(x,4,4), sep="") #convert from Sep1 to U1
             out <- parse_suffix(suff,silent=silent) #call recursively with 2 character suffix

@@ -566,6 +566,8 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
   # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
   if (is.null(primary_id) && !is.null(currency) && !is.null(counter_currency)) {
     primary_id <- c(outer(counter_currency,currency,paste,sep=""))
+    same.same <- function(x) substr(x,1,3) == substr(x,4,6)
+    primary_id <- primary_id[!same.same(primary_id)]
   } else if (is.null(primary_id) && (is.null(currency) || is.null(counter_currency))) 
     stop("Must provide either 'primary_id' or both 'currency' and 'counter_currency'")
   if (length(primary_id) > 1) return(unname(sapply(primary_id, exchange_rate, identifiers=identifiers, ...=...)))
