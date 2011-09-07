@@ -41,8 +41,10 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                 root <- substr(root, 1,nchar(root)-1)
                 suffix <- gsub(root,"",x) #whatever isn't the root
             } else { #probably a synthetic: SPY.DIA, GLD.EUR
-                suffix <- x
+                suffix <- ""
                 root <- x
+                type <- 'synthetic'
+                sufftype <- FALSE
             }
         } else if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),2), TRUE)) { 
             #2 dots, so we'll treat it as a fly, although it could be a basket
