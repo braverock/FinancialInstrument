@@ -15,6 +15,7 @@
 #' @param id character. the id to be reformatted. Can be either a primary_id or a suffix_id
 #' @param format character string indicating how the id should be formatted. See Details.
 #' @param parse character name of parsing method to use:  "id" or "suffix"
+#' @param sep character that will separate root_id and suffix_id of output if calling with \code{parse="id"}
 #' @param ... parameters to pass to the parsing function
 #' @return character id of the appropriate format
 #' @author Garrett See
@@ -28,8 +29,9 @@
 #' id3 <- c('VX_aug1','ES_U1', 'VX_U11')
 #' format_id(id3,'MMMYY')
 #' format_id(id3,'CYY')
+#' format_id(id3,'CY',sep="")
 #' @export
-format_id <- function(id, format=NULL, parse=c('id', 'suffix'), ...) {
+format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
     if (!is.null(format) && format == FALSE) format <- NULL
 	parse <- parse[[1]]
 	out <- NULL
@@ -38,24 +40,24 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), ...) {
         suffix <- ifelse(parse=='id',pid$suffix, i)
 		if (any(!is.null(format))) {
 			tmp <- switch(format[[1]], 
-                CY=paste(pid$root,paste(M2C(pid$month),substr(pid$year,4,4),sep=""), sep="_"),
-                CYY=paste(pid$root,paste(M2C(pid$month),substr(pid$year,3,4),sep=""), sep="_"),
-                CYYYY=paste(pid$root,paste(M2C(pid$month),pid$year,sep=""), sep="_"),
-                MMM=paste(pid$root,pid$month,sep="_"),
-                MMMY=paste(pid$root, paste(pid$month,substr(pid$year,4,4), sep=""), sep="_"),
-                MMMYY=paste(pid$root, paste(pid$month,substr(pid$year,3,4), sep=""), sep="_"),
-                MMMYYYY=paste(pid$root, paste(pid$month,pid$year,sep=""), sep="_"),
-                xxCY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,4,4), sep=""), sep="_"),
-                xxCYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,3,4), sep=""), sep="_"), 
-                xxCYYYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), pid$year, sep=""), sep="_"),
-                NNNN=paste(pid$root, sprintf("%02d", match(pid$month,toupper(month.abb))), substr(pid$year,3,4), sep="_"),
+                CY=paste(pid$root,paste(M2C(pid$month),substr(pid$year,4,4),sep=""), sep=sep),
+                CYY=paste(pid$root,paste(M2C(pid$month),substr(pid$year,3,4),sep=""), sep=sep),
+                CYYYY=paste(pid$root,paste(M2C(pid$month),pid$year,sep=""), sep=sep),
+                MMM=paste(pid$root,pid$month,sep=sep),
+                MMMY=paste(pid$root, paste(pid$month,substr(pid$year,4,4), sep=""), sep=sep),
+                MMMYY=paste(pid$root, paste(pid$month,substr(pid$year,3,4), sep=""), sep=sep),
+                MMMYYYY=paste(pid$root, paste(pid$month,pid$year,sep=""), sep=sep),
+                xxCY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,4,4), sep=""), sep=sep),
+                xxCYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,3,4), sep=""), sep=sep), 
+                xxCYYYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), pid$year, sep=""), sep=sep),
+                NNNN=paste(pid$root, sprintf("%02d", match(pid$month,toupper(month.abb))), substr(pid$year,3,4), sep=sep),
                 opt2={
                     if (!any(pid$format == c("opt2","opt4"))) stop("I'm not programmed to convert non-option_series_ids to option_series_ids")
-                    ifelse(pid$format == "opt4", paste(pid$root, substr(suffix,3,nchar(suffix)), sep="_"), i)
+                    ifelse(pid$format == "opt4", paste(pid$root, substr(suffix,3,nchar(suffix)), sep=sep), i)
                 }, 
                 opt4={
                     if (!any(pid$format == c("opt2","opt4"))) stop("I'm not programmed to convert non-option_series_ids to option_series_ids")
-                    ifelse(pid$format == "opt2", paste(pid$root, paste("20",suffix,sep=""), sep="_"), i)
+                    ifelse(pid$format == "opt2", paste(pid$root, paste("20",suffix,sep=""), sep=sep), i)
                 }, 
                 i)
             if (substr(tmp,1,1) == "_") tmp <- substr(tmp,2,nchar(tmp))

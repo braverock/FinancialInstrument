@@ -3,7 +3,7 @@
 \title{format an id}
 \usage{
   format_id(id, format = NULL, parse = c("id", "suffix"),
-  ...)
+  sep = "_", ...)
 }
 \arguments{
   \item{id}{character. the id to be reformatted. Can be
@@ -14,6 +14,9 @@
 
   \item{parse}{character name of parsing method to use:
   "id" or "suffix"}
+
+  \item{sep}{character that will separate root_id and
+  suffix_id of output if calling with \code{parse="id"}}
 
   \item{...}{parameters to pass to the parsing function}
 }
@@ -44,6 +47,7 @@ format_id("SPY_20110826P129","opt2")
 id3 <- c('VX_aug1','ES_U1', 'VX_U11')
 format_id(id3,'MMMYY')
 format_id(id3,'CYY')
+format_id(id3,'CY',sep="")
 }
 \author{
   Garrett See
