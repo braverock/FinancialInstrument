@@ -60,9 +60,10 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
                     ifelse(pid$format == "opt2", paste(pid$root, paste("20",suffix,sep=""), sep=sep), i)
                 }, 
                 i)
-            if (substr(tmp,1,1) == "_") tmp <- substr(tmp,2,nchar(tmp))
-            out <- c(out, tmp)
-		} else out <- c(out, i)
+		} else tmp <- paste(pid$root,suffix,sep=sep)
+        if (substr(tmp,1,1) == "_") tmp <- substr(tmp,2,nchar(tmp))
+        if (substr(tmp,nchar(tmp),nchar(tmp)) == "_") tmp <- substr(tmp,1,nchar(tmp)-1)
+        out <- c(out, tmp)
     }
     out
 }
