@@ -165,7 +165,12 @@ fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, iden
 #' @rdname instrument
 future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
     if (length(primary_id) > 1) stop('primary_id must be of length 1')
-    if (missing(currency)) stop("'currency' is a required argument")
+    if (missing(currency) && !is.null(underlying_id)) {
+        uinstr <- getInstrument(underlying_id,silent=TRUE)
+        if (is.instrument(uinstr)) {
+            currency <- uinstr$currency
+        } else stop("'currency' is a required argument")
+    }
     if(is.null(underlying_id)) {
         warning("underlying_id should only be NULL for cash-settled futures")
     } else {
@@ -175,58 +180,9 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
 }
 
-#' Get the root contract specs for an instrument
-#' 
-#' Get a \code{future} or \code{option} object
-#' 
-#' \code{get_option} and \code{get_future} are wrappers, and they are called internally by \code{\link{future_series}} and \code{\link{option_series}}
-#' 
-#' \code{\link{future}} and \code{\link{option}} objects may have a primary_id that 
-#' begins with 1 or 2 dots (in order to avoid naming conflics).  For example, the root specs
-#' for options (or futures) on the stock with ticker "SPY" may be stored with a primary_id 
-#' of "SPY", ".SPY", or "..SPY"
-#'
-#' This function will try calling \code{\link{getInstrument}} using each possible primary_id
-#' until it finds the instrument that is of appropriate \code{type}.
-#' @param root_id string (e.g. "ES", ".ES", or "..ES" for e-mini S&P 500 futures)
-#' @param type character. type of instrument to look for ("future" or "option"). Alternatively, can be numeric: 1 for "future" or 2 for "option"
-#' @return an object of class \code{type}
-#' @author Garrett See
-#' @seealso \code{\link{getInstrument}}
-#' @examples
-#' \dontrun{
-#' option('.SPY',currency("USD"),100,underlying_id=stock("SPY","USD"))
-#' future("..SPY","USD", 100, underlying_id="SPY")
-#' getRoot("SPY", 'future')
-#' getRoot("SPY", 'option')
-#' }
-#' @export
 getRoot <- function(root_id, type=c('future','option')) {
-    if (is.numeric(type)) type <- c('future','option')[type]
-    type <- type[[1]]    
-    #first try to get the instrument with primary_id == root_id, and return it if successful
-    contract <- try(getInstrument(root_id, silent=TRUE))
-    if (inherits(contract, type)) return(contract)
-    #if not successful, strip out the dots and add them back 1 at a time to the beginning of root_id
-    root_id <- gsub("\\.","",root_id)
-    contract<-try(getInstrument(root_id,silent=TRUE))
-    if(!inherits(contract,type)) {
-        contract<-try(getInstrument(paste(".",root_id,sep=""),silent=TRUE))
-        if(!inherits(contract,type)) {
-            contract<-try(getInstrument(paste("..",root_id,sep=""),silent=TRUE))
-            if (!inherits(contract,type)) {
-                stop(paste(type, "contract spec must be defined first"))
-            }
-        }
-    }
-    contract
+  .Deprecated(new='getInstrument')
 }
-
-#' @rdname getRoot
-get_option <- function(root_id) getRoot(root_id, type='option')
-#' @rdname getRoot
-get_future <- function(root_id) getRoot(root_id, type='future')
-
 
 #' constructors for series contracts on instruments such as options and futures
 #' 
@@ -306,7 +262,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
     if (!identical(integer(0), grep("NA",expires))) expires <- NULL
   }
 
-  contract<-get_future(root_id)
+  contract<-getInstrument(root_id,type='future')
   
   # TODO add check for Date equivalent in first_traded and expires
 
@@ -346,6 +302,12 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
 #' @rdname instrument
 option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
   if (length(primary_id) > 1) stop("'primary_id' must be of length 1")
+  if (missing(currency) && !is.null(underlying_id)) {
+        uinstr <- getInstrument(underlying_id,silent=TRUE)
+        if (is.instrument(uinstr)) {
+            currency <- uinstr$currency
+        } else stop("'currency' is a required argument")
+    }
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled options")
   } else {
@@ -394,7 +356,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         if (!identical(integer(0), grep("NA",expires))) 
             stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
-    contract<-get_option(root_id)
+    contract<-getInstrument(root_id, type='option')
     
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)
@@ -576,8 +538,8 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
     currency <- substr(primary_id,4,6)
     counter_currency <- substr(primary_id,1,3)
   }
-  if(!exists(currency, where=.instrument,inherits=TRUE)) warning("currency not found") # assumes that we know where to look
-  if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning("counter_currency not found") # assumes that we know where to look
+  if(!exists(currency, where=.instrument,inherits=TRUE)) warning(paste("currency",currency,"not found")) # assumes that we know where to look
+  if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
 
   ## now structure and return
   instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
@@ -632,24 +594,55 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
     
 #' primary accessor function for getting objects of type 'instrument'
 #' 
-#' This function will search the \code{.instrument} environment, using first the 
-#' \code{primary_id} and then any \code{identifiers} to locate the instrument.
+#' This function will search the \code{.instrument} environment for objects of
+#' type \code{type}, using first the \code{primary_id} and then any \code{identifiers} 
+#' to locate the instrument.  Finally, it will try adding 1 and then 2 dots to the
+#' \code{primary_id} to see if an instrument was stored there to avoid naming conflicts.
 #' 
+#' \code{\link{future}} and \code{\link{option}} objects may have a primary_id that 
+#' begins with 1 or 2 dots (in order to avoid naming conflics).  For example, the root specs
+#' for options (or futures) on the stock with ticker "SPY" may be stored with a primary_id 
+#' of "SPY", ".SPY", or "..SPY".  \code{getInstrument} will try using each possible \code{primary_id}
+#' until it finds an instrument of the appropriate \code{type}
 #' @param x string identifier of instrument to retrieve
 #' @param Dates date range to retrieve 'as of', may not currently be implemented
 #' @param silent if TRUE, will not warn on failure, default FALSE
+#' @param type type of object to look for. See Details
+#' @examples 
+#' \dontrun{
+#' option('..VX', multiplier=1, 
+#'   underlying_id=future('.VX',multiplier=1000, 
+#'     underlying_id=synthetic('VIX', currency("USD"))))
+#'
+#' getInstrument("VIX")
+#' getInstrument('VX') #returns the future
+#' getInstrument("VX",type='option')
+#' getInstrument('..VX') #finds the option
+#' }
 #' @export
-getInstrument <- function(x, Dates=NULL, silent=FALSE){
+#' @rdname getInstrument
+getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
     tmp_instr<-try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
-    if(inherits(tmp_instr,"try-error") | !is.instrument(tmp_instr)){
+    if(inherits(tmp_instr,"try-error") | !inherits(tmp_instr, type)){
         #first search
         instr_list<-ls(pos=.instrument)
         for (instr in instr_list){
             tmp_instr<-try(get(instr,pos=.instrument),silent=TRUE)
-            if(is.instrument(tmp_instr) && length(grep(x,tmp_instr$identifiers))) {
+            if(inherits(tmp_instr, type) && length(grep(x,tmp_instr$identifiers))) {
                 return(tmp_instr)
             }
         }
+        #If not found, see if it begins with dots (future or option root)
+        #strip out the dots and add them back 1 at a time to the beginning of id
+        x <- gsub("\\.", "", x) 
+        tmp_instr<-try(get(x,pos=.instrument),silent=TRUE)
+        if(!inherits(tmp_instr,type)) {
+            tmp_instr<-try(get(paste(".",x,sep=""),pos=.instrument),silent=TRUE)
+            if(!inherits(tmp_instr,type)) {
+                tmp_instr<-try(get(paste("..",x,sep=""),pos=.instrument),silent=TRUE)
+            }
+        }
+        if (!inherits(tmp_instr,'try-error') && inherits(tmp_instr, type)) return(tmp_instr)
         if(!silent) warning(paste("Instrument",x," not found, please create it first."))
         return(FALSE)
     } else{

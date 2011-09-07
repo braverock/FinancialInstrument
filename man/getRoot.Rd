@@ -1,14 +1,8 @@
 \name{getRoot}
-\alias{get_future}
-\alias{get_option}
 \alias{getRoot}
 \title{Get the root contract specs for an instrument}
 \usage{
   getRoot(root_id, type = c("future", "option"))
-
-  get_option(root_id)
-
-  get_future(root_id)
 }
 \arguments{
   \item{root_id}{string (e.g. "ES", ".ES", or "..ES" for
