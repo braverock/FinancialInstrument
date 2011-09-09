@@ -19,6 +19,10 @@ option(".IBM","USD",multiplier=100,tick_size=0.01, underlying_id="IBM")
 #If we don't provide the currency, it will use the currency of the underlying stock
 option(".SPY",multiplier=100,tick_size=0.01,underlying_id='SPY')
 option(".GOOG",multiplier=100,underlying_id=stock("GOOG","USD")) #underlying can be defined on-the-fly
+#if you don't provide a primary_id, it will become the underlying_id with a dot in front of it
+option(multiplier=100,underlying_id=stock("GS","USD"))
+#don't remember what primary_id was used? Pass the underlying_id to getInstrument and tell it to find an option
+getInstrument('GS',type='option')
 
 #Define tradeable option_series instrument 
 # (the expiration date in the suffix_id is a Saturday. 
