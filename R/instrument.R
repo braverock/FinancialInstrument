@@ -59,6 +59,8 @@ is.instrument <- function( x ) {
 #' For example, if you have a \code{stock} with \sQuote{SPY} as the \code{primary_id}, you could use 
 #' \sQuote{.SPY} as the \code{primary_id} of the \code{option} specs, and \sQuote{..SPY} as the 
 #' \code{primary_id} of the single stock \code{future} specs. (or vice versa)
+#'
+#' You can (optionally) provide a \code{src} argument in which case, it will be used unaltered in a call to setSymbolLookup.
 #' @param primary_id string describing the unique ID for the instrument. Most of the wrappers allow this to be a vector.
 #' @param ... any other passthru parameters, including 
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
@@ -106,7 +108,12 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
           arg<-c(arg,targ)
       }
   }
-  
+  if (!is.null(arg$src)) {
+      sarg <- list()
+      sarg[[primary_id]] <- arg$src
+      setSymbolLookup(sarg)
+      #arg[["src"]]<-NULL
+  }
   #check for identifiers we recognize 
   ident_str<-c("X.RIC","RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
   for(i_s in ident_str ){
@@ -534,10 +541,8 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
     stop("Must provide either 'primary_id' or both 'currency' and 'counter_currency'")
   if (length(primary_id) > 1) return(unname(sapply(primary_id, exchange_rate, identifiers=identifiers, ...=...)))
   
-  if (is.null(currency) && is.null(counter_currency)) {
-    currency <- substr(primary_id,4,6)
-    counter_currency <- substr(primary_id,1,3)
-  }
+  if (is.null(currency)) currency <- substr(primary_id,4,6)
+  if (is.null(counter_currency)) counter_currency <- substr(primary_id,1,3)
   if(!exists(currency, where=.instrument,inherits=TRUE)) warning(paste("currency",currency,"not found")) # assumes that we know where to look
   if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
 
@@ -610,7 +615,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' @param type type of object to look for. See Details
 #' @examples 
 #' \dontrun{
-#' option('..VX', multiplier=1, 
+#' option('..VX', multiplier=100, 
 #'   underlying_id=future('.VX',multiplier=1000, 
 #'     underlying_id=synthetic('VIX', currency("USD"))))
 #'
@@ -643,7 +648,7 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
             }
         }
         if (!inherits(tmp_instr,'try-error') && inherits(tmp_instr, type)) return(tmp_instr)
-        if(!silent) warning(paste("Instrument",x," not found, please create it first."))
+        if(!silent) warning(paste(type,x,"not found, please create it first."))
         return(FALSE)
     } else{
         return(tmp_instr)

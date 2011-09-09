@@ -117,6 +117,10 @@
   \code{primary_id} of the \code{option} specs, and
   \sQuote{..SPY} as the \code{primary_id} of the single
   stock \code{future} specs. (or vice versa)
+
+  You can (optionally) provide a \code{src} argument in
+  which case, it will be used unaltered in a call to
+  setSymbolLookup.
 }
 \seealso{
   \code{\link{exchange_rate}} \code{\link{option_series}}

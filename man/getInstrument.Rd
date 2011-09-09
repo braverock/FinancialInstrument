@@ -36,7 +36,7 @@
 }
 \examples{
 \dontrun{
-option('..VX', multiplier=1,
+option('..VX', multiplier=100,
 underlying_id=future('.VX',multiplier=1000,
 underlying_id=synthetic('VIX', currency("USD"))))
 

@@ -50,7 +50,7 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
                 xxCY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,4,4), sep=""), sep=sep),
                 xxCYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), substr(pid$year,3,4), sep=""), sep=sep), 
                 xxCYYYY=paste(pid$root, paste(substr(suffix,1,2), M2C(pid$month), pid$year, sep=""), sep=sep),
-                NNNN=paste(pid$root, sprintf("%02d", match(pid$month,toupper(month.abb))), substr(pid$year,3,4), sep=sep),
+                NNNN=paste(pid$root, paste(sprintf("%02d", match(pid$month,toupper(month.abb))), substr(pid$year,3,4),sep=""), sep=sep),
                 opt2={
                     if (!any(pid$format == c("opt2","opt4"))) stop("I'm not programmed to convert non-option_series_ids to option_series_ids")
                     ifelse(pid$format == "opt4", paste(pid$root, substr(suffix,3,nchar(suffix)), sep=sep), i)
