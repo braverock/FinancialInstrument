@@ -11,15 +11,13 @@ Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
     multi-asset class and multi-currency portfolios.  
     Still in heavy development.
-Version: 0.6.2
+Version: 0.6.3
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
     R (>= 2.12.0),
-    xts,
+    quantmod(>= 0.3-17),
     zoo
-Suggests:
-    quantmod
 Collate:
     'buildHierarchy.R'
     'buildSpread.R'
