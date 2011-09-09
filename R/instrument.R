@@ -171,6 +171,7 @@ fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, iden
 #' @export
 #' @rdname instrument
 future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+    if(missing(primary_id)) primary_id <- paste("..",underlying_id,sep="")
     if (length(primary_id) > 1) stop('primary_id must be of length 1')
     if (missing(currency) && !is.null(underlying_id)) {
         uinstr <- getInstrument(underlying_id,silent=TRUE)
@@ -182,6 +183,11 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
         warning("underlying_id should only be NULL for cash-settled futures")
     } else {
         if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
+        if (primary_id == underlying_id) {
+            primary_id <- paste("..",primary_id,sep="")
+            warning(paste('primary_id is the same as underlying_id,',
+                'the instrument will be given a primary_id of', primary_id))
+        }  
     }
 
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
@@ -288,6 +294,9 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       dargs$currency=NULL
       dargs$multiplier=NULL
       dargs$type=NULL
+      if (is.null(dargs$src) && !is.null(contract$src)){
+          dargs$src <- contract$src
+      }
       instrument( primary_id = primary_id,
                  root_id = root_id,
                  suffix_id=suffix_id,
@@ -308,6 +317,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
 #' @export
 #' @rdname instrument
 option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+  if (missing(primary_id)) primary_id <- paste(".",underlying_id,sep="")
   if (length(primary_id) > 1) stop("'primary_id' must be of length 1")
   if (missing(currency) && !is.null(underlying_id)) {
         uinstr <- getInstrument(underlying_id,silent=TRUE)
@@ -319,6 +329,11 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
       warning("underlying_id should only be NULL for cash-settled options")
   } else {
       if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
+      if (primary_id == underlying_id) {
+          primary_id <- paste(".",primary_id,sep="")
+          warning(paste('primary_id is the same as underlying_id,',
+                'the instrument will be given a primary_id of', primary_id))
+      }  
   }
   ## now structure and return
   instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=TRUE )
@@ -364,7 +379,9 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
             stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
     contract<-getInstrument(root_id, type='option')
-    
+    if (!hasArg(src) && !is.null(contract$src)){
+        src <- contract$src
+    }
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)
     ## and then add the first_traded and expires to the time series
@@ -390,6 +407,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
                     callput = callput,
                     strike = strike,
                     underlying_id = contract$underlying_id,
+                    if (!is.null(src)) src=src,
                     ...,
                     type=c("option_series", "option"),
                     assign_i=TRUE
