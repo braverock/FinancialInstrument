@@ -210,8 +210,8 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
 	
 	# go get other instrument quantities from the root contract
 	root_contract<-try(getInstrument(root_id,silent=TRUE))
-    if (!is.instrument(root_contract)) root_contract <- try(getRoot(root_id,'future'),silent=TRUE)
-    if (!is.instrument(root_contract)) root_contract <- try(getRoot(root_id,'option'),silent=TRUE)
+    if (!is.instrument(root_contract)) root_contract <- try(getInstrument(root_id,type='future'),silent=TRUE)
+    if (!is.instrument(root_contract)) root_contract <- try(getInstrument(root_id,type='option'),silent=TRUE)
 	if(is.instrument(root_contract)){
 		if(is.null(currency)) currency <- root_contract$currency
 		if(is.null(multiplier)) multiplier <- root_contract$multiplier
