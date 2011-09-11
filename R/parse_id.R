@@ -25,7 +25,7 @@
 #' parse_id("SPY_111217C130")
 #' @export
 parse_id <- function(x, silent=TRUE, root=NULL) {
-    sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate'
+    sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate', or 'synthetic'
     if (!is.null(root)) {
         suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
         suffix <- gsub("_","",suffix) #take out the underscore if there is one
@@ -49,8 +49,10 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         } else if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),2), TRUE)) { 
             #2 dots, so we'll treat it as a fly, although it could be a basket
             #SPY.DIA.QQQ, 
-            suffix <- x
+            suffix <- ""
             root <- x
+            type <- 'synthetic'
+            sufftype <- FALSE
         } else {
             root <- x
             suffix <- ""
@@ -91,9 +93,45 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
             root <- substr(root, 1,nchar(root)-1)
             suffix <- gsub(root,"",x) #whatever isn't the root         
         }
-    } else { #there _is_ an underscore
-        root <- strsplit(x,"_")[[1]][1]
-        suffix <- strsplit(x,"_")[[1]][2]
+    } else { #there _is_ an underscore and at least 1 number.     
+        #if there are dots then maybe it is a spread of futures?
+        #e.g. "CL_N1.HO_M1"
+        ss <- strsplit(x,"\\.")[[1]]
+        has.und <- function(x) { #TRUE if it has an underscore
+            sapply(x, FUN=function(x) !identical(x, gsub('_','',x)))
+        }
+        if (all(has.und(ss))) { #all parts have an underscore. 
+            #e.g. CL_N1.HO_M1 --> "CL_N1" "HO_M1"
+            #or CL_N1.CL_M1           
+            ssu <- strsplit(ss,"_")
+            tmprt <- ssu[[1]][1]
+            if (all(sapply(ssu, FUN=function(x) x[1] == tmprt))) {
+                #all share a root_id
+                return(parse_id(make_spread_id(ss)))
+            } else {
+                #all parts have an underscore, but they don't share a root.
+                #e.g. "CL_N1.HO_M1"
+                root <- x
+                suffix <- ""
+                type <- 'synthetic'
+                sufftype <- FALSE
+            }  
+        } else if (has.und(ss[1]) && !has.und(ss[2])) {
+            #First part has underscore, but second doesn't. e.g. CL_H1.M1 --> "CL_H1" "M1"
+            spl.und <- strsplit(x,"_")[[1]]
+            root <- spl.und[1]
+            suffix <- paste(spl.und[2:length(spl.und)],collapse=".")
+        } else { 
+            if (length(ss) > 1) {
+                suffix <- ""
+                root <- x
+                type <- 'synthetic'
+                sufftype <- FALSE
+            } else { #ES_U1, ES_U1M1, 
+                root <- strsplit(x,"_")[[1]][1]
+                suffix <- strsplit(x,"_")[[1]][2]
+            }        
+        }
     }
     suff <- parse_suffix(suffix, silent=silent)
     if (sufftype) type <- suff$type
@@ -139,7 +177,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' parse_suffix("110917C125")
 #' @export
 parse_suffix <- function(x, silent=TRUE) {
-#TODO better support for spreads and flies; inter and intra. 
+#TODO better support for spreads and flies; inter and intra. Maybe add a 'members' to suffix.list
     type <- 'outright'
     cm <- FALSE
     cc <- FALSE

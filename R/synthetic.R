@@ -168,6 +168,16 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
 {
 ##TODO: butterfly can refer to expirations (futures) or strikes (options)
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
+  if (missing(members)) {  
+    pid <- parse_id(primary_id)
+    root_id <- pid$root
+    suffix_id <- pid$suffix
+    #synthetic flies will have a root_id that looks like "
+    if (suffix_id == "")
+        members <- unlist(strsplit(root_id, "[-;:,\\.]"))
+    else members <- paste(root_id, unlist(strsplit(suffix_id, "[-;:_,\\.]")), sep="_")
+  }
+
   if (length(members) == 3) {
     synthetic.instrument(primary_id=primary_id,currency=currency,members=members,
 	    memberratio=c(1,-2,1), multiplier=1, tick_size=tick_size,
@@ -209,7 +219,9 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
 	}
 	
 	# go get other instrument quantities from the root contract
-	root_contract<-try(getInstrument(root_id,silent=TRUE))
+	root_contract<-try(getInstrument(root_id,silent=TRUE,type='future'))
+    if (inherits(root_contract, 'try-error')) 
+        root_contract <-try(getInstrument(root_id,silent=TRUE,type='option'))
 	if(is.instrument(root_contract)){
 		if(is.null(currency)) currency <- root_contract$currency
 		if(is.null(multiplier)) multiplier <- root_contract$multiplier
