@@ -664,15 +664,15 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
     pid <- parse_id(primary_id)
     type <- NULL
     if (any(pid$type == 'calendar')) {
-        return(guaranteed_spread(primary_id, currency=currency, defined_by='auto', ...))
+        return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', ...))
     } 
     if (any(pid$type == 'butterfly')) {
-        return(butterfly(primary_id, currency=currency, defined_by='auto', ...))
+        return(butterfly(primary_id, currency=currency, defined.by='auto', ...))
     }
     if (any(pid$type == 'future')) {
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root)) {
-            return(future_series(primary_id,defined_by='auto',...))
+            return(future_series(primary_id,defined.by='auto',...))
         } else if (!silent) {
             warning(paste(primary_id,"appears to be a future_series,", 
                     "but its root cannot be found.", 
@@ -683,7 +683,7 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
     if (any(pid$type == 'option')) {
         root <- getInstrument(pid$root,silent=TRUE,type='option')
         if (is.instrument(root)) {
-            return(option_series(primary_id, defined_by='auto', ...))
+            return(option_series(primary_id, defined.by='auto', ...))
         } else if (!silent) {
             warning(paste(primary_id,"appears to be an option_series,", 
                 "but its root cannot be found.", 
@@ -692,12 +692,14 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
         }
     } 
     if (any(pid$type == 'exchange_rate'))
-        return(exchange_rate(primary_id, defined_by='auto', ...))
+        return(exchange_rate(primary_id, defined.by='auto', ...))
     if (any(pid$type == 'synthetic')) {
-        return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined_by='auto', ...) )
+        return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
-    if (!silent && !warned) warning(paste(primary_id, 'is not of an unambiguous format.', 'Creating basic instrument.')) 
-    instrument(primary_id, ..., defined_by='auto', currency=currency, multiplier=1, identifiers=list(), assign_i=TRUE)
+    if (!silent && !warned) 
+        warning(paste(primary_id, 'is not of an unambiguous format.', 
+                'Creating basic instrument with multiplier 1.')) 
+    instrument(primary_id, ..., defined.by='auto', currency=currency, multiplier=1, identifiers=list(), assign_i=TRUE)
 }
  
    
