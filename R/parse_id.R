@@ -356,3 +356,25 @@ parse_suffix <- function(x, silent=TRUE) {
     structure(list(type=type, month=month,year=year, strike=strike, right=right, cm=cm, cc=cc, format=format), class='suffix.list')
 }
 
+
+#' id.list class print method
+#' 
+#' @method print id.list
+#' @S3method print id.list
+#' @keywords internal
+print.id.list <- function(x, ...) {
+  str(x, comp.str="", give.length=FALSE, give.attr=FALSE)
+  invisible(x)
+}
+
+#' suffix.list class print method
+#' 
+#' @method print suffix.list
+#' @S3method print suffix.list
+#' @keywords internal
+print.suffix.list <- function(x, ...) {
+  str(x, comp.str="", give.length=FALSE, give.attr=FALSE)
+  invisible(x)
+}
+
+
