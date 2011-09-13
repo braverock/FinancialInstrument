@@ -339,3 +339,20 @@ getSymbols.FI <- function(Symbols,
         return(Symbols)
     return(fr)
 }
+
+
+#' currency metadata to be used by \code{load.instruments}
+#'
+#' @name currencies
+#' @docType data
+#' @keywords data
+NULL
+
+#' future metadata to be used by \code{load.instruments}
+#'
+#' @name root_contracts
+#' @docType data
+#' @keywords data
+NULL
+
+
