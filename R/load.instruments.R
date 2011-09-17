@@ -77,7 +77,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
             warning("metadata does not appear to contain instrument type, using ",default_type,". This may produce incorrect valuations.")
             filedata$type<-rep(default_type,nrow(filedata))
         } else {
-            filedata$type <- rep(default_type, nrow(filedata))
+            filedata$type <- rep(dotargs$type, nrow(filedata))
             dotargs$type <- NULL        
         }
     }
