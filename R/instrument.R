@@ -625,7 +625,9 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' \dQuote{USD} will be defined and used to create the instrument.
 #' @param primary_id charater primary identifier of instrument to be created
 #' @param currency character name of currency that instrument will be denominated it. Default=\dQuote{USD}
+#' @param multiplier numeric product multiplier
 #' @param silent TRUE/FALSE. silence warnings?
+#' @param default_type What type of instrument to make if it is not clear from the primary_id. ("stock", "future", etc.)
 #' @param ... other passthrough parameters
 #' @return Primarily called for its side-effect, but will return the name of the instrument that was created
 #' @note This is not intended to be used to create instruments of type \code{stock}, \code{future}, \code{option},
@@ -650,7 +652,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' getInstrument("VX_H11") #made a future_series
 #' }
 #' @export
-instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
+instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
     if (!is.currency(currency)) {
@@ -674,9 +676,9 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
         if (is.instrument(root)) {
             return(future_series(primary_id,defined.by='auto',...))
         } else if (!silent) {
-            warning(paste(primary_id,"appears to be a future_series,", 
-                    "but its root cannot be found.", 
-                    "Creating basic instrument instead."))
+            warning(paste(primary_id," appears to be a future_series, ", 
+                    "but its root cannot be found. ", 
+                    "Creating _", default_type, "_ instrument instead.", sep=""))
             warned <- TRUE
         }
     }
@@ -685,9 +687,9 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
         if (is.instrument(root)) {
             return(option_series(primary_id, defined.by='auto', ...))
         } else if (!silent) {
-            warning(paste(primary_id,"appears to be an option_series,", 
-                "but its root cannot be found.", 
-                "Creating basic instrument instead."))
+            warning(paste(primary_id," appears to be an option_series, ", 
+                "but its root cannot be found. ", 
+                "Creating _", default_type, "_ instrument instead.", sep=""))
             warned <- TRUE
         }
     } 
@@ -696,6 +698,17 @@ instrument.auto <- function(primary_id, currency='USD', silent=FALSE, ...) {
     if (any(pid$type == 'synthetic')) {
         return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
+    if(is.function(try(match.fun(default_type),silent=TRUE))) {
+        if (!silent && !warned) 
+            warning('Creating a _', default_type, '_ instrument because ', 
+                    primary_id, ' is not of an unambiguous format.') 
+            dargs <- list(...)
+            dargs$primary_id <- primary_id
+            dargs$currency <- currency
+            dargs$multiplier <- multiplier
+            dargs$defined.by='auto'
+         return(do.call(default_type, dargs))
+    }
     if (!silent && !warned) 
         warning(paste(primary_id, 'is not of an unambiguous format.', 
                 'Creating basic instrument with multiplier 1.')) 

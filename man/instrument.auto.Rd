@@ -2,8 +2,8 @@
 \alias{instrument.auto}
 \title{Create an instrument based on name alone}
 \usage{
-  instrument.auto(primary_id, currency = "USD", silent =
-  FALSE, ...)
+  instrument.auto(primary_id, currency = "USD", multiplier
+  = 1, silent = FALSE, default_type = "NULL", ...)
 }
 \arguments{
   \item{primary_id}{charater primary identifier of
@@ -12,7 +12,13 @@
   \item{currency}{character name of currency that
   instrument will be denominated it. Default=\dQuote{USD}}
 
+  \item{multiplier}{numeric product multiplier}
+
   \item{silent}{TRUE/FALSE. silence warnings?}
+
+  \item{default_type}{What type of instrument to make if it
+  is not clear from the primary_id. ("stock", "future",
+  etc.)}
 
   \item{...}{other passthrough parameters}
 }

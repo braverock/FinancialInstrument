@@ -47,6 +47,7 @@
 #' load.instruments(system.file('data/currencies.csv',package='FinancialInstrument'))
 #' load.instruments(system.file('data/root_contracts.csv',package='FinancialInstrument'))
 #' load.instruments(system.file('data/future_series.csv',package='FinancialInstrument'))
+#'
 #' }
 #' @export
 load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_type='stock') {
@@ -70,11 +71,17 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     } else {
         set_primary<-FALSE
     }
+    dotargs<-list(...)
     if(!any(grepl('type',colnames(filedata)))) {
-        warning("metadata does not appear to contain instrument type, using ",default_type,". This may produce incorrect valuations.")
-        filedata$type<-rep(default_type,nrow(filedata))
+        if (is.null(dotargs$type)) {
+            warning("metadata does not appear to contain instrument type, using ",default_type,". This may produce incorrect valuations.")
+            filedata$type<-rep(default_type,nrow(filedata))
+        } else {
+            filedata$type <- rep(default_type, nrow(filedata))
+            dotargs$type <- NULL        
+        }
     }
-    dotargs<-list('...')
+    if (!is.null(dotargs$currency) && !is.currency(dotargs$currency)) currency(dotargs$currency)
     
     #now process the data
     for(rn in 1:nrow(filedata)){
@@ -108,7 +115,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
             if(!is.null(arg$RIC)){
                 if(substr(arg$RIC,1,1)==1) arg$RIC <- substr(arg$RIC,2,nchar(arg$RIC))
             }            
-            if(length(dotargs)) args<-c(args,dotargs)
+            if(length(dotargs)) arg<-c(arg,dotargs)
             
             if(is.function(try(match.fun(type),silent=TRUE))){
                 out <- try(do.call(type,arg))
