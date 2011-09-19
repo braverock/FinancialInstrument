@@ -378,7 +378,8 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     if (auto.assign) { #store the data in 
         members <- c(prod1,prod2)
         id <- make_spread_id(members, ...) #can pass 'root' or 'format' through dots
-        spread(id, currency=currency, members=members, memberratio=c(1,-ratio), defined.by='fn_SpreadBuilder')
+        memberratio <- if(length(ratio) > 1) {list(1,-as.numeric(ratio))} else c(1,-ratio)
+        spread(id, currency=currency, members=members, memberratio=memberratio, defined.by='fn_SpreadBuilder')
         assign(id, Spread, pos=env)
         id
     } else Spread  
