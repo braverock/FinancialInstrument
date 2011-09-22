@@ -17,10 +17,12 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
 {
     if (missing(primary_id) || (is.null(primary_id))) primary_id <- make_spread_id(members)
     if (missing(currency) || (is.null(currency))) {
-        if (is.null(members)) stop("'currency' is a required argument") 
-    } else {
-        instr <- try(getInstrument(members[[1]],silent=TRUE))
-        if (is.instrument(instr)) currency <- instr$currency
+        if (is.null(members)) {
+            stop("'currency' is a required argument") 
+        } else {
+            instr <- try(getInstrument(members[[1]],silent=TRUE))
+            if (is.instrument(instr)) currency <- instr$currency
+        }
     }
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )
 }
