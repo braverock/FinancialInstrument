@@ -92,7 +92,8 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(substr(primary_id,1,1)==1) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
   
-  if(!is.currency(currency)) stop("currency ",currency," must be an object of type 'currency'")
+  if(missing(currency) || (!missing(currency) && !is.currency(currency)))
+    stop("currency ",currency," must be an object of type 'currency'")
 
   if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
   if(!is.list(identifiers)) {
