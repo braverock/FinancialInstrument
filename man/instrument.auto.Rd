@@ -38,6 +38,14 @@
   \dQuote{USD} will be defined and used to create the
   instrument.
 
+  If \code{primary_id} is 6 uppercase letters and
+  \code{default_type} is not provided, it will be assumed
+  that it is the primary_id of an
+  \code{\link{exchange_rate}}, in which case, the 1st
+  and/or 2nd half of \code{primary_id} will be defined as
+  \code{\link{currency}} if not the names of already
+  defined \code{\link{instrument}}s.
+
   This is not intended to be used to create instruments of
   type \code{stock}, \code{future}, \code{option}, or
   \code{bond} although it may be updated in the future.

@@ -269,8 +269,8 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
   } else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
       #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id
       #using expires so that we can build a new primary_id.  Call recursively to handle this.
-      return(option_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
-                        callput=callput, strike=strike, identifiers=identifiers, ...=...))
+      return(future_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
+                        identifiers=identifiers, ...=...))
   }    
 
   pid <- parse_id(primary_id)
@@ -639,7 +639,12 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #'
 #' @note If \code{currency} is not already defined, it will be defined (unless it is not 3 uppercase characters).
 #' The default value for \code{currency} is \dQuote{USD}.  If you do not provide a value for \code{currency}, 
-#' \dQuote{USD} will be defined and used to create the instrument.
+#' \dQuote{USD} will be defined and used to create the instrument.  
+#'
+#' If \code{primary_id} is 6 uppercase letters and \code{default_type} is not provided, 
+#' it will be assumed that it is the primary_id of an \code{\link{exchange_rate}}, in which case, 
+#' the 1st and/or 2nd half of \code{primary_id} will be defined as \code{\link{currency}} if not 
+#' the names of already defined \code{\link{instrument}}s.
 #' @param primary_id charater primary identifier of instrument to be created
 #' @param currency character name of currency that instrument will be denominated it. Default=\dQuote{USD}
 #' @param multiplier numeric product multiplier
@@ -677,7 +682,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
             stop(paste(currency, "is not defined,",
                 "and it will not be auto defined because it does not appear to be valid."))
         currency(currency)    
-        if (!silent) warning(paste('Created currency', currency,'because it was not defined.'))
+        if (!silent) cat(paste('Created currency', currency,'because it was not defined.\n'))
     }
     warned <- FALSE
     pid <- parse_id(primary_id)
@@ -712,13 +717,25 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     } 
     if (any(pid$type == 'exchange_rate'))
         return(exchange_rate(primary_id, defined.by='auto', ...))
+    #if we weren't given a default_type, then if it's 6 uppercase letters, make an exchange rate    
+    if (default_type == 'NULL' && nchar(primary_id) == 6 && sum(attr(gregexpr("[A-Z]",primary_id)[[1]],"match.length")) == 6) {
+        if (!is.instrument(getInstrument(substr(primary_id,1,3), silent=TRUE))) {
+            ccy.st <- currency(substr(primary_id,1,3), defined.by='auto') 
+            if (!silent) cat("Created currency", ccy.st, "because it was not defined.\n") 
+        }
+        if (!is.instrument(getInstrument(substr(primary_id,4,6), silent=TRUE))) { 
+            ccy.st <- currency(substr(primary_id,4,6), defined.by='auto') 
+            if (!silent) cat("Created currency", ccy.st, "because it was not defined.\n")
+        }
+        return(exchange_rate(primary_id, defined.by='auto', ...))
+    }
     if (any(pid$type == 'synthetic')) {
         return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
     if(is.function(try(match.fun(default_type),silent=TRUE))) {
         if (!silent && !warned) 
             warning('Creating a _', default_type, '_ instrument because ', 
-                    primary_id, ' is not of an unambiguous format.') 
+                    primary_id, ' is of an ambiguous format.') 
             dargs <- list(...)
             dargs$primary_id <- primary_id
             dargs$currency <- currency

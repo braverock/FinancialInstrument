@@ -27,14 +27,14 @@ define_currencies.wiki <- function(Symbols, silent=FALSE) {
         ccy <- rbind(ccy, x[[3]]) #add non-ISO... things like Bitcoin
         ccy <- ccy[ccy$Code %in% Symbols,]
     } else Symbols <- NULL
-    out <- unname(apply(ccy, 1, function(xx) currency(xx[1], description=xx[4], country=xx[5])))
+    out <- unname(apply(ccy, 1, function(xx) currency(xx[1], description=xx[4], country=xx[5], defined.by='wiki')))
     if (!is.null(Symbols) && !identical(character(0), Symbols[!Symbols %in% ccy$Code])) {
         if (!silent) warning(paste("The following are historical,",
-                "and are not longer active:", Symbols[!Symbols %in% ccy$Code]))
+                "and are no longer active:", Symbols[!Symbols %in% ccy$Code]))
         hccy <- x[[4]]
         hccy <- hccy[hccy$Code %in% Symbols,]
         out <- c(out, unname(apply(hccy, 1, function(xx) {
-                    currency(xx[1], description=xx[4], used.from=xx[5], used.until=xx[6], replaced.by=xx[7])
+                    currency(xx[1], description=xx[4], used.from=xx[5], used.until=xx[6], replaced.by=xx[7], defined.by='wiki')
                  })))
     }
     out
