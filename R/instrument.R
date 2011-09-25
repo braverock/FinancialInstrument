@@ -266,7 +266,13 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       #then primary_id is really root_id and we need to replace primary_id
       root_id <- primary_id
       primary_id <- paste(root_id, suffix_id, sep="_")
-  }
+  } else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+      #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id
+      #using expires so that we can build a new primary_id.  Call recursively to handle this.
+      return(option_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
+                        callput=callput, strike=strike, identifiers=identifiers, ...=...))
+  }    
+
   pid <- parse_id(primary_id)
   if (is.null(root_id)) root_id <- pid$root
   if (is.null(suffix_id)) suffix_id <- pid$suffix
@@ -351,7 +357,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
             if (is.null(suffix_id)) {
                 sdate <- try(as.Date(expires),silent=TRUE)
                 if (inherits(sdate,'try-error')) stop("expires is missing or of incorrect format")
-                sright <- try(switch(callput, call="C", put="P"),silent=TRUE)
+                sright <- try(switch(callput, C=,c=,call="C", P=,p=,put="P"),silent=TRUE)
                 if (inherits(sright,'try-error')) 
                     stop("must provide 'callput' or a 'suffix_id' from which 'callput' can be inferred.")
                 if (is.null(strike)) 
@@ -366,7 +372,17 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
       return(unname(sapply(primary_id, option_series, 
           root_id=root_id, suffix_id=suffix_id, first_traded=first_traded,
           expires=expires, callput=callput, strike=strike, identifiers=identifiers, ...=...)))
-    }
+    } else if (is.null(root_id) && !is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+          #if we have primary_id, but primary_id looks like a root_id, and we have suffix_id and don't have root_id
+          #then primary_id is really root_id and we need to replace primary_id
+          root_id <- primary_id
+          primary_id <- paste(root_id, suffix_id, sep="_")
+    } else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+        #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id so that
+        #we can build a new primary_id.  Call recursively to handle this.
+        return(option_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
+                            callput=callput, strike=strike, identifiers=identifiers, ...=...))
+    }    
     pid <- parse_id(primary_id)
     if (is.null(root_id)) root_id <- pid$root
     if (is.null(suffix_id)) suffix_id <- pid$suffix
@@ -382,7 +398,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
     contract<-getInstrument(root_id, type='option')
     if (!hasArg(src) && !is.null(contract$src)){
         src <- contract$src
-    }
+    } else src <- NULL
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)
     ## and then add the first_traded and expires to the time series
