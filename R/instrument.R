@@ -709,13 +709,15 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     }
     if (any(pid$type == 'future')) {
         root <- getInstrument(pid$root,silent=TRUE,type='future')
-        if (is.instrument(root)) {
+        if (is.instrument(root) && !inherits(root, 'future_series')) {
             return(future_series(primary_id,defined.by='auto',...))
-        } else if (!silent) {
-            warning(paste(primary_id," appears to be a future_series, ", 
-                    "but its root cannot be found. ", 
-                    "Creating _", default_type, "_ instrument instead.", sep=""))
-            warned <- TRUE
+        } else {
+            if (!silent) {
+                warning(paste(primary_id," appears to be a future_series, ", 
+                        "but its root cannot be found. ", 
+                        "Creating _", default_type, "_ instrument instead.", sep=""))
+                warned <- TRUE
+            }
             dargs$root_id <- pid$root
             dargs$suffix_id <- pid$suffix
             dargs$expires <- paste(pid$year, sprintf("%02d", month_cycle2numeric(pid$month)), sep="-")
@@ -723,13 +725,15 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     }
     if (any(pid$type == 'option')) {
         root <- getInstrument(pid$root,silent=TRUE,type='option')
-        if (is.instrument(root)) {
+        if (is.instrument(root) && !inherits(root, 'option_series')) {
             return(option_series(primary_id, defined.by='auto', ...))
-        } else if (!silent) {
-            warning(paste(primary_id," appears to be an option_series, ", 
-                "but its root cannot be found. ", 
-                "Creating _", default_type, "_ instrument instead.", sep=""))
-            warned <- TRUE
+        } else {
+            if (!silent) {
+                warning(paste(primary_id," appears to be an option_series, ", 
+                    "but its root cannot be found. ", 
+                    "Creating _", default_type, "_ instrument instead.", sep=""))
+                warned <- TRUE
+            }
             dargs$root_id <- pid$root
             dargs$suffix_id <- pid$suffix
             dargs$expires <- if(pid$format == 'opt2') {
