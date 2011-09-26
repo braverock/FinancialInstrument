@@ -60,7 +60,7 @@ is.instrument <- function( x ) {
 #' \sQuote{.SPY} as the \code{primary_id} of the \code{option} specs, and \sQuote{..SPY} as the 
 #' \code{primary_id} of the single stock \code{future} specs. (or vice versa)
 #'
-#' You can (optionally) provide a \code{src} argument in which case, it will be used unaltered in a call to setSymbolLookup.
+#' You can (optionally) provide a \code{src} argument in which case, it will be used in a call to setSymbolLookup.
 #' @param primary_id string describing the unique ID for the instrument. Most of the wrappers allow this to be a vector.
 #' @param ... any other passthru parameters, including 
 #' @param underlying_id for derivatives, the identifier of the instrument that this one is derived from, may be NULL for cash settled instruments
@@ -813,6 +813,13 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' add or change an attribute of an instrument
 #' 
 #' This function will add or overwrite the data stored in the specified slot of the specified instrument.
+#'
+#' If the \code{attr} you are trying to change is the \dQuote{primary_id,} the instrument will be renamed.
+#' (A copy of the instrument will be stored by the name of \code{value} and the old instrument will be removed.)
+#' If the \code{attr} you are changing is \dQuote{type}, the instrument will be reclassed with that type.
+#' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.
+#' Other checks are in place to make sure that \dQuote{currency} remains a \code{\link{currency}} object and that
+#' \dQuote{multiplier} and \dQuote{tick_size} can only be changed to reasonable values.
 #' @param primary_id primary_id of the instrument that will be updated
 #' @param attr name of the slot that will be added or changed
 #' @param value what to assign to the \code{attr} slot of the \code{primary_id} instrument
@@ -830,14 +837,36 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' #Call with value=NULL to remove an attribute
 #' instrument_attr("SPY", "description", NULL)
 #' getInstrument("SPY")
+#'
+#' instrument_attr("SPY","primary_id","SPX") #move/rename it
+#' instrument_attr("SPX","type","synthetic") #re-class
+#' instrument_attr("SPX","src",list(src='yahoo',name='^GSPC')) #setSymbolLookup
+#' getSymbols("SPX") #knows where to look because the last line setSymbolLookup
+#' getInstrument("SPX")
 #' }
 #' @export
 instrument_attr <- function(primary_id, attr, value) {
-    instr <- try(getInstrument(primary_id))
+    instr <- try(getInstrument(primary_id, silent=TRUE))
     if (inherits(instr, 'try-error') || !is.instrument(instr))
         stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
     instr[[attr]] <- value
-    assign(primary_id, instr, pos=.instrument)
+    if (attr == 'primary_id') rm(list = primary_id, pos = .instrument)
+    if (attr == 'currency' && !is.instrument(getInstrument(value,type='currency',silent=TRUE)))
+        stop("currency ", value, " must be an object of type 'currency'")
+    if (attr == 'multiplier' && (!is.numeric(value) || length(value) > 1))
+        stop("multiplier must be a single number")
+    if (attr == 'tick_size' && (!is.null(value) && (!is.numeric(value) || length(value) > 1)))
+        stop("tick_size must be NULL or a single number")
+    if (attr == 'type') {
+        tclass <- unique(c(value, "instrument"))
+        class(instr) <- tclass
+    }
+    if (attr == 'src') {
+        sarg <- list()
+        sarg[[instr$primary_id]] <- value
+        setSymbolLookup(sarg)
+    }
+    assign(instr$primary_id, instr, pos=.instrument)
 }
 
 #' instrument class print method

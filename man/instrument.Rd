@@ -119,8 +119,7 @@
   stock \code{future} specs. (or vice versa)
 
   You can (optionally) provide a \code{src} argument in
-  which case, it will be used unaltered in a call to
-  setSymbolLookup.
+  which case, it will be used in a call to setSymbolLookup.
 }
 \seealso{
   \code{\link{exchange_rate}} \code{\link{option_series}}

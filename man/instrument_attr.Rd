@@ -21,6 +21,20 @@
   This function will add or overwrite the data stored in
   the specified slot of the specified instrument.
 }
+\details{
+  If the \code{attr} you are trying to change is the
+  \dQuote{primary_id,} the instrument will be renamed. (A
+  copy of the instrument will be stored by the name of
+  \code{value} and the old instrument will be removed.) If
+  the \code{attr} you are changing is \dQuote{type}, the
+  instrument will be reclassed with that type. If
+  \code{attr} is \dQuote{src}, \code{value} will be used in
+  a call to \code{setSymbolLookup}. Other checks are in
+  place to make sure that \dQuote{currency} remains a
+  \code{\link{currency}} object and that
+  \dQuote{multiplier} and \dQuote{tick_size} can only be
+  changed to reasonable values.
+}
 \note{
   you can remove an attribute/slot from an instrument by
   calling this function with \code{value=NULL}
@@ -37,6 +51,12 @@ getInstrument("SPY")
 #Call with value=NULL to remove an attribute
 instrument_attr("SPY", "description", NULL)
 getInstrument("SPY")
+
+instrument_attr("SPY","primary_id","SPX") #move/rename it
+instrument_attr("SPX","type","synthetic") #re-class
+instrument_attr("SPX","src",list(src='yahoo',name='^GSPC')) #setSymbolLookup
+getSymbols("SPX") #knows where to look because the last line setSymbolLookup
+getInstrument("SPX")
 }
 }
 
