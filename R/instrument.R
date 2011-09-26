@@ -638,7 +638,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' Given a name, this function will attempt to create
 #' an instrument of the appropriate type.
 #'
-#' @note If \code{currency} is not already defined, it will be defined (unless it is not 3 uppercase characters).
+#' If \code{currency} is not already defined, it will be defined (unless it is not 3 uppercase characters).
 #' The default value for \code{currency} is \dQuote{USD}.  If you do not provide a value for \code{currency}, 
 #' \dQuote{USD} will be defined and used to create the instrument.  
 #'

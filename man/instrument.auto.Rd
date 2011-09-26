@@ -30,7 +30,7 @@
   Given a name, this function will attempt to create an
   instrument of the appropriate type.
 }
-\note{
+\details{
   If \code{currency} is not already defined, it will be
   defined (unless it is not 3 uppercase characters). The
   default value for \code{currency} is \dQuote{USD}.  If
@@ -64,7 +64,8 @@
   but a lot of things would be filled in as if it were a
   valid series instrument (e.g. \sQuote{expires},
   \sQuote{strike}, \sQuote{suffix_id}, etc.)
-
+}
+\note{
   This is not intended to be used to create instruments of
   type \code{stock}, \code{future}, \code{option}, or
   \code{bond} although it may be updated in the future.
