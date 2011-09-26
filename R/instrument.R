@@ -476,6 +476,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 	
     idout <- NULL
     for (r in optnames) {
+        root_id <- symbol
         si <- gsub(symbol,"",r) #suffix_id
         expiry <- substr(si,1,6)
         right <- substr(si,7,7)
@@ -685,6 +686,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
         if (!silent) cat(paste('Created currency', currency,'because it was not defined.\n'))
     }
     warned <- FALSE
+    dargs <- list(...)    
     pid <- parse_id(primary_id)
     type <- NULL
     if (any(pid$type == 'calendar')) {
@@ -702,6 +704,9 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
                     "but its root cannot be found. ", 
                     "Creating _", default_type, "_ instrument instead.", sep=""))
             warned <- TRUE
+            dargs$root_id <- pid$root
+            dargs$suffix_id <- pid$suffix
+            dargs$expires <- paste(pid$year, sprintf("%02d", month_cycle2numeric(pid$month)), sep="-")
         }
     }
     if (any(pid$type == 'option')) {
@@ -713,6 +718,16 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
                 "but its root cannot be found. ", 
                 "Creating _", default_type, "_ instrument instead.", sep=""))
             warned <- TRUE
+            dargs$root_id <- pid$root
+            dargs$suffix_id <- pid$suffix
+            dargs$expires <- if(pid$format == 'opt2') {
+                    as.Date(substr(pid$suffix,1,6),format='%y%m%d')
+                } else if (pid$format == 'opt4') {
+                    as.Date(substr(pid$suffix,1,8),format='%Y%m%d')
+                } else paste(pid$year, sprintf("%02d", month_cycle2numeric(pid$month)), sep="-")
+            dargs$multiplier=100
+            dargs$callput <- switch(pid$right, C='call', P='put')
+            dargs$strike <- pid$strike
         }
     } 
     if (any(pid$type == 'exchange_rate'))
@@ -732,21 +747,21 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     if (any(pid$type == 'synthetic')) {
         return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
+    dargs$primary_id <- primary_id
+    dargs$currency <- currency
+    dargs$multiplier <- multiplier
+    dargs$defined.by='auto'
     if(is.function(try(match.fun(default_type),silent=TRUE))) {
         if (!silent && !warned) 
             warning('Creating a _', default_type, '_ instrument because ', 
                     primary_id, ' is of an ambiguous format.') 
-            dargs <- list(...)
-            dargs$primary_id <- primary_id
-            dargs$currency <- currency
-            dargs$multiplier <- multiplier
-            dargs$defined.by='auto'
          return(do.call(default_type, dargs))
     }
     if (!silent && !warned) 
         warning(paste(primary_id, 'is not of an unambiguous format.', 
-                'Creating basic instrument with multiplier 1.')) 
-    instrument(primary_id, ..., defined.by='auto', currency=currency, multiplier=1, identifiers=list(), assign_i=TRUE)
+                'Creating basic instrument with multiplier 1.'))
+    dargs$assign_i <- TRUE
+    do.call(instrument, dargs)
 }
  
    
