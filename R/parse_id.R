@@ -26,6 +26,7 @@
 #' @export
 parse_id <- function(x, silent=TRUE, root=NULL) {
     sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate', or 'synthetic'
+    suffformat <- TRUE #If x begins with "^" this will be set to FALSE, and we'll overwrite parse_suffix(...)$format with yahooIndex" 
     if (!is.null(root)) {
         suffix <- gsub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
         suffix <- gsub("_","",suffix) #take out the underscore if there is one
@@ -53,10 +54,15 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
             root <- x
             type <- 'synthetic'
             sufftype <- FALSE
-        } else {
+        } else { #no dots, no numbers
             root <- x
             suffix <- ""
-            if (nchar(x) == 6) {
+            if (substr(x,1,1) == "^") {
+                type <- c('synthetic','root')
+                format <- 'yahooIndex'
+                sufftype <- FALSE
+                suffformat <- FALSE
+            } else if (nchar(x) == 6) {
                 if (is.instrument(getInstrument(substr(x,1,3),silent=TRUE)) 
                     && is.instrument(getInstrument(substr(x,4,6),silent=TRUE))) {
                     type <- c('exchange_rate', 'root')
@@ -136,9 +142,10 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
     }
     suff <- parse_suffix(suffix, silent=silent)
     if (sufftype) type <- suff$type
+    if (suffformat) format <- suff$format
     structure(list(root=root, suffix=suffix, type=type, month=suff$month, 
                     year=suff$year, strike=suff$strike, right=suff$right, 
-                    cm=suff$cm, cc=suff$cc, format=suff$format),class='id.list')
+                    cm=suff$cm, cc=suff$cc, format=format),class='id.list')
 }
 
 #' parse a suffix_id

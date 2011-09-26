@@ -644,13 +644,25 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #'
 #' If \code{primary_id} is 6 uppercase letters and \code{default_type} is not provided, 
 #' it will be assumed that it is the primary_id of an \code{\link{exchange_rate}}, in which case, 
-#' the 1st and/or 2nd half of \code{primary_id} will be defined as \code{\link{currency}} if not 
+#' the 1st and 2nd half of \code{primary_id} will be defined as \code{\link{currency}}s if not 
 #' the names of already defined \code{\link{instrument}}s.
+#' If the \code{primary_id} begins with a \dQuote{^} it will be assumed that it is a yahoo symbol and
+#' that the instrument is an index (synthetic), and the \sQuote{src} will be set to \dQuote{yahoo}. 
+#' (see \code{\link{setSymbolLookup}})
+#'
+#' If it is not clear from the \code{primary_id} what type of instrument to create, an instrument of type 
+#' \code{default_type} will be created (which is 'NULL' by default).
+#' This will happen when \code{primary_id} is that of a \code{\link{stock}} \code{\link{future}} 
+#' \code{\link{option}} or \code{\link{bond}}.  This may also happen if \code{primary_id} is that of a 
+#' \code{\link{future_series}} or \code{\link{option_series}} but the corresponding \code{future} or 
+#' \code{option} cannot be found.  In this case, the instrument type would be \code{default_type}, but a lot
+#' of things would be filled in as if it were a valid series instrument (e.g. \sQuote{expires}, \sQuote{strike}, 
+#' \sQuote{suffix_id}, etc.)
 #' @param primary_id charater primary identifier of instrument to be created
 #' @param currency character name of currency that instrument will be denominated it. Default=\dQuote{USD}
 #' @param multiplier numeric product multiplier
 #' @param silent TRUE/FALSE. silence warnings?
-#' @param default_type What type of instrument to make if it is not clear from the primary_id. ("stock", "future", etc.)
+#' @param default_type What type of instrument to make if it is not clear from the primary_id. ("stock", "future", etc.) Default is NULL.
 #' @param ... other passthrough parameters
 #' @return Primarily called for its side-effect, but will return the name of the instrument that was created
 #' @note This is not intended to be used to create instruments of type \code{stock}, \code{future}, \code{option},
@@ -745,7 +757,9 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
         return(exchange_rate(primary_id, defined.by='auto', ...))
     }
     if (any(pid$type == 'synthetic')) {
-        return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
+        if (!is.na(pid$format) && pid$format == 'yahooIndex') {
+            return(synthetic(gsub("\\^","",primary_id), currency=currency, src=list(src='yahoo',name=primary_id), defined_by='auto', ...))
+        } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
     dargs$primary_id <- primary_id
     dargs$currency <- currency

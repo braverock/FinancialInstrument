@@ -18,7 +18,7 @@
 
   \item{default_type}{What type of instrument to make if it
   is not clear from the primary_id. ("stock", "future",
-  etc.)}
+  etc.) Default is NULL.}
 
   \item{...}{other passthrough parameters}
 }
@@ -41,10 +41,29 @@
   If \code{primary_id} is 6 uppercase letters and
   \code{default_type} is not provided, it will be assumed
   that it is the primary_id of an
-  \code{\link{exchange_rate}}, in which case, the 1st
-  and/or 2nd half of \code{primary_id} will be defined as
-  \code{\link{currency}} if not the names of already
-  defined \code{\link{instrument}}s.
+  \code{\link{exchange_rate}}, in which case, the 1st and
+  2nd half of \code{primary_id} will be defined as
+  \code{\link{currency}}s if not the names of already
+  defined \code{\link{instrument}}s. If the
+  \code{primary_id} begins with a \dQuote{^} it will be
+  assumed that it is a yahoo symbol and that the instrument
+  is an index (synthetic), and the \sQuote{src} will be set
+  to \dQuote{yahoo}. (see \code{\link{setSymbolLookup}})
+
+  If it is not clear from the \code{primary_id} what type
+  of instrument to create, an instrument of type
+  \code{default_type} will be created (which is 'NULL' by
+  default). This will happen when \code{primary_id} is that
+  of a \code{\link{stock}} \code{\link{future}}
+  \code{\link{option}} or \code{\link{bond}}.  This may
+  also happen if \code{primary_id} is that of a
+  \code{\link{future_series}} or
+  \code{\link{option_series}} but the corresponding
+  \code{future} or \code{option} cannot be found.  In this
+  case, the instrument type would be \code{default_type},
+  but a lot of things would be filled in as if it were a
+  valid series instrument (e.g. \sQuote{expires},
+  \sQuote{strike}, \sQuote{suffix_id}, etc.)
 
   This is not intended to be used to create instruments of
   type \code{stock}, \code{future}, \code{option}, or
