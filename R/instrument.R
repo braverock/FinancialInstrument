@@ -822,7 +822,7 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
         instr_list<-ls(pos=.instrument)
         for (instr in instr_list){
             tmp_instr<-try(get(instr,pos=.instrument),silent=TRUE)
-            if(inherits(tmp_instr, type) && any(x == tmp_instr$identifiers)) {
+            if(inherits(tmp_instr, type) && !is.na(suppressWarnings(match(x, tmp_instr$identifiers)))) {
                 return(tmp_instr)
             }
         }
