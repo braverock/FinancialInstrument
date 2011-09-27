@@ -266,11 +266,11 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       #then primary_id is really root_id and we need to replace primary_id
       root_id <- primary_id
       primary_id <- paste(root_id, suffix_id, sep="_")
-  } else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
-      #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id
-      #using expires so that we can build a new primary_id.  Call recursively to handle this.
-      return(future_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
-                        identifiers=identifiers, ...=...))
+  #} else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+  #    #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id
+  #    #using expires so that we can build a new primary_id.  Call recursively to handle this.
+  #    return(future_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
+  #                      identifiers=identifiers, ...=...))
   }    
 
   pid <- parse_id(primary_id)
@@ -377,11 +377,11 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
           #then primary_id is really root_id and we need to replace primary_id
           root_id <- primary_id
           primary_id <- paste(root_id, suffix_id, sep="_")
-    } else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
-        #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id so that
-        #we can build a new primary_id.  Call recursively to handle this.
-        return(option_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
-                            callput=callput, strike=strike, identifiers=identifiers, ...=...))
+    #} else if (is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
+    #    #primary_id is actually a root_id, and suffix_id is NULL. we need to build suffix_id so that
+    #    #we can build a new primary_id.  Call recursively to handle this.
+    #    return(option_series(root_id=primary_id, first_traded=first_traded, expires=expires, 
+    #                        callput=callput, strike=strike, identifiers=identifiers, ...=...))
     }    
     pid <- parse_id(primary_id)
     if (is.null(root_id)) root_id <- pid$root
