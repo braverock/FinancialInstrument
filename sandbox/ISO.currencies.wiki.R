@@ -41,7 +41,10 @@ define_currencies.wiki <- function(Symbols, silent=FALSE) {
 }
 
 #rm_currencies()
-#define_currencies.wiki(c("USD","EUR","ADP","ETB","GBP","BTC"))
+#define_currencies.wiki(c("USD","XAU"))
+#exchange_rate("XAUUSD",src=list(src='oanda',name='XAU/USD'))
+
+#define_currencies.wiki(c("JPY","EUR","ADP","ETB","GBP","BTC"))
 #define_currencies.wiki()
 
 #_______________________________________________________________________________________

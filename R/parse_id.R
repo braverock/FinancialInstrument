@@ -140,6 +140,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
             suffix <- strsplit(x,"_")[[1]][2]
         }        
     }
+    root <- gsub(" ","",root)    
     suff <- parse_suffix(suffix, silent=silent)
     if (sufftype) type <- suff$type
     if (suffformat) format <- suff$format

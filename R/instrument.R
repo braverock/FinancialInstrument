@@ -765,6 +765,9 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
             return(synthetic(gsub("\\^","",primary_id), currency=currency, src=list(src='yahoo',name=primary_id), defined_by='auto', ...))
         } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
+    ss <- strsplit(primary_id," ")[[1]]  #take out spaces (OSI uses spaces, but makenames would turn them into dots)
+    ss <- ss[!ss %in% ""]
+    if (length(ss) == 2) primary_id <- paste(ss,collapse="_")
     dargs$primary_id <- primary_id
     dargs$currency <- currency
     dargs$multiplier <- multiplier
