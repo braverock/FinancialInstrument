@@ -253,7 +253,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
               if (is.null(expires) || nchar(sdate) < 6) stop("must provide either 'expires' or 'suffix_id'")
               suffix_id <- paste(M2C()[as.numeric(substr(sdate,5,6))], substr(sdate,3,4),sep="")              
           }
-          primary_id <- paste(root_id, suffix_id, sep="_")
+          primary_id <- paste(gsub("\\.","",root_id), suffix_id, sep="_")
       }
   } else if (length(primary_id) > 1) {
       if (!is.null(expires) || !is.null(first_traded)) 
@@ -355,7 +355,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
             stop('must provide either a primary_id or both a root_id and a suffix_id')
         else { #if you give it only a root_id it will make the suffix_id using expires, callput, and strike
             if (is.null(suffix_id)) {
-                sdate <- try(as.Date(expires),silent=TRUE)
+                sdate <- if (nchar(expires) == 8) { try(as.Date(expires, format='%Y%m%d'),silent=TRUE) } else try(as.Date(expires),silent=TRUE)
                 if (inherits(sdate,'try-error')) stop("expires is missing or of incorrect format")
                 sright <- try(switch(callput, C=,c=,call="C", P=,p=,put="P"),silent=TRUE)
                 if (inherits(sright,'try-error')) 
@@ -364,7 +364,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
                     stop("must provide 'strike' or a 'suffix_id' from which 'strike' can be inferred.")
                 suffix_id <- paste(format(sdate,'%y%m%d'), sright, strike, sep="")
             }
-            primary_id <- paste(root_id, suffix_id, sep="_")
+            primary_id <- paste(gsub("\\.","",root_id), suffix_id, sep="_")
         }
     } else if (length(primary_id) > 1) {
       if (!is.null(expires) || !is.null(first_traded)) 
@@ -396,9 +396,6 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
             stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
     contract<-getInstrument(root_id, type='option')
-    if (!hasArg(src) && !is.null(contract$src)){
-        src <- contract$src
-    } else src <- NULL
     ## with options series we probably need to be more sophisticated,
     ## and find the existing series from prior periods (probably years)
     ## and then add the first_traded and expires to the time series
@@ -412,6 +409,10 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         assign(primary_id, temp_series, envir=as.environment(.instrument))
         primary_id
     } else {
+        dargs <- list(...)
+        if (is.null(dargs$src) && !is.null(contract$src)) {
+            dargs$src <- contract$src
+        }
         instrument( primary_id = primary_id,
                     root_id = root_id,
                     suffix_id = suffix_id,
@@ -424,8 +425,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
                     callput = callput,
                     strike = strike,
                     underlying_id = contract$underlying_id,
-                    if (!is.null(src)) src=src,
-                    ...,
+                    ...=dargs,
                     type=c("option_series", "option"),
                     assign_i=TRUE
                   ) 
