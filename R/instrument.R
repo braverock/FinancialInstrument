@@ -897,6 +897,14 @@ instrument_attr <- function(primary_id, attr, value) {
         tclass <- unique(c(value, "instrument"))
         class(instr) <- tclass
     }
+    if (attr == 'IB') {
+        if (inherits(value, 'twsContract')) {
+            class(instr) <- unique(c(class(instr)[1], 'twsInstrument', class(instr)[-1]))
+        } else {
+            warning('non-twsContract assigned to $IB')
+            class(instr) <- class(instr)[!class(instr) %in% 'twsInstrument']
+        }
+    }
     if (attr == 'src') {
         sarg <- list()
         sarg[[instr$primary_id]] <- value
