@@ -11,7 +11,7 @@ Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
     multi-asset class and multi-currency portfolios.  
     Still in heavy development.
-Version: 0.7.1
+Version: 0.7.2
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
