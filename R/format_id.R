@@ -72,9 +72,10 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
 #'
 #' This will convert month codes or month names to numeric months.
 #'
-#' Input can be a vector or a comma-delimited string
+#' Input can be a vector or a comma-delimited string. All elements of \code{month_cycle} should be similar.
+#' Do not mix month names, codes and numbers in the same call.
 #' @return numeric vector
-#' @param month_cycle the expiration months of a \code{link{future}}. See examples.
+#' @param month_cycle the expiration months of a \code{\link{future}}. See examples.
 #' @author Garrett See
 #' @seealso \code{\link{M2C}}, \code{\link{C2M}}, \code{\link{next.future_id}}
 #' \code{\link{future}}
@@ -85,6 +86,7 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
 #' month_cycle2numeric("March,june,sep,decem")
 #' month_cycle2numeric("3,6,9,12")
 #' month_cycle2numeric(seq(3,12,3))
+#' @rdname month_cycle2numeric
 #' @export
 month_cycle2numeric <- function(month_cycle) {
     if (is.character(month_cycle)) {
@@ -98,6 +100,10 @@ month_cycle2numeric <- function(month_cycle) {
     }
     month_cycle
 }
+
+#' @rdname month_cycle2numeric
+#' @export
+MC2N <- month_cycle2numeric
 
 # @examples
 # month_cycle2code('feb,apr,jun,aug,dec')

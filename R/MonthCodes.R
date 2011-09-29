@@ -8,6 +8,7 @@
 #' @param month Abbreviated month: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, or dec
 #' @return corresponding code or month.
 #' @author Garrett See
+#' @seealso \code{\link{MC2N}}
 #' @examples
 #' C2M()
 #' C2M("M")

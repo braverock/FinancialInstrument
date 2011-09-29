@@ -33,4 +33,7 @@ M2C()[9]
 \author{
   Garrett See
 }
+\seealso{
+  \code{\link{MC2N}}
+}
 

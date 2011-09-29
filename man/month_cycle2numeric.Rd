@@ -1,12 +1,15 @@
 \name{month_cycle2numeric}
+\alias{MC2N}
 \alias{month_cycle2numeric}
 \title{coerce month_cycle to a numeric vector}
 \usage{
   month_cycle2numeric(month_cycle)
+
+  MC2N(month_cycle)
 }
 \arguments{
   \item{month_cycle}{the expiration months of a
-  \code{link{future}}. See examples.}
+  \code{\link{future}}. See examples.}
 }
 \value{
   numeric vector
@@ -16,7 +19,9 @@
   months.
 }
 \details{
-  Input can be a vector or a comma-delimited string
+  Input can be a vector or a comma-delimited string. All
+  elements of \code{month_cycle} should be similar. Do not
+  mix month names, codes and numbers in the same call.
 }
 \examples{
 month_cycle2numeric("H,M,U,Z")
