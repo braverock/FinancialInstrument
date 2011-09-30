@@ -723,7 +723,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     if (any(pid$type == 'butterfly')) {
         return(butterfly(primary_id, currency=currency, defined.by='auto', ...))
     }
-    if (any(pid$type == 'future')) {
+    if (any(pid$type == 'future') || any(pid$type == 'SSF')) {
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root) && !inherits(root, 'future_series')) {
             return(future_series(primary_id,defined.by='auto',...))
