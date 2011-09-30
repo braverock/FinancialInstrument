@@ -524,19 +524,35 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 
 #' @export
 #' @rdname instrument
-currency <- function(primary_id , currency=NULL , multiplier=1 , identifiers = NULL, ...){
-  if (length(primary_id) > 1) return(unname(sapply(primary_id, currency, identifiers=identifiers, ...=...)))
-  currency_temp <- list(primary_id = primary_id,
-          currency = primary_id,
-          multiplier = 1,
-          tick_size= .01,
-          identifiers = identifiers,
-          type = "currency"
-  )
-  currency_temp <- c(currency_temp,list(...))   
-  class(currency_temp)<-c("currency","instrument")
-  assign(primary_id, currency_temp, envir=as.environment(.instrument) )
-  primary_id
+currency <- function(primary_id, identifiers = NULL, ...){
+    if (length(primary_id) > 1) return(unname(sapply(primary_id, currency, identifiers=identifiers, ...=...)))
+    ccy <- try(getInstrument(primary_id,type='currency',silent=TRUE))
+    if (is.instrument(ccy)) {
+        if (!is.null(identifiers)) {
+            if (!is.list(identifiers)) identifiers <- list(identifiers)
+            for (nm in names(ccy$identifiers)[names(ccy$identifiers) %in% names(identifiers)]) {
+                ccy$identifiers[[nm]] <- identifiers[[nm]]
+            }
+            identifiers <- identifiers[names(identifiers)[!names(identifiers) %in% names(ccy$identifiers)]]
+            ccy$identifiers <- c(identifiers, ccy$identifiers)
+        }
+    } else ccy <- list(primary_id = primary_id,
+                        currency = primary_id,
+                        multiplier = 1,
+                        tick_size= .01,
+                        identifiers = identifiers,
+                        type = "currency")
+    dargs <- list(...)
+    if (!is.null(dargs)) {
+        for (nm in names(ccy)[names(ccy) %in% names(dargs)]) {
+            ccy[[nm]] <- dargs[[nm]]
+        }
+        dargs <- dargs[names(dargs)[!names(dargs) %in% names(ccy)]]
+        ccy <- c(ccy,dargs)
+    }        
+    class(ccy)<-c("currency","instrument")
+    assign(primary_id, ccy, pos=as.environment(.instrument) )
+    primary_id
 }
 
 #' class test for object supposedly of type 'currency'
@@ -762,7 +778,8 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     }
     if (any(pid$type == 'synthetic')) {
         if (!is.na(pid$format) && pid$format == 'yahooIndex') {
-            return(synthetic(gsub("\\^","",primary_id), currency=currency, src=list(src='yahoo',name=primary_id), defined_by='auto', ...))
+            return(synthetic(gsub("\\^","",primary_id), currency=currency, identifiers=list(yahoo=primary_id), 
+                            src=list(src='yahoo',name=primary_id), defined_by='auto', ...))
         } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
     } 
     ss <- strsplit(primary_id," ")[[1]]  #take out spaces (OSI uses spaces, but makenames would turn them into dots)

@@ -24,8 +24,7 @@
   option(primary_id, currency, multiplier, tick_size =
   NULL, identifiers = NULL, ..., underlying_id = NULL)
 
-  currency(primary_id, currency = NULL, multiplier = 1,
-  identifiers = NULL, ...)
+  currency(primary_id, identifiers = NULL, ...)
 
   bond(primary_id, currency, multiplier, tick_size = NULL,
   identifiers = NULL, ...)
