@@ -292,10 +292,10 @@ getSymbols.FI <- function(Symbols,
         if(verbose) cat("loading ",Symbols[[i]],".....")
         split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
         split_method <- ifelse(is.null(split_method), default.split_method, split_method)
-
+        fr<-NULL
+        
         switch(split_method[1],
                 days={
-                    fr<-NULL
                     StartDate <- as.Date(from) 
                     EndDate <- as.Date(to) 
                     date.vec <- as.Date(StartDate:EndDate)
