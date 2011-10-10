@@ -96,12 +96,7 @@ define_futures.tblox <- function(verbose=TRUE){
             denom <- as.numeric(gsub("h","",strsplit(tick,"/")[[1]][2]))
             tick <- numer / denom
         }
-        tmonths <- NULL
-        for (j in 1:nchar(def[i,6])) tmonths <- c(tmonths, substr(def[i,6],j,j))
-        tmonths <- paste(tmonths,collapse=",")
-        #FIXME: How do I turn "FGHJKMNQUVXZ"
-        # into "F,G,H,J,K,M,N,Q,U,V,X,Z"
-        # without using a for loop?
+        tmonths <- paste(strsplit(def[i,6],"")[[1]], collapse=",")
         primary_id <- paste(def[i,1])
         instr <- try(getInstrument(primary_id,silent=TRUE),silent=TRUE)
         if (inherits(instr,'try-error') || !is.instrument(instr)) {
