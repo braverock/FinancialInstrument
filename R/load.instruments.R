@@ -213,6 +213,9 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' 
 #' If date_format is NULL (the Default), we will assume an ISO date as changed by \code{\link{make.names}}, 
 #' for example, 2010-12-01 would be assumed to be a file containing 2010.12.01
+#' 
+#' If auto.assign is FALSE, you'll only get the last Symbol in the symbols list returned, 
+#' so only use \code{auto.assign=FALSE} with a single symbol.  Patches Welcome.
 #'  
 #' @param Symbols a character vector specifying the names of each symbol to be loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
@@ -282,7 +285,9 @@ getSymbols.FI <- function(Symbols,
         if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
         ssd <- strsplit(dir,"/")[[1]]
         if (ssd[length(ssd)] != symbol) dir <- paste(dir,symbol,sep="/")
-
+        
+        fr<-NULL
+        
         if(!dir=="" && !file.exists(dir)) {
             cat("\ndirectory ",dir," does not exist, skipping\n")
             next
@@ -292,7 +297,6 @@ getSymbols.FI <- function(Symbols,
         if(verbose) cat("loading ",Symbols[[i]],".....")
         split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
         split_method <- ifelse(is.null(split_method), default.split_method, split_method)
-        fr<-NULL
         
         switch(split_method[1],
                 days={
@@ -361,5 +365,25 @@ NULL
 #' @docType data
 #' @keywords data
 NULL
+
+
+PCAbetas<-function(ret){
+    
+    model<-list()
+    for(i in 2:ncol(ret)) {
+        m<-princomp(~ ret[,1] + ret[,i] )
+        slope <- m$loadings[2,1]/m$loadings[1,1]
+        intercept <- m$center[2]-slope*m$center[1]
+        
+        model[[paste(colnames(ret)[1],colnames(ret)[i],sep='.')]]<-
+                list(m=m,slope=slope,intercept=intercept)
+    }
+    model
+}
+
+weighted_mid<-function(x){
+    x$Mid.Price<-(x$Bid.Price*x$Ask.Size+x$Ask.Price*x$Bid.Size)/(x$Ask.Size+x$Bid.Size)
+    x
+}
 
 
