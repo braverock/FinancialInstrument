@@ -235,7 +235,6 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' \code{\link{setSymbolLookup.FI}}
 #' \code{\link{load.instruments}}
 #' \code{\link[quantmod]{getSymbols}}
-#' @importFrom zoo as.Date.numeric
 #' @export
 getSymbols.FI <- function(Symbols,
                             from='2010-01-01',

@@ -60,6 +60,11 @@
   ISO date as changed by \code{\link{make.names}}, for
   example, 2010-12-01 would be assumed to be a file
   containing 2010.12.01
+
+  If auto.assign is FALSE, you'll only get the last Symbol
+  in the symbols list returned, so only use
+  \code{auto.assign=FALSE} with a single symbol.  Patches
+  Welcome.
 }
 \seealso{
   \code{\link{instrument}} \code{\link{setSymbolLookup.FI}}
