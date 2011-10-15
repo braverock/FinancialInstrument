@@ -42,11 +42,12 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
   sheetnames=c("Excess Return", "Total Return")
   for(sheet in sheetnames){  
     print(paste("Reading", sheet, "sheet... This will take a moment..."))
-    x = read.xls("DJUBS_full_hist.xls", sheet=sheet, pattern="Symbol")
+    x = read.xls("DJUBS_full_hist.xls", sheet=sheet)
     
-    # Get the descriptions to add as attributes
-    # @ TODO: There must be a better way
-    x.attr = read.xls("DJUBS_full_hist.xls", sheet=sheet, pattern="Date", nrows=1, header=FALSE)
+    # Add column names, get the descriptions to add as attributes
+    colnames(x)=t(as.data.frame(apply(x[2,], FUN=as.character, MARGIN=1), stringsAsFactors=FALSE))
+    x.attr = t(as.data.frame(x[1,], stringsAsFactors=FALSE))
+    x=x[-1:-2,]
     
     # Get rid of the last line, which contains the disclaimer
     x=x[-dim(x)[1],]
