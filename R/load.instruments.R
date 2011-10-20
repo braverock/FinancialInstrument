@@ -283,7 +283,7 @@ getSymbols.FI <- function(Symbols,
         ndc<-nchar(dir)
         if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
         ssd <- strsplit(dir,"/")[[1]]
-        if (ssd[length(ssd)] != symbol) dir <- paste(dir,symbol,sep="/")
+        if (identical(character(0), ssd) || ssd[length(ssd)] != symbol) dir <- paste(dir,symbol,sep="/")
         
         fr<-NULL
         
