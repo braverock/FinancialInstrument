@@ -11,7 +11,7 @@ Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
     multi-asset class and multi-currency portfolios. Still
     in heavy development.
-Version: 0.7.5
+Version: 0.8
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
@@ -33,3 +33,12 @@ Collate:
     'parse_id.R'
     'MonthCodes.R'
     'format_id.R'
+    'ls_by_expiry.R'
+    'ls_instruments_by.R'
+    'ls_instruments.R'
+    'ls_strikes.R'
+    'ls_underlyings.R'
+    'update_instruments.yahoo.R'
+    'ls_by_currency.R'
+    'saveInstruments.R'
+    'ls_expiries.R'
