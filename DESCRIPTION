@@ -42,3 +42,4 @@ Collate:
     'ls_by_currency.R'
     'saveInstruments.R'
     'ls_expiries.R'
+    'saveSymbols.R'
