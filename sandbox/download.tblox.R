@@ -137,6 +137,7 @@ define_futures.tblox <- function(verbose=TRUE){
         instr$updated <- Sys.time()
         assign(primary_id, instr, pos=.instrument)
     }
+    paste(def[,1])
 }
 
 #define_futures.tblox()
