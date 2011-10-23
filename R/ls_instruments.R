@@ -1,3 +1,5 @@
+#' List or Remove instrument objects
+#' 
 #' display the names of or delete instruments, stocks, options, futures,
 #' currencies, bonds, funds, spreads, guaranteed_spreads, synthetics,
 #' derivatives, or non-derivatives.
@@ -45,18 +47,17 @@
 #' #rm_instruments(keep.currencies=FALSE) #remove everything from .instrument
 #' 
 #' # First, create some instruments
-#' currency('USD')
-#' currency('EUR')
-#' currency('JPY')
+#' currency(c("USD", "EUR", "JPY"))
 #' #stocks
-#' stock("SEE","USD")
-#' stock("SE","USD")
-#' stock("S","USD")
-#' stock("SPY",'USD')
+#' stock(c("S", "SE", "SEE", "SPY"), 'USD')
+#' synthetic("SPX", "USD", src=list(src='yahoo', name='^GSPC'))
 #' #derivatives
-#' option('.SPY','USD',multiplier=100,expiry='20110618', strike=130, callput='put', underlying_id='SPY')
-#' future('ES', 'USD', multiplier=50, expiry='20110916', underlying_id='ES')
-#' option('.ES','USD',multiplier=1, expiry='201106',strike=1350, right='C', underlying_id='ES')
+#' option('.SPY', 'USD', multiplier=100, underlying_id='SPY')
+#' option_series(root_id="SPY", expires='2011-06-18', callput='put', strike=130)
+#' option_series(root_id="SPY", expires='2011-09-17', callput='put', strike=130)
+#' option_series(root_id="SPY", expires='2011-06-18', callput='call', strike=130)
+#' future('ES', 'USD', multiplier=50, expires='2011-09-16', underlying_id="SPX")
+#' option('.ES','USD',multiplier=1, expires='2011-06',strike=1350, right='C', underlying_id='ES')
 #' 
 #' # Now, the examples
 #' ls_instruments() #all instruments
@@ -70,10 +71,10 @@
 #' ls_derivatives()
 #' ls_puts()
 #' ls_non_derivatives()
-#' #ls_by_expiry('20110618',ls_puts) #put options that expire on Jun 18th, 2011
+#' #ls_by_expiry('20110618',ls_puts()) #put options that expire on Jun 18th, 2011
 #' #ls_puts(ls_by_expiry('20110618')) #same thing
 #' 
-#' rm_options('.SPY')
+#' rm_options('SPY_110618C130')
 #' rm_futures()
 #' ls_instruments()
 #' #rm_instruments('EUR') #Incorrect
@@ -85,9 +86,10 @@
 #' rm_instruments() #remove all but currencies
 #' rm_currencies()
 #' 
-#' #option_series.yahoo('DIA')
+#' option_series.yahoo('DIA')
 #' ls_instruments_by('underlying_id','DIA') #underlying_id must exactly match 'DIA'
 #' ls_derivatives('DIA',match=FALSE) #primary_ids that contain 'DIA'
+#' rm_instruments()
 #' }
 #' @export
 #' @rdname ls_instruments

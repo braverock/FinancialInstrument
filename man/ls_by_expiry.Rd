@@ -9,10 +9,10 @@
 }
 \arguments{
   \item{expiry}{expiration date that should correspond to
-  the sQuoteexpires slot of an instrument}
+  the \sQuote{expires} field of an instrument}
 
   \item{pattern}{an optional regular expression.  Only
-  names matching sQuotepattern are returned.}
+  names matching \sQuote{pattern} are returned.}
 
   \item{match}{exact match of pattern?}
 
@@ -27,6 +27,11 @@
   show names of or remove instruments that expire on a
   given date
 }
+\details{
+  \code{ls_by_expiry} will find instruments that have a
+  field named either \dQuote{expiry} or \dQuote{expires}
+  with a value that matches \code{expiry}.
+}
 \examples{
 \dontrun{
 ls_by_expiry('20110917')
@@ -37,7 +42,8 @@ ls_by_expiry('20110917',ls_options())
   Garrett See
 }
 \seealso{
-  ls_instruments, ls_options, ls_calls, ls_puts,
-  ls_futures, ls_derivatives
+  \code{\link{ls_instruments}}, \code{\link{ls_options}},
+  \code{\link{ls_calls}}, \code{\link{ls_puts}},
+  \code{\link{ls_futures}}, \code{\link{ls_derivatives}}
 }
 

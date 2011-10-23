@@ -1,25 +1,23 @@
-#TODO: allow for more date formats. 
-
-
-
 #' list or remove instruments by expiration date
 #' 
 #' show names of or remove instruments that expire on a given date
 #' 
-#' 
+#' \code{ls_by_expiry} will find instruments that have a field named either
+#' \dQuote{expiry} or \dQuote{expires} with a value that matches \code{expiry}. 
+#'  
 #' @aliases ls_by_expiry rm_by_expiry
-#' @param expiry expiration date that should correspond to the sQuoteexpires
-#' slot of an instrument
+#' @param expiry expiration date that should correspond to the \sQuote{expires}
+#' field of an instrument
 #' @param pattern an optional regular expression.  Only names matching
-#' sQuotepattern are returned.
+#' \sQuote{pattern} are returned.
 #' @param match exact match of pattern?
 #' @param x what to remove
 #' @return \code{ls_by_expiry} gives a vector of names of instruments that
 #' expire on the given expiry. \code{rm_by_expiry} is called for its
 #' side-effect.
 #' @author Garrett See
-#' @seealso ls_instruments, ls_options, ls_calls, ls_puts, ls_futures,
-#' ls_derivatives
+#' @seealso \code{\link{ls_instruments}}, \code{\link{ls_options}}, \code{\link{ls_calls}}, 
+#' \code{\link{ls_puts}}, \code{\link{ls_futures}}, \code{\link{ls_derivatives}}
 #' @examples
 #' 
 #' \dontrun{
@@ -45,17 +43,18 @@ ls_by_expiry <- function(expiry, pattern=NULL, match=TRUE) {
     } else if (is.null(pattern)) {  #no pattern
         symbols <- ls(.instrument, all.names=TRUE)
     } # else pattern length > 1 & don't match
-        
+
+    expiry <- gsub("-", "", expiry)
     tmp_symbols <- NULL            
     for (symbol in symbols) {
         tmp_instr <- try(get(symbol, pos = .instrument),silent=TRUE)
-        if (is.instrument(tmp_instr) && !is.null(tmp_instr$expires) ) {
-        	if (any(tmp_instr$expires == expiry) ){    
+        if (is.instrument(tmp_instr) ) {
+            if ((!is.null(tmp_instr$expires) && any(gsub("-", "", tmp_instr$expires) == expiry)) ||
+                (!is.null(tmp_instr$expiry) && any(gsub("-", "", tmp_instr$expiry) == expiry)) ) {
 				tmp_symbols <- c(tmp_symbols,symbol)
-    		}	        
+    		}
         }    
     }
-
     tmp_symbols
 }
 

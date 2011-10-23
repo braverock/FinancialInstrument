@@ -1,6 +1,6 @@
 \name{buildRatio}
 \alias{buildRatio}
-\title{contruct price ratios of 2 instruments}
+\title{construct price ratios of 2 instruments}
 \usage{
   buildRatio(x, env = .GlobalEnv, silent = FALSE)
 }

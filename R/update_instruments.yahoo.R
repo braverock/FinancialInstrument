@@ -2,11 +2,12 @@
 #' 
 #' Adds/updates information in instrument with data downloaded from yahoo
 #' 
-#' if you call \code{update_instruments.yahoo} with one of \sQuote{all} or
-#' \sQuote{stocks}, it is the same as calling it with the relevant ls_ function 
-#' (e.g. \code{ls_stocks()}).  Therefore, functionality can be extended by using 
-#' ls_ functions instead of a descriptive string.
-#' 
+#' Although these functions are intended to update the metadata of
+#' previously defined instruments, \code{update_instruments.TTR} will
+#' define the stocks if they do not already exist.
+#'
+#' \code{update_instruments.TTR} is only to be used on U.S. stocks denominated in USD.
+#'
 #' @aliases update_instruments.yahoo update_instruments.TTR
 #' @param Symbols can be a vector of instrument names, or, can be \sQuote{all}
 #' or \sQuote{stocks} or, for update_instruments.TTR, can be NULL in which case
@@ -16,14 +17,17 @@
 #' @param verbose be verbose?
 #' @return called for side-effect
 #' @author Garrett See
+#' @seealso \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 #' @references Yahoo! Finance \url{finance.yahoo.com} YahooQuote
 #' \url{http://dirk.eddelbuettel.com/code/yahooquote.html} 
 #' gummy-stuff.org \url{www.gummy-stuff.org/Yahoo-data.htm} 
 #' @examples
 #' \dontrun{	
 #' 	stock('GS',currency('USD'))
-#'     update_instruments.yahoo('GS')
+#'  update_instruments.yahoo('GS')
 #' 	getInstrument('GS')
+#'  update_instruments.TTR('GS')
+#'  getInstrument('GS')
 #' }
 #' @export
 update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) {

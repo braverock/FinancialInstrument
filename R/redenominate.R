@@ -82,7 +82,7 @@
     xts(x, order.by=as.Date(paste(index(x))))
 }
 
-#' contruct price ratios of 2 instruments 
+#' construct price ratios of 2 instruments 
 #'
 #' Calculates time series of ratio of 2 instruments using available data. 
 #' Returned object will be ratios calculated using Bids, Asks, and Mids, or Opens, Closes, and Adjusteds.

@@ -351,14 +351,14 @@ getSymbols.FI <- function(Symbols,
 }
 
 
-#' currency metadata to be used by \code{load.instruments}
+#' currency metadata to be used by \code{\link{load.instruments}}
 #'
 #' @name currencies
 #' @docType data
 #' @keywords data
 NULL
 
-#' future metadata to be used by \code{load.instruments}
+#' future metadata to be used by \code{\link{load.instruments}}
 #'
 #' @name root_contracts
 #' @docType data

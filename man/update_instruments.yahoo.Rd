@@ -29,17 +29,20 @@
   downloaded from yahoo
 }
 \details{
-  if you call \code{update_instruments.yahoo} with one of
-  \sQuote{all} or \sQuote{stocks}, it is the same as
-  calling it with the relevant ls_ function (e.g.
-  \code{ls_stocks()}).  Therefore, functionality can be
-  extended by using ls_ functions instead of a descriptive
-  string.
+  Although these functions are intended to update the
+  metadata of previously defined instruments,
+  \code{update_instruments.TTR} will define the stocks if
+  they do not already exist.
+
+  \code{update_instruments.TTR} is only to be used on U.S.
+  stocks denominated in USD.
 }
 \examples{
 \dontrun{
 stock('GS',currency('USD'))
 update_instruments.yahoo('GS')
+getInstrument('GS')
+update_instruments.TTR('GS')
 getInstrument('GS')
 }
 }
@@ -50,5 +53,8 @@ getInstrument('GS')
   Yahoo! Finance \url{finance.yahoo.com} YahooQuote
   \url{http://dirk.eddelbuettel.com/code/yahooquote.html}
   gummy-stuff.org \url{www.gummy-stuff.org/Yahoo-data.htm}
+}
+\seealso{
+  \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 }
 
