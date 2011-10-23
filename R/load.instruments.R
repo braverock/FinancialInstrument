@@ -231,6 +231,7 @@ setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), stor
 #' @param verbose TRUE/FALSE
 #' @param auto.assign TRUE/FALSE
 #' @seealso 
+#' \code{\link{saveSymbols.days}}
 #' \code{\link{instrument}}
 #' \code{\link{setSymbolLookup.FI}}
 #' \code{\link{load.instruments}}

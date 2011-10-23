@@ -8,22 +8,28 @@ library(FinancialInstrument)
 #' \code{getSymbols.tblox} will only return the Symbols you ask for.
 get_tblox <- function(env='.GlobalEnv') {
 # a function to download all data for all 40 instruments
+    tmpdir <- tempdir()
+    tblox.tmp <- paste(tmpdir, "tblox", sep="/")
+    if(!file.exists(tblox.tmp)) dir.create(tblox.tmp)
     tmp <- tempfile()
-    download.file("http://www.tradingblox.com/Data/DataOnly.zip",tmp)
-    tblox.tmp <- tempdir()
+    download.file("http://www.tradingblox.com/Data/DataOnly.zip", tmp)
     unzip(tmp,exdir=tblox.tmp)
     def <- read.csv('http://www.tradingblox.com/tradingblox/CSIUA/FuturesInfo.txt',skip=1,header=FALSE)
+    badsym <- NULL    
     for (i in 1:length(def[,1])){
         if (file.exists(paste(tblox.tmp,'Futures',def[i,4],sep='/'))) {
             dat <-read.csv(paste(tblox.tmp,"/Futures/",def[i,4],sep=""),header=FALSE)
-            idx <- as.Date(dat[,1],format='%Y%m%d')
+            idx <- as.Date(dat[,1],format='%Y%m%d', origin='1970-01-01')
             x <- xts(dat[,2:9],order.by=as.Date(paste(dat[,1]),format="%Y%m%d"))
             cn <- c(paste('Adj',c("Open","High","Low","Close"),sep="."),'Volume','OpInt','ExpMth','Unadj.Close')
             colnames(x) <- paste(def[i,1],cn,sep=".")        
             assign(paste(def[i,1]), x, pos=env)
-        }    
+        } else badsym <- c(badsym, paste(def[i,1]))
     }
-    paste(def[,1])
+    unlink(tmp)
+    unlink(tblox.tmp, recursive=TRUE)
+    out <- paste(def[,1])
+    out[!out %in% badsym]
 }
 
 # a getSymbols method to get only the symbols you specify 
@@ -42,9 +48,12 @@ function (Symbols, env, return.class = "xts", ...)
     if (missing(auto.assign)) 
         auto.assign <- TRUE
     if (!auto.assign) stop("must use auto.assign=TRUE for src='tblox'") 
+
+    tmpdir <- tempdir()
+    tblox.tmp <- paste(tmpdir, "tblox", sep="/")
+    if(!file.exists(tblox.tmp)) dir.create(tblox.tmp)
     tmp <- tempfile()
     download.file("http://www.tradingblox.com/Data/DataOnly.zip",tmp)
-    tblox.tmp <- tempdir()
     unzip(tmp,exdir=tblox.tmp)
     def <- read.csv('http://www.tradingblox.com/tradingblox/CSIUA/FuturesInfo.txt',skip=1,header=FALSE)
     if (is.null(Symbols) || is.na(Symbols) || Symbols == "all" || Symbols == "")
@@ -69,6 +78,8 @@ function (Symbols, env, return.class = "xts", ...)
             sym.out <- c(sym.out, paste(def[i,1]))
         }    
     } 
+    unlink(tmp)
+    unlink(tblox.tmp, recursive=TRUE)
     return(sym.out)
 }
 
@@ -104,6 +115,7 @@ define_futures.tblox <- function(verbose=TRUE){
                     currency = paste(def[i,8]),
                     multiplier = as.numeric(gsub(",","",def[i,9])),
                     tick_size = as.numeric(tick),
+                    src = 'tblox',
                     defined.by = 'tblox' )
         }
         instr <- getInstrument(primary_id)

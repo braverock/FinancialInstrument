@@ -32,7 +32,7 @@ function(Symbols, base_dir="", env=.GlobalEnv) {
             base_dir <- paste(base_dir,"/",sep="")    
     tmpenv <- new.env()    
     for (symbol in Symbols) {
-        tmp <- try(get(symbol,pos=env))    
+        tmp <- try(get(symbol,pos=env), silent=TRUE)    
         if (!is.null(tmp) && !inherits(tmp,'try-error')) { 
             D <- split(tmp,'days')
             if (!file.exists(paste(base_dir,symbol,sep=""))) dir.create(paste(base_dir,symbol,sep=""))
@@ -43,7 +43,7 @@ function(Symbols, base_dir="", env=.GlobalEnv) {
                 assign(symbol,D[[i]],envir=tmpenv)
                 save(list=symbol,file=fnames[i],envir=tmpenv)
             }
-        }    
+        } else if (inherits(tmp, 'try-error')) warning(paste(symbol, "could not be found in 'env' and was not saved."))
     }
 }
 
@@ -56,14 +56,14 @@ saveSymbols.common <- function (Symbols, base_dir = "", env = .GlobalEnv)
         base_dir <- paste(base_dir, "/", sep = "")
     tmpenv <- new.env()
     for (symbol in Symbols) {
-        tmp <- try(get(symbol, pos = env))
+        tmp <- try(get(symbol, pos = env), silent=TRUE)
         if (!is.null(tmp) && !inherits(tmp, "try-error")) {
             if (!file.exists(paste(base_dir, symbol, sep = ""))) 
                 dir.create(paste(base_dir, symbol, sep = ""))
             fnames <- paste(base_dir, symbol, "/", symbol, ".rda", sep = "")
             assign(symbol, tmp, envir = tmpenv)
             save(list = symbol, file = fnames, envir = tmpenv)
-        }
+        } else if (inherits(tmp, 'try-error')) warning(paste(symbol, "could not be found in 'env' and was not saved."))
     }
 }
 
