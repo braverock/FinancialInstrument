@@ -224,7 +224,7 @@ ls_non_currencies <- function(pattern=NULL, includeFX=TRUE, match=TRUE) {
 
 #' @export
 #' @rdname ls_instruments
-ls_exchange_rates <- ls_FX <- function(pattern=NULL,match=TRUE) {
+ls_exchange_rates <- function(pattern=NULL,match=TRUE) {
     #This could use ls_currencies instead of ls_instruments, but currency class may be
     #subject to change
     symbols <- ls_instruments(pattern=pattern,match=match)    
@@ -237,6 +237,10 @@ ls_exchange_rates <- ls_FX <- function(pattern=NULL,match=TRUE) {
     }
     tmp_symbols
 }
+
+#' @export
+#' @rdname ls_instruments
+ls_FX <- ls_exchange_rates
 
 #' @export
 #' @rdname ls_instruments

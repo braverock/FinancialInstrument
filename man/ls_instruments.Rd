@@ -57,6 +57,8 @@
 
   ls_exchange_rates(pattern = NULL, match = TRUE)
 
+  ls_FX(pattern = NULL, match = TRUE)
+
   ls_bonds(pattern = NULL, match = TRUE)
 
   ls_funds(pattern = NULL, match = TRUE)
