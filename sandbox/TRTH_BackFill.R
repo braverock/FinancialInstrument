@@ -1,5 +1,5 @@
 ##############################################################################
-#                     Reuters Backfill Configuration Parameters              #         
+#                  Reuters Backfill Configuration Parameters                 #         
 ##############################################################################
 #
 # You should create a configuration file that includes the following
@@ -22,8 +22,10 @@
 #
 #no.cores <- 1 # for foreach
 ##############################################################################
-config_file<-'/full/path/to/TRTH_config_file.R'
+config_file<-'TRTH_config_file.R'
 source(config_file)
+
+load(instrument_file)
 
 Sys.umask("0002")
 
@@ -55,7 +57,7 @@ while(!listflag)#try to download file list
     {
         tmpmsg<-paste("curl returned error code", names(w),'\n','while attempting to download file list','\n','script will wait and retry in 30 min')
         #sendmail(email_to,email_from,"error downloading Reuters file list",msg=tmpmsg)
-        Sys.sleep(1800)
+        Sys.sleep(180)
     } else listflag=TRUE
     
 }
