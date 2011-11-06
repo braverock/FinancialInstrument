@@ -20,7 +20,13 @@
 #email_to <- 'someuser@somehost.com'
 #email_from <- 'someuser@somehost.com'
 #
+#overwrite <- FALSE # whether to overwrite files from the same date, default FALSE
+#image <- TRUE # whether to write write Bid, Ask, and Price images to disk for diagnostics, default TRUE 
+#
 #no.cores <- 1 # for foreach
+#
+# # Also add any additional options that would make this script run better in your environment
+#
 ##############################################################################
 config_file<-'TRTH_config_file.R'
 source(config_file)
@@ -100,7 +106,7 @@ for(i in 1:length(Reuters.new))
     
 	## Download Report s
 	system(paste("curl ftp://tickhistory-ftp.thomsonreuters.com:15500/results/",Reuters.report[grep(alias,Reuters.report)], " -u ",username,":",password," --ftp-ssl -k > ",archive_dir,"/",Reuters.report[grep(alias,Reuters.report)],sep=""))
-	system(paste("gzip -d -f ",archive_dir,"Report/",Reuters.report[grep(alias,Reuters.report)],sep=""))
+	#system(paste("gzip -d -f ",archive_dir,"Report/",Reuters.report[grep(alias,Reuters.report)],sep=""))
 	
 }	
 
@@ -200,7 +206,7 @@ files.xts$type<-rep(NA,nrow(files.xts))
 missing_i<-''
 instr_s<-unique(files.xts[,'name.new'])
 for(i in 1:length(instr_s)){
-    instr<-getInstrument(instr_s[i])
+    instr<-suppressWarnings(getInstrument(instr_s[i]))
     if(is.instrument(instr)){ 
         files.xts[files.xts$name.new ==instr_s[i],]$type<-as.character(instr$type[1])
     } else {
@@ -242,6 +248,10 @@ reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
 	}
 
 	Data <- read.csv(paste(datapath,date,'/',date,'.',prod,'.csv',sep=''),stringsAsFactors=FALSE,header=FALSE)
+    if(ncol(Data)!=length(H)){
+        warning("length of headers and downloaded data do not match, trying to adjuust, but be careful!")
+        H<-H[1:ncol(Data)]
+    }
 	names(Data) <- H
 	
 	OTC.remove <- grep("IRGCOND",Data$Qualifiers)
@@ -374,7 +384,7 @@ reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
 	
 }  ## End fn reut2xts 
 
-Out <- foreach(ii=iter(1:nrow(files.xts)),.errorhandling='pass') %dopar% reut2xts(files.xts[ii,,drop=FALSE],datapath=path.output, image=image)
+Out <- foreach(ii=iter(1:nrow(files.xts)),.errorhandling='pass') %dopar% reut2xts(files.xts[ii,,drop=FALSE],datapath=path.output, image=image, overwrite=overwrite)
 
 # now clean up
 files.rm <- list.files(archive_dir)
