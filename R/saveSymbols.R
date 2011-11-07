@@ -25,7 +25,7 @@
 #' @export
 #' @rdname saveSymbols.days
 saveSymbols.days <-
-function(Symbols, base_dir="", env=.GlobalEnv) {
+function(Symbols, base_dir="", extension="rda", env=.GlobalEnv) {
     if (base_dir != "" && 
         !is.null(base_dir) && 
         substr(base_dir,nchar(base_dir),nchar(base_dir)) != "/") 
@@ -38,7 +38,7 @@ function(Symbols, base_dir="", env=.GlobalEnv) {
             if (!file.exists(paste(base_dir,symbol,sep=""))) dir.create(paste(base_dir,symbol,sep=""))
             fnames <- paste(base_dir,symbol,"/",
                     unlist(lapply(D, FUN=function(x) format(index(first(x)),"%Y.%m.%d"))),
-                    ".", symbol, ".rda", sep="")
+                    ".", symbol, ".", extension, sep="")
             for (i in 1:length(fnames)) {
                 assign(symbol,D[[i]],envir=tmpenv)
                 save(list=symbol,file=fnames[i],envir=tmpenv)
@@ -49,7 +49,7 @@ function(Symbols, base_dir="", env=.GlobalEnv) {
 
 #' @export
 #' @rdname saveSymbols.days
-saveSymbols.common <- function (Symbols, base_dir = "", env = .GlobalEnv) 
+saveSymbols.common <- function (Symbols, base_dir = "", extension="rda", env = .GlobalEnv) 
 {
     if (base_dir != "" && !is.null(base_dir) && substr(base_dir, 
         nchar(base_dir), nchar(base_dir)) != "/") 
@@ -60,7 +60,7 @@ saveSymbols.common <- function (Symbols, base_dir = "", env = .GlobalEnv)
         if (!is.null(tmp) && !inherits(tmp, "try-error")) {
             if (!file.exists(paste(base_dir, symbol, sep = ""))) 
                 dir.create(paste(base_dir, symbol, sep = ""))
-            fnames <- paste(base_dir, symbol, "/", symbol, ".rda", sep = "")
+            fnames <- paste(base_dir, symbol, "/", symbol, ".", extension, sep = "")
             assign(symbol, tmp, envir = tmpenv)
             save(list = symbol, file = fnames, envir = tmpenv)
         } else if (inherits(tmp, 'try-error')) warning(paste(symbol, "could not be found in 'env' and was not saved."))
