@@ -11,6 +11,7 @@
 #'
 #' @param Symbols vector of character names of objects to be saved
 #' @param base_dir character.  directory in which to store data.
+#' @param extension file extension (\dQuote{rda})
 #' @param env environment that holds the data to be saved (.GlobalEnv by default)
 #' @return called for side-effect.
 #' @seealso \code{\link{getSymbols.FI}}
