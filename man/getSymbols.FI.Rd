@@ -3,10 +3,9 @@
 \title{getSymbols method for loading data from split files}
 \usage{
   getSymbols.FI(Symbols, from = "2010-01-01", to =
-  Sys.Date(), ..., env, dir = "", return.class = "xts",
+  Sys.Date(), ..., dir = "", return.class = "xts",
   extension = "rda", split_method = c("days", "common"),
-  use_identifier, date_format = NULL, verbose = TRUE,
-  auto.assign = TRUE)
+  use_identifier, date_format = NULL, verbose = TRUE)
 }
 \arguments{
   \item{Symbols}{a character vector specifying the names of
@@ -19,8 +18,6 @@
   Sys.Date().}
 
   \item{...}{any other passthru parameters}
-
-  \item{env}{where to create objects. Default .GlobalEnv}
 
   \item{dir}{if not specified in getSymbolLookup, directory
   string to use.  default ""}
@@ -42,8 +39,6 @@
   \code{\link{strptime}}, see Details}
 
   \item{verbose}{TRUE/FALSE}
-
-  \item{auto.assign}{TRUE/FALSE}
 }
 \description{
   This function should probably get folded back into
