@@ -368,8 +368,7 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     x <- ff[,(NCOL(rate)+1):NCOL(ff)]
 
     tmpenv <- new.env()
-    #rsym <- strsplit(colnames(rate)[1],'\\.')[[1]][1]        
-    rsym <- new_base #paste(new_base, old_base, sep="")
+    rsym <- new_base
     assign(rsym,rate,pos=tmpenv)
     assign(Symbol,x,pos=tmpenv)
     
