@@ -305,18 +305,18 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
 redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', env=.GlobalEnv, silent=FALSE) {
 #TODO: create an instrument with currency=new_base.
     if (is.xts(x)) {
-         symbol <- deparse(substitute(x))
-    } else symbol <- x
-    if (is.character(symbol)) {
-        instr <- try(getInstrument(symbol,silent=TRUE))
+         Symbol <- deparse(substitute(x))
+    } else Symbol <- x
+    if (is.character(Symbol)) {
+        instr <- try(getInstrument(Symbol,silent=TRUE))
         if (!is.instrument(instr)) {
-            if (is.null(old_base)) stop(paste("If old_base is not provided, ", symbol, ' must be defined.', sep=""))
+            if (is.null(old_base)) stop(paste("If old_base is not provided, ", Symbol, ' must be defined.', sep=""))
             mult <- 1        
         } else {
             old_base <- instr$currency
             mult <- as.numeric(instr$multiplier)    
         }
-        if (is.character(x)) x <- get(symbol,pos=env)
+        if (is.character(x)) x <- get(Symbol,pos=env)
     }
     #Now figure out the exchange rate
     #First assume that both bases are currencies, and look for an exchange rate
@@ -368,11 +368,12 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     x <- ff[,(NCOL(rate)+1):NCOL(ff)]
 
     tmpenv <- new.env()
-    rsym <- strsplit(colnames(rate)[1],'\\.')[[1]][1]        
+    #rsym <- strsplit(colnames(rate)[1],'\\.')[[1]][1]        
+    rsym <- new_base #paste(new_base, old_base, sep="")
     assign(rsym,rate,pos=tmpenv)
-    assign(symbol,x,pos=tmpenv)
+    assign(Symbol,x,pos=tmpenv)
     
-    buildRatio(c(symbol,rsym),env=tmpenv, silent=TRUE) / mult
+    buildRatio(c(Symbol,rsym),env=tmpenv, silent=TRUE) / mult
 #TODO: colnames
 #TODO: auto.assign
 }
