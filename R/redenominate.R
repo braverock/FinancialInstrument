@@ -177,22 +177,22 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
     mrat <- mult1 / mult2
 
     if (is.OHLC(x1) && is.OHLC(x2)) {
-        op <- Op(x1) / Op(x2) * mrat
-        cl <- Cl(x1) / Cl(x2) * mrat
-        if (!has.Ad(x1)) x1$Adjusted <- Cl(x1)
-        if (!has.Ad(x2)) x2$Adjusted <- Cl(x2)
-        ad <- Ad(x1) / Ad(x2) * mrat
+        op <- Op(x1)[,1] / Op(x2)[,1] * mrat
+        cl <- Cl(x1)[,1] / Cl(x2)[,1] * mrat
+        if (!has.Ad(x1)) x1$Adjusted <- Cl(x1)[,1]
+        if (!has.Ad(x2)) x2$Adjusted <- Cl(x2)[,1]
+        ad <- Ad(x1)[,1] / Ad(x2)[,1] * mrat
         rat <- cbind(op,cl,ad)
         colnames(rat) <- paste(rat.sym, c("Open","Close","Adjusted"),sep='.')
     } else if (is.BBO(x1) && is.BBO(x2)) {
-        bid <- Bi(x1)/As(x2) * mrat
-        ask <- As(x1)/Bi(x2) * mrat
+        bid <- Bi(x1)[,1]/As(x2)[,1] * mrat
+        ask <- As(x1)[,1]/Bi(x2)[,1] * mrat
         if (has.Mid(x1) && has.Mid(x2)) {
-            mid <- Mid(x1) / Mid(x2) * mrat 
+            mid <- Mid(x1)[,1] / Mid(x2)[,1] * mrat 
         } else {
-            mid <- ((Bi(x1)+As(x1))/2) / ((Bi(x2)+As(x2))/2) * mrat
+            mid <- ((Bi(x1)[,1]+As(x1)[,1])/2) / ((Bi(x2)[,1]+As(x2)[,1])/2) * mrat
         }
-        rat <- cbind(bid,ask,mid)        
+        rat <- cbind(bid,ask,mid)
         colnames(rat) <- paste(rat.sym,c('Bid','Ask','Mid'),sep='.')
     } else if (NCOL(x1) == 1 && NCOL(x2) == 1) {
         rat <- x1 / x2 * mrat #coredata(x1) / coredata(x2)
@@ -202,7 +202,7 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
             div <- if (NCOL(x2) == 1) {
                         x2
                    } else if (has.Mid(x2)) {
-                        Mid(x2)
+                        Mid(x2)[,1]
                    } else getPrice(x2)
             rat <- mrat * x1[,1] / div
             if (NCOL(x1) > 1) {
@@ -214,13 +214,14 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
             num <- if (NCOL(x1) == 1){
                         x1
                     } else if (has.Mid(x1)) {
-                        Mid(x1)
+                        Mid(x1)[,1]
                     } else getPrice(x1)
             rat <- mrat * num / x2[,1]
             if (NCOL(x2) > 1) {
                 for (i in 2:NCOL(x2)) {
                     rat <- cbind(rat, mrat * num/x2[,i])
-                }                  
+                }
+                colnames(rat) <- colnames(x2)                  
             }  
         }    
     } else if (periodicity(x1)$frequency < 86400) {
@@ -229,10 +230,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
             div <- if (NCOL(x2) == 1) {
                         x2
                     } else if (has.Cl(x2)) {
-                        Cl(x2)
+                        Cl(x2)[,1]
                     } else if (has.Ad(x2)) {
-                        Ad(x2)    
-                    } else getPrice(x2)
+                        Ad(x2)[,1]    
+                    } else getPrice(x2)[,1]
             rat <- mrat * x1[,1] / div
             if (NCOL(x1) > 1) {            
                 for (i in 2:NCOL(x1)) {
@@ -243,10 +244,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
             num <- if (NCOL(x1) == 1) {
                         x1
                     } else if (has.Cl(x1)) {
-                        Cl(x1)
+                        Cl(x1)[,1]
                     } else if (has.Ad(x1)) {
-                        Ad(x1)
-                    } else getPrice(x1)
+                        Ad(x1)[,1]
+                    } else getPrice(x1)[,1]
             rat <- mrat * num / x2[,1]
             if (NCOL(x2) > 1){
                 for (i in 2:NCOL(x2)) {
@@ -348,8 +349,8 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
         } else if(is.BBO(rate)) {
             if (periodicity(x)$scale == 'daily') {
                 rate <- .to_daily(rate, EOD_time) #This doesn't make OHLC, the rest do.
-            } else rate <- to.period(Mid(rate), periodicity(x)$units) 
-        } else rate <- to.period(getPrice(rate), periodicity(x)$units)
+            } else rate <- to.period(Mid(rate)[,1], periodicity(x)$units) 
+        } else rate <- to.period(getPrice(rate)[,1], periodicity(x)$units)
     }
 
     # If you have intraday data for x and daily data for rate
