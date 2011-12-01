@@ -376,24 +376,3 @@ NULL
 #' @keywords data
 NULL
 
-
-PCAbetas<-function(ret){
-    
-    model<-list()
-    for(i in 2:ncol(ret)) {
-        m<-princomp(~ ret[,1] + ret[,i] )
-        slope <- m$loadings[2,1]/m$loadings[1,1]
-        intercept <- m$center[2]-slope*m$center[1]
-        
-        model[[paste(colnames(ret)[1],colnames(ret)[i],sep='.')]]<-
-                list(m=m,slope=slope,intercept=intercept)
-    }
-    model
-}
-
-weighted_mid<-function(x){
-    x$Mid.Price<-(x$Bid.Price*x$Ask.Size+x$Ask.Price*x$Bid.Size)/(x$Ask.Size+x$Bid.Size)
-    x
-}
-
-

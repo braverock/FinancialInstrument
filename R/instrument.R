@@ -194,9 +194,6 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
     instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
 }
 
-getRoot <- function(root_id, type=c('future','option')) {
-  .Deprecated(new='getInstrument')
-}
 
 #' constructors for series contracts on instruments such as options and futures
 #' 
