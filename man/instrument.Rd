@@ -93,7 +93,7 @@
   named arguments passed in via \code{...}. We currently
   match any of the following:
   \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
-  Others mat be specified using a named list of
+  Others may be specified using a named list of
   identifiers, as described above.
 
   \code{assign_i} will use \code{\link{assign}} to place

@@ -44,7 +44,7 @@ is.instrument <- function( x ) {
 #' 
 #' Identifiers will also try to be discovered as regular named arguments passed in via \code{...}.  
 #' We currently match any of the following: \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
-#' Others mat be specified using a named list of identifiers, as described above.
+#' Others may be specified using a named list of identifiers, as described above.
 #' 
 #' \code{assign_i} will use \code{\link{assign}} to place the constructed 
 #' instrument class object into the \code{.instrument} environment.  Most of the 
@@ -116,15 +116,12 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
       #arg[["src"]]<-NULL
   }
   #check for identifiers we recognize 
-  ident_str<-c("X.RIC","RIC","CUSIP","SEDOL","OSI","Bloomberg","Reuters","ISIN","CQG","TT","Yahoo","Google")
-  for(i_s in ident_str ){
-      if(any(grepl(i_s,names(arg),ignore.case=TRUE))) {
-          pos<-first(grep(i_s,names(arg),ignore.case=TRUE))
-          identifiers<-c(identifiers,arg[[pos]])
-          names(identifiers)[length(identifiers)]<-names(arg)[pos]
-          arg[[pos]]<-NULL
-      }
-  }
+  ident_str<-tolower(c("X.RIC", "RIC", "CUSIP", "SEDOL", "OSI", "Bloomberg", 
+                       "Reuters", "ISIN", "CQG", "TT", "Yahoo", "Google")) #converted to lowercase for easier case-insensitive matching
+  lnarg <- tolower(names(arg)) #lower case names of arguments
+  pos_arg <- which(lnarg %in% ident_str)
+  identifiers <- c(identifiers, arg[pos_arg])
+  arg[pos_arg] <- NULL
   
   
   ## TODO note that multiplier could be a time series, probably add code here to check
