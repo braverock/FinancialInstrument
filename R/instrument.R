@@ -87,7 +87,7 @@ is.instrument <- function( x ) {
 #' @export
 instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, identifiers = NULL, type=NULL, assign_i=FALSE ){
   if(is.null(primary_id)) stop("you must specify a primary_id for the instrument")
-  
+  raw_id <- primary_id
   #deal with leading digits or illegal characters
   if(substr(primary_id,1,1)==1) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
@@ -99,6 +99,10 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(!is.list(identifiers)) {
       warning("identifiers",identifiers,"do not appear to be a named list")
   } 
+
+  if (raw_id != primary_id) {
+      identifiers <- c(identifiers, raw_id=raw_id)
+  }
 
   arg<-list(...)
   if(is.list(arg[['...']])){
