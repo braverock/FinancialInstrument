@@ -295,6 +295,31 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       assign(primary_id, temp_series, envir=as.environment(.instrument))
       primary_id
   } else {
+      args <- list()
+      args$primary_id <- primary_id
+      args$root_id <- root_id
+      args$suffix_id=suffix_id
+      args$currency = contract$currency
+      args$multiplier = contract$multiplier
+      args$tick_size=contract$tick_size
+      args$identifiers = identifiers
+      args$first_traded = first_traded
+      args$type=c("future_series", "future")
+      args$expires = expires
+      if (!is.null(contract$exchange)) {
+          args$exchange <- contract$exchange
+      }
+      args$underlying_id = contract$underlying_id
+      if (!is.null(contract$marketName)) {
+          args$marketName <- contract$marketName
+      }
+      if (!is.null(contract$exchange_id)) {
+          args$exchange_id <- contract$exchange_id
+      }
+      if (!is.null(contract$description)) {
+          args$series_description <- paste(contract$description, expires)
+      }
+      args$assign_i=TRUE
       dargs<-list(...)
       dargs$currency=NULL
       dargs$multiplier=NULL
@@ -302,20 +327,9 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       if (is.null(dargs$src) && !is.null(contract$src)){
           dargs$src <- contract$src
       }
-      instrument( primary_id = primary_id,
-                 root_id = root_id,
-                 suffix_id=suffix_id,
-                 currency = contract$currency,
-                 multiplier = contract$multiplier,
-				 tick_size=contract$tick_size,
-				 first_traded = first_traded,
-                 expires = expires,
-                 identifiers = identifiers,
-                 type=c("future_series", "future"),
-                 underlying_id = contract$underlying_id,
-                 ...=dargs,
-                 assign_i=TRUE
-                ) 
+      args <- c(args, dargs)
+
+      do.call(instrument, args)
   }
 }
 
