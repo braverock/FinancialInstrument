@@ -2,11 +2,12 @@
 \alias{fn_SpreadBuilder}
 \title{Calculate prices of a spread from 2 instruments.}
 \usage{
-  fn_SpreadBuilder(prod1, prod2, ratio = 1, currency =
-  "USD", from = NULL, to = NULL, session_times = NULL,
-  unique_method = c("make.index.unique", "duplicated",
-  "least.liq", "price.change"), silent = FALSE, auto.assign
-  = TRUE, env = .GlobalEnv, ...)
+  fn_SpreadBuilder(prod1, prod2, ratio = 1,
+    currency = "USD", from = NULL, to = NULL,
+    session_times = NULL,
+    unique_method = c("make.index.unique", "duplicated", "least.liq", "price.change"),
+    silent = FALSE, auto.assign = TRUE, env = .GlobalEnv,
+    ...)
 }
 \arguments{
   \item{prod1}{chr name of instrument that will be the 1st

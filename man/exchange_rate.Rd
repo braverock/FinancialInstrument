@@ -3,7 +3,7 @@
 \title{constructor for spot exchange rate instruments}
 \usage{
   exchange_rate(primary_id = NULL, currency = NULL,
-  counter_currency = NULL, identifiers = NULL, ...)
+    counter_currency = NULL, identifiers = NULL, ...)
 }
 \arguments{
   \item{primary_id}{string identifier, usually expressed as

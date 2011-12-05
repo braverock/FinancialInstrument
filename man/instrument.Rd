@@ -9,25 +9,27 @@
 \title{instrument class constructors}
 \usage{
   instrument(primary_id, ..., currency, multiplier,
-  tick_size = NULL, identifiers = NULL, type = NULL,
-  assign_i = FALSE)
+    tick_size = NULL, identifiers = NULL, type = NULL,
+    assign_i = FALSE)
 
   stock(primary_id, currency = NULL, multiplier = 1,
-  tick_size = 0.01, identifiers = NULL, ...)
+    tick_size = 0.01, identifiers = NULL, ...)
 
   fund(primary_id, currency = NULL, multiplier = 1,
-  tick_size = 0.01, identifiers = NULL, ...)
+    tick_size = 0.01, identifiers = NULL, ...)
 
-  future(primary_id, currency, multiplier, tick_size =
-  NULL, identifiers = NULL, ..., underlying_id = NULL)
+  future(primary_id, currency, multiplier,
+    tick_size = NULL, identifiers = NULL, ...,
+    underlying_id = NULL)
 
-  option(primary_id, currency, multiplier, tick_size =
-  NULL, identifiers = NULL, ..., underlying_id = NULL)
+  option(primary_id, currency, multiplier,
+    tick_size = NULL, identifiers = NULL, ...,
+    underlying_id = NULL)
 
   currency(primary_id, identifiers = NULL, ...)
 
   bond(primary_id, currency, multiplier, tick_size = NULL,
-  identifiers = NULL, ...)
+    identifiers = NULL, ...)
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the

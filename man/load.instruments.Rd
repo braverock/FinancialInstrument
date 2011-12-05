@@ -3,7 +3,7 @@
 \title{load instrument metadata into the .instrument environment}
 \usage{
   load.instruments(file = NULL, ..., metadata = NULL,
-  id_col = 1, default_type = "stock")
+    id_col = 1, default_type = "stock")
 }
 \arguments{
   \item{file}{string identifying file to load, default

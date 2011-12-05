@@ -11,7 +11,8 @@
 #' @param file_name What to name the file (name of file that holds a
 #' .instrument enviroment) Does not include file extension.
 #' @param dir Directory of file (defaults to current working directory. ie. "")
-#' @param extension File extension of file. default is RData
+#' @param extension File extension of file. default is RData. This will be ignored if 
+#' \code{file_name} ends with either \sQuote{.rda} or \sQuote{.RData}.
 #' @param env What environment holds .instrument environment to be updated;
 #' usually .GlobalEnv.
 #' @return Called for side-effect
@@ -31,7 +32,12 @@ saveInstruments <- function(file_name="MyInstruments", dir="", extension="RData"
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
 	.instrument <- get('.instrument', pos=.GlobalEnv)
-	save(.instrument,file=paste(dir,file_name,".",extension,sep=""))	
+    ssfn <- strsplit(file_name, "\\.")[[1]]
+    if(any(tail(ssfn, 1) == c("rda", "RData"))) {
+        file_name <- paste(ssfn[1:(length(ssfn)-1)], collapse=".")
+        extension <- tail(ssfn, 1)
+    }
+    save(.instrument,file=paste(dir,file_name,".",extension,sep=""))	
 }
 
 #' @export
@@ -40,6 +46,11 @@ loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData",
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
     tmpenv <- new.env()
+    ssfn <- strsplit(file_name, "\\.")[[1]]
+    if(any(tail(ssfn, 1) == c("rda", "RData"))) {
+        file_name <- paste(ssfn[1:(length(ssfn)-1)], collapse=".")
+        extension <- tail(ssfn, 1)
+    }
 	load(paste(dir,file_name,".",extension,sep=""),envir=tmpenv)
     .instrument <- get(".instrument",pos=env)
     il <- ls(tmpenv$.instrument,all.names=TRUE)

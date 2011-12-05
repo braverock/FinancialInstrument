@@ -2,8 +2,8 @@
 \alias{build_spread_symbols}
 \title{build symbols for exchange guaranteed (calendar) spreads}
 \usage{
-  build_spread_symbols(data = NULL, file = NULL, outputfile
-  = NULL, start_date = Sys.Date())
+  build_spread_symbols(data = NULL, file = NULL,
+    outputfile = NULL, start_date = Sys.Date())
 }
 \arguments{
   \item{data}{data.frame containing at least columns

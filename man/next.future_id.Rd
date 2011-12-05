@@ -3,11 +3,11 @@
 \alias{prev.future_id}
 \title{Get the primary_id of the next-to-expire (previously expiring) future_series instrument}
 \usage{
-  next.future_id(id, month_cycle = seq(3, 12, 3), root =
-  NULL, format = NULL)
+  next.future_id(id, month_cycle = seq(3, 12, 3),
+    root = NULL, format = NULL)
 
-  prev.future_id(id, month_cycle = seq(3, 12, 3), root =
-  NULL, format = NULL)
+  prev.future_id(id, month_cycle = seq(3, 12, 3),
+    root = NULL, format = NULL)
 }
 \arguments{
   \item{id}{character string primary_id of a future_series

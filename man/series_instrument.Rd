@@ -4,17 +4,18 @@
 \alias{option_series}
 \title{constructors for series contracts on instruments such as options and futures}
 \usage{
-  future_series(primary_id, root_id = NULL, suffix_id =
-  NULL, first_traded = NULL, expires = NULL, identifiers =
-  NULL, ...)
+  future_series(primary_id, root_id = NULL,
+    suffix_id = NULL, first_traded = NULL, expires = NULL,
+    identifiers = NULL, ...)
 
-  option_series(primary_id, root_id = NULL, suffix_id =
-  NULL, first_traded = NULL, expires = NULL, callput =
-  c("call", "put"), strike = NULL, identifiers = NULL, ...)
+  option_series(primary_id, root_id = NULL,
+    suffix_id = NULL, first_traded = NULL, expires = NULL,
+    callput = c("call", "put"), strike = NULL,
+    identifiers = NULL, ...)
 
-  bond_series(primary_id, suffix_id, ..., first_traded =
-  NULL, maturity = NULL, identifiers = NULL,
-  payment_schedule = NULL)
+  bond_series(primary_id, suffix_id, ...,
+    first_traded = NULL, maturity = NULL,
+    identifiers = NULL, payment_schedule = NULL)
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the

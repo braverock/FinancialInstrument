@@ -2,8 +2,8 @@
 \alias{getInstrument}
 \title{primary accessor function for getting objects of type 'instrument'}
 \usage{
-  getInstrument(x, Dates = NULL, silent = FALSE, type =
-  "instrument")
+  getInstrument(x, Dates = NULL, silent = FALSE,
+    type = "instrument")
 }
 \arguments{
   \item{x}{string identifier of instrument to retrieve}
@@ -37,8 +37,8 @@
 \examples{
 \dontrun{
 option('..VX', multiplier=100,
-underlying_id=future('.VX',multiplier=1000,
-underlying_id=synthetic('VIX', currency("USD"))))
+  underlying_id=future('.VX',multiplier=1000,
+    underlying_id=synthetic('VIX', currency("USD"))))
 
 getInstrument("VIX")
 getInstrument('VX') #returns the future

@@ -4,10 +4,10 @@
 \title{construct a price/level series for pre-defined multi-leg spread instrument}
 \usage{
   buildSpread(spread_id, Dates = NULL, onelot = TRUE,
-  prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
+    prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
 
   buildBasket(spread_id, Dates = NULL, onelot = TRUE,
-  prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
+    prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
 }
 \arguments{
   \item{spread_id}{The name of the instrument that contains

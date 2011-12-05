@@ -3,7 +3,7 @@
 \title{format an id}
 \usage{
   format_id(id, format = NULL, parse = c("id", "suffix"),
-  sep = "_", ...)
+    sep = "_", ...)
 }
 \arguments{
   \item{id}{character. the id to be reformatted. Can be

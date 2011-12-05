@@ -4,10 +4,10 @@
 \title{Save and Load all instrument definitions}
 \usage{
   saveInstruments(file_name = "MyInstruments", dir = "",
-  extension = "RData")
+    extension = "RData")
 
   loadInstruments(file_name = "MyInstruments", dir = "",
-  extension = "RData", env = .GlobalEnv)
+    extension = "RData", env = .GlobalEnv)
 }
 \arguments{
   \item{file_name}{What to name the file (name of file that
@@ -18,7 +18,8 @@
   directory. ie. "")}
 
   \item{extension}{File extension of file. default is
-  RData}
+  RData. This will be ignored if \code{file_name} ends with
+  either \sQuote{.rda} or \sQuote{.RData}.}
 
   \item{env}{What environment holds .instrument environment
   to be updated; usually .GlobalEnv.}

@@ -4,10 +4,10 @@
 \title{updates instrument metadata with data from yahoo}
 \usage{
   update_instruments.yahoo(Symbols = c("stocks", "all"),
-  verbose = FALSE)
+    verbose = FALSE)
 
   update_instruments.TTR(Symbols = c("stocks", "all"),
-  exchange = c("AMEX", "NASDAQ", "NYSE"))
+    exchange = c("AMEX", "NASDAQ", "NYSE"))
 }
 \arguments{
   \item{Symbols}{can be a vector of instrument names, or,
@@ -39,11 +39,11 @@
 }
 \examples{
 \dontrun{
-stock('GS',currency('USD'))
-update_instruments.yahoo('GS')
-getInstrument('GS')
-update_instruments.TTR('GS')
-getInstrument('GS')
+	stock('GS',currency('USD'))
+ update_instruments.yahoo('GS')
+	getInstrument('GS')
+ update_instruments.TTR('GS')
+ getInstrument('GS')
 }
 }
 \author{

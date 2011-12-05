@@ -2,10 +2,10 @@
 \alias{setSymbolLookup.FI}
 \title{set quantmod-style SymbolLookup for instruments}
 \usage{
-  setSymbolLookup.FI(base_dir, ..., split_method =
-  c("days", "common"), storage_method = "rda",
-  use_identifier = "primary_id", extension = "rda", src =
-  "FI")
+  setSymbolLookup.FI(base_dir, ...,
+    split_method = c("days", "common"),
+    storage_method = "rda", use_identifier = "primary_id",
+    extension = "rda", src = "FI")
 }
 \arguments{
   \item{base_dir}{string specifying the base directory

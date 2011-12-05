@@ -3,11 +3,11 @@
 \alias{saveSymbols.days}
 \title{save data to disk}
 \usage{
-  saveSymbols.days(Symbols, base_dir = "", extension =
-  "rda", env = .GlobalEnv)
+  saveSymbols.days(Symbols, base_dir = "",
+    extension = "rda", env = .GlobalEnv)
 
-  saveSymbols.common(Symbols, base_dir = "", extension =
-  "rda", env = .GlobalEnv)
+  saveSymbols.common(Symbols, base_dir = "",
+    extension = "rda", env = .GlobalEnv)
 }
 \arguments{
   \item{Symbols}{vector of character names of objects to be

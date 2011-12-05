@@ -6,26 +6,26 @@
 \alias{synthetic.instrument}
 \title{synthetic instrument constructors}
 \usage{
-  synthetic(primary_id = NULL, currency = NULL, multiplier
-  = 1, identifiers = NULL, ..., members = NULL, type =
-  "synthetic")
+  synthetic(primary_id = NULL, currency = NULL,
+    multiplier = 1, identifiers = NULL, ...,
+    members = NULL, type = "synthetic")
 
   synthetic.instrument(primary_id, currency, members,
-  memberratio, ..., multiplier = 1, tick_size = NULL,
-  identifiers = NULL, type = c("synthetic.instrument",
-  "synthetic"))
+    memberratio, ..., multiplier = 1, tick_size = NULL,
+    identifiers = NULL,
+    type = c("synthetic.instrument", "synthetic"))
 
   spread(primary_id = NULL, currency = NULL, members,
-  memberratio, tick_size = NULL, ..., multiplier = 1,
-  identifiers = NULL)
+    memberratio, tick_size = NULL, ..., multiplier = 1,
+    identifiers = NULL)
 
   butterfly(primary_id = NULL, currency = NULL, members,
-  tick_size = NULL, identifiers = NULL, ...)
+    tick_size = NULL, identifiers = NULL, ...)
 
   guaranteed_spread(primary_id = NULL, currency = NULL,
-  root_id = NULL, suffix_id = NULL, members = NULL,
-  memberratio = c(1, -1), ..., multiplier = NULL,
-  identifiers = NULL, tick_size = NULL)
+    root_id = NULL, suffix_id = NULL, members = NULL,
+    memberratio = c(1, -1), ..., multiplier = NULL,
+    identifiers = NULL, tick_size = NULL)
 }
 \arguments{
   \item{primary_id}{chr string of primary identifier of

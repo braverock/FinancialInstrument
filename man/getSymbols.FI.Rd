@@ -2,10 +2,10 @@
 \alias{getSymbols.FI}
 \title{getSymbols method for loading data from split files}
 \usage{
-  getSymbols.FI(Symbols, from = "2010-01-01", to =
-  Sys.Date(), ..., dir = "", return.class = "xts",
-  extension = "rda", split_method = c("days", "common"),
-  use_identifier, date_format = NULL, verbose = TRUE)
+  getSymbols.FI(Symbols, from = "2010-01-01",
+    to = Sys.Date(), ..., dir = "", return.class = "xts",
+    extension = "rda", split_method = c("days", "common"),
+    use_identifier, date_format = NULL, verbose = TRUE)
 }
 \arguments{
   \item{Symbols}{a character vector specifying the names of

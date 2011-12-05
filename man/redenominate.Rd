@@ -3,7 +3,8 @@
 \title{Redenominate (change the base of) an instrument}
 \usage{
   redenominate(x, new_base = "USD", old_base = NULL,
-  EOD_time = "15:00:00", env = .GlobalEnv, silent = FALSE)
+    EOD_time = "15:00:00", env = .GlobalEnv,
+    silent = FALSE)
 }
 \arguments{
   \item{x}{can be either an xts object or the name of an

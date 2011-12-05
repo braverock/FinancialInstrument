@@ -35,25 +35,25 @@
 \alias{rm_synthetics}
 \title{List or Remove instrument objects}
 \usage{
-  ls_instruments(pattern = NULL, match = TRUE, verbose =
-  TRUE)
+  ls_instruments(pattern = NULL, match = TRUE,
+    verbose = TRUE)
 
   ls_stocks(pattern = NULL, match = TRUE)
 
-  ls_options(pattern = NULL, match = TRUE, include.series =
-  TRUE)
+  ls_options(pattern = NULL, match = TRUE,
+    include.series = TRUE)
 
   ls_option_series(pattern = NULL, match = TRUE)
 
-  ls_futures(pattern = NULL, match = TRUE, include.series =
-  TRUE)
+  ls_futures(pattern = NULL, match = TRUE,
+    include.series = TRUE)
 
   ls_future_series(pattern = NULL, match = TRUE)
 
   ls_currencies(pattern = NULL, match = TRUE)
 
-  ls_non_currencies(pattern = NULL, includeFX = TRUE, match
-  = TRUE)
+  ls_non_currencies(pattern = NULL, includeFX = TRUE,
+    match = TRUE)
 
   ls_exchange_rates(pattern = NULL, match = TRUE)
 

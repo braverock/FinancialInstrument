@@ -2,8 +2,8 @@
 \alias{ls_instruments_by}
 \title{Subset names of instruments}
 \usage{
-  ls_instruments_by(what, value, in.slot = NULL, pattern =
-  NULL, match = TRUE)
+  ls_instruments_by(what, value, in.slot = NULL,
+    pattern = NULL, match = TRUE)
 }
 \arguments{
   \item{what}{what attribute (e.g. currency, type, strike,

@@ -3,7 +3,8 @@
 \title{constructor for series of options using yahoo data}
 \usage{
   option_series.yahoo(symbol, Exp, currency = "USD",
-  multiplier = 100, first_traded = NULL, tick_size = NULL)
+    multiplier = 100, first_traded = NULL,
+    tick_size = NULL)
 }
 \arguments{
   \item{symbol}{character vector of ticker symbols of the

@@ -2,8 +2,9 @@
 \alias{instrument.auto}
 \title{Create an instrument based on name alone}
 \usage{
-  instrument.auto(primary_id, currency = "USD", multiplier
-  = 1, silent = FALSE, default_type = "NULL", ...)
+  instrument.auto(primary_id, currency = "USD",
+    multiplier = 1, silent = FALSE, default_type = "NULL",
+    ...)
 }
 \arguments{
   \item{primary_id}{charater primary identifier of

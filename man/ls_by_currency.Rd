@@ -14,39 +14,39 @@
 \title{shows or removes instruments of given currency denomination(s)}
 \usage{
   ls_by_currency(currency, pattern = NULL, match = TRUE,
-  show.currencies = FALSE)
+    show.currencies = FALSE)
 
   rm_by_currency(x, currency, keep.currencies = TRUE)
 
-  ls_USD(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_USD(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_AUD(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_AUD(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_GBP(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_GBP(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_CAD(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_CAD(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_EUR(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_EUR(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_JPY(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_JPY(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_CHF(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_CHF(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_HKD(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_HKD(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_SEK(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_SEK(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 
-  ls_NZD(pattern = NULL, match = TRUE, show.currencies =
-  FALSE)
+  ls_NZD(pattern = NULL, match = TRUE,
+    show.currencies = FALSE)
 }
 \arguments{
   \item{currency}{chr vector of names of currency}

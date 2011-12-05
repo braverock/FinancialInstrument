@@ -2,8 +2,8 @@
 \alias{instrument.table}
 \title{Create data.frame with attributes of all instruments}
 \usage{
-  instrument.table(symbols = NULL, exclude = NULL, attrs.of
-  = NULL)
+  instrument.table(symbols = NULL, exclude = NULL,
+    attrs.of = NULL)
 }
 \arguments{
   \item{symbols}{A vector of instrument names to include}
