@@ -845,14 +845,13 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
 #' @export
 #' @rdname getInstrument
 getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
-    tmp_instr<-try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
-    if(inherits(tmp_instr,"try-error") | !inherits(tmp_instr, type)){
+    tmp_instr <- try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
+    if(inherits(tmp_instr,"try-error") || !inherits(tmp_instr, type)){
         #first search
-        instr_list<-ls(pos=.instrument)
+        instr_list <- ls(pos=.instrument, all.names=TRUE)
         for (instr in instr_list){
-            tmp_instr<-try(get(instr,pos=.instrument),silent=TRUE)
-            if(inherits(tmp_instr, type) && 
-                    (!is.na(suppressWarnings(match(x, tmp_instr$identifiers) || !is.na(suppressWarnings(match(x, make.names(tmp_instr$identifiers)))))))) {
+            tmp_instr <- try(get(instr, pos=.instrument), silent=TRUE)
+            if(inherits(tmp_instr, type) && (x %in% tmp_instr$identifiers || x %in% make.names(tmp_instr$identifiers))) {
                 return(tmp_instr)
             }
         }
