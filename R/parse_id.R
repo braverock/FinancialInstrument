@@ -26,7 +26,8 @@
 #' @export
 parse_id <- function(x, silent=TRUE, root=NULL) {
     sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate', or 'synthetic'
-    suffformat <- TRUE #If x begins with "^" this will be set to FALSE, and we'll overwrite parse_suffix(...)$format with yahooIndex" 
+    suffformat <- TRUE #If x begins with "^" this will be set to FALSE, and we'll overwrite parse_suffix(...)$format with yahooIndex"
+    all.numeric <- as.logical(!is.na(suppressWarnings(as.numeric(x))))
     if (!is.null(root)) {
         suffix <- sub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
         suffix <- gsub("_","",suffix) #take out the underscore if there is one
@@ -70,11 +71,12 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                 }
             }
         }
-    } else if (identical(x, gsub('_','',x))) { #no underscore; have to guess what is root and what is suffix       
+    } else if (!all.numeric && identical(x, gsub('_','',x))) { #no underscore; have to guess what is root and what is suffix       
         hasdot <- !identical(integer(0),grep("\\.",x))        
         if (!silent && !hasdot) 
             warning("id of future_series should have an underscore in it. Trying to parse anyway.")
-        if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
+        #if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
+        if (!hasdot) { #assume it's a future like ESU1 or ESU11
             if (suppressWarnings(!is.null(parse_suffix(substr(x,3,nchar(x)))) && 
                     !is.na(parse_suffix(substr(x,3,nchar(x)))$format))) {
                 root <- substr(x,1,2)
@@ -99,16 +101,27 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
             # the dot. If that suffix is the same length as the part after the dot, we'll assume it's a spread
             # (it could also be a fly or condor, but only the first 2 parts are checked)
             #x <- "CLF2.G2"
-            pidhalf <- parse_id(strsplit(x, "\\.")[[1]][1]) #parse_id on part before dot (looking for spread)
-            if (nchar(pidhalf$suffix) == nchar(strsplit(x, "\\.")[[1]][2])) {
-                root <- pidhalf$root
-                suffix <- gsub(root, "", x)
+            ss <- strsplit(x, "\\.")[[1]]
+            if (length(ss) > 1 && !any(ss == "")) {
+                pidhalf <- parse_id(ss[1]) #parse_id on part before dot (looking for spread)
+                if (nchar(pidhalf$suffix) == nchar(strsplit(x, "\\.")[[1]][2])) {
+                    root <- pidhalf$root
+                    suffix <- gsub(root, "", x)
+                } else {
+                    #x <- "DIA111230P139.75"
+                    root <- gsub("[0-9.-]","",x) #now it looks like DIAP, SPYC or TP
+                    root <- substr(root, 1,nchar(root)-1)
+                    suffix <- gsub(root,"",x) #whatever isn't the root
+                }
             } else {
-                #x <- "DIA111230P139.75"
-                root <- gsub("[0-9.-]","",x) #now it looks like DIAP, SPYC or TP
-                root <- substr(root, 1,nchar(root)-1)
-                suffix <- gsub(root,"",x) #whatever isn't the root
-            }
+                #has a dot, has a number, and a non-number, and no underscore.  Probably a strange root (e.g. "..BL2")
+                root <- x
+                suffix <- ""
+                type <- 'root'
+                format <- NA
+                sufftype <- FALSE
+                suffformat <- FALSE
+            } 
         }
     } else { #there _is_ an underscore and at least 1 number.     
         #if there are dots then maybe it is a spread of futures?
@@ -151,10 +164,16 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
             suffix <- strsplit(x,"_")[[1]][2]
         }        
     }
-    root <- gsub(" ","",root)    
-    suff <- parse_suffix(suffix, silent=silent)
-    if (sufftype) type <- suff$type
-    if (suffformat) format <- suff$format
+    root <- gsub(" ","",root) 
+    if (!is.na(suffix)) {
+        suff <- parse_suffix(suffix, silent=silent)
+        if (sufftype) type <- suff$type
+        if (suffformat) format <- suff$format
+    } else {
+        suff <- NULL
+        type <- "Asian"
+        format <- "numeric"
+    }
     structure(list(root=root, suffix=suffix, type=type, month=suff$month, 
                     year=suff$year, strike=suff$strike, right=suff$right, 
                     cm=suff$cm, cc=suff$cc, format=format),class='id.list')
