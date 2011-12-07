@@ -204,8 +204,8 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
     multiplier = NULL, identifiers = NULL, tick_size=NULL)
 {
 
-	if (hasArg(suffix_id)) {
-		if(hasArg(root_id)) {
+	if (!is.null(suffix_id)) {
+		if(!is.null(root_id)) {
 			id<- paste(root_id,suffix_id,sep="_")
 		} else {
 			id <- paste(primary_id, suffix_id, sep = "_")

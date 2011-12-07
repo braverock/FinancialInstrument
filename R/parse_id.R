@@ -72,7 +72,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         }
     } else if (identical(x, gsub('_','',x))) { #no underscore; have to guess what is root and what is suffix       
         hasdot <- !identical(integer(0),grep("\\.",x))        
-        if (!silent) 
+        if (!silent && !hasdot) 
             warning("id of future_series should have an underscore in it. Trying to parse anyway.")
         if (nchar(x) < 9 && !hasdot) { #assume it's a future like ESU1 or ESU11
             if (suppressWarnings(!is.null(parse_suffix(substr(x,3,nchar(x)))) && 
@@ -95,9 +95,20 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                 suffix <- substr(x,5,nchar(x))
             }
         } else {
-            root <- gsub("[0-9.-]","",x) #now it looks like SPYC or TP
-            root <- substr(root, 1,nchar(root)-1)
-            suffix <- gsub(root,"",x) #whatever isn't the root         
+            # Look for spread (e.g. CLF2.F3). Split by the dot, then try to extract suffix_id from the part before
+            # the dot. If that suffix is the same length as the part after the dot, we'll assume it's a spread
+            # (it could also be a fly or condor, but only the first 2 parts are checked)
+            #x <- "CLF2.G2"
+            pidhalf <- parse_id(strsplit(x, "\\.")[[1]][1]) #parse_id on part before dot (looking for spread)
+            if (nchar(pidhalf$suffix) == nchar(strsplit(x, "\\.")[[1]][2])) {
+                root <- pidhalf$root
+                suffix <- gsub(root, "", x)
+            } else {
+                #x <- "DIA111230P139.75"
+                root <- gsub("[0-9.-]","",x) #now it looks like DIAP, SPYC or TP
+                root <- substr(root, 1,nchar(root)-1)
+                suffix <- gsub(root,"",x) #whatever isn't the root
+            }
         }
     } else { #there _is_ an underscore and at least 1 number.     
         #if there are dots then maybe it is a spread of futures?
