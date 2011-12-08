@@ -319,6 +319,7 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
         }
         if (is.character(x)) x <- get(Symbol,pos=env)
     }
+    idxx <- index(x)
     #Now figure out the exchange rate
     #First assume that both bases are currencies, and look for an exchange rate
     rate <- try(.get_rate(new_base,old_base,env),silent=TRUE) #try with formats like EURUSD, EUR.USD, EUR/USD, and their inverses
@@ -356,15 +357,15 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     # If you have intraday data for x and daily data for rate
     # use the daily rate for all rows of each day.
     if (periodicity(x)$frequency < 86400 && periodicity(rate)$frequency >= 86400) {
-        df <- cbind(rate, x, all=TRUE)
-        df <- df[paste(max(start(rate),start(x)), "::", sep="")]        
+        df <- cbind(x, rate, all=TRUE)
         df <- na.locf(df,na.rm=TRUE)
-        rate <- df[,1:NCOL(rate)]
-        x <- df[,(NCOL(rate)+1):NCOL(df)]
+        x <- df[, 1:NCOL(x)]
+        rate <- df[, (NCOL(x)+1):NCOL(df)]
     }
 
     ff <- merge(rate,x,all=FALSE)
     ff <- na.omit(ff)
+    ff <- ff[idxx]
     rate <- ff[,1:NCOL(rate)]
     x <- ff[,(NCOL(rate)+1):NCOL(ff)]
 
