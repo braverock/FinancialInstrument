@@ -256,6 +256,22 @@ getSymbols.FI <- function(Symbols,
         assign(var,list(...)[[var]], this.env)
     }
 
+    #The body of the following function comes from Dominik's answer here: 
+    #browseURL{"http://stackoverflow.com/questions/7224938/can-i-rbind-be-parallelized-in-r"}
+    #it does what do.call(rbind, lst) would do, but faster and with less memory usage
+    do.call.rbind <- function(lst) {
+        while(length(lst) > 1) {
+            idxlst <- seq(from=1, to=length(lst), by=2)
+
+            lst <- lapply(idxlst, function(i) {
+                if(i==length(lst)) { return(lst[[i]]) }
+
+                return(rbind(lst[[i]], lst[[i+1]]))
+            })
+        }
+        lst[[1]]
+    }
+
     default.from <- from    
     default.to <- to
     default.dir <- dir
@@ -269,8 +285,8 @@ getSymbols.FI <- function(Symbols,
     # so the next 2 if statements should always be TRUE
     auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
     env <- if(hasArg(env)) {env} else .GlobalEnv 
-    
-    for(i in 1:length(Symbols)) {
+    fr <- NULL
+    datl <- lapply(1:length(Symbols), function(i) {
         from <- getSymbolLookup()[[Symbols[[i]]]]$from 
         from <- ifelse(is.null(from), default.from, from)        
         to <- getSymbolLookup()[[Symbols[[i]]]]$to
@@ -307,56 +323,63 @@ getSymbols.FI <- function(Symbols,
         ssd <- strsplit(dir,"/")[[1]]
         if (identical(character(0), ssd) || ssd[length(ssd)] != Symbol) dir <- paste(dir,Symbol,sep="/")
         
-        fr<-NULL
-        
         if(!dir=="" && !file.exists(dir)) {
             if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
-            next
-        }
-        if(verbose) cat("loading ",Symbols[[i]],".....\n")
-
-        switch(split_method[1],
-                days={
-                    StartDate <- as.Date(from) 
-                    EndDate <- as.Date(to) 
-                    date.vec <- as.Date(StartDate:EndDate)
-                    date.vec <- date.vec[weekdays(date.vec) != 'Saturday' & weekdays(date.vec) != 'Sunday']
-                    date.vec <- format(date.vec, format=date_format)
-                    sym.files <- paste(date.vec, Symbol, extension, sep=".")
-                    if (dir != "") sym.files <- file.path(dir, sym.files)
-                    for(sf in sym.files) {
-                        if(!file.exists(sf)) {
-                            if (verbose) cat("file ", sub(paste(dir,"/", sep=""), "", sf), " does not exist in ",dir,"....skipping\n")
-                            next
+        } else {
+            if(verbose) cat("loading ",Symbols[[i]],".....\n")
+            switch(split_method[1],
+                    days={
+                        StartDate <- as.Date(from) 
+                        EndDate <- as.Date(to) 
+                        date.vec <- as.Date(StartDate:EndDate)
+                        date.vec <- date.vec[weekdays(date.vec) != 'Saturday' & weekdays(date.vec) != 'Sunday']
+                        date.vec <- format(date.vec, format=date_format)
+                        sym.files <- paste(date.vec, Symbol, extension, sep=".")
+                        if (dir != "") sym.files <- file.path(dir, sym.files)
+                        dl <- lapply(sym.files, function(fp) {
+                            sf <- strsplit(fp, "/")[[1]]
+                            sf <- sf[length(sf)]
+                            if (verbose) cat("Reading ", sf, "...")                            
+                            if(!file.exists(fp)) {       
+                                if (verbose) cat(" failed. File not found in ", dir, " ... skipping\n")
+                            } else {
+                                if (verbose) cat(' done.\n')
+                                local.name <- load(fp)
+                                get(local.name)
+                            }
+                        })
+                        if (verbose) cat('rbinding data ... \n')
+                        fr <- do.call.rbind(dl)
+                    },
+                    common = , {
+                        sym.file <- paste(Symbol,extension,sep=".")
+                        if(dir != "") sym.file <- file.path(dir, sym.file)
+                        if(!file.exists(sym.file)) {
+                            if (verbose) cat("file ",paste(Symbol,extension,sep='.')," does not exist in ",dir,"....skipping\n")
+                        } else {
+                            #fr <- read.csv(sym.file)
+                            local.name <- load(sym.file)
+                            assign('fr',get(local.name))
+                            if(verbose) cat("done.\n")
+                            #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
                         }
-                        local.name <- load(sf)
-                        if(!is.null(fr)) {
-                            fr<-rbind(fr,get(local.name))
-                        } else assign('fr',get(local.name))
-                        rm(local.name)
-                    } # end files loop
-                },
-                common = , {
-                    sym.file <- paste(Symbol,extension,sep=".")
-                    if(dir != "") sym.file <- file.path(dir, sym.file)
-                    if(!file.exists(sym.file)) {
-                        if (verbose) cat("file ",paste(Symbol,extension,sep='.')," does not exist in ",dir,"....skipping\n")
-                        next
-                    }
-                    #fr <- read.csv(sym.file)
-                    local.name <- load(sym.file)
-                    assign('fr',get(local.name))
-                    if(verbose) cat("done.\n")
-                    #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
-                } # end 'common'/default method (same as getSymbols.rda)    
-        ) # end split_method switch
-        fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
-        Symbols[[i]] <-make.names(Symbols[[i]]) 
-        if(auto.assign) assign(Symbols[[i]],fr,env)
-        if(verbose) cat("done.\n")        
-    } #end loop over Symbols
+                    } # end 'common'/default method (same as getSymbols.rda)    
+                ) # end split_method switch
+            fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
+            Symbols[[i]] <-make.names(Symbols[[i]]) 
+            tmp <- NULL
+            if(auto.assign) {
+                #assign(Symbols[[i]],fr,env)
+                tmp <- list()
+                tmp[[Symbols[[i]]]] <- fr
+            }
+            if(verbose) cat("done.\n")
+            tmp     
+        }
+    }) #end loop over Symbols
     
     if(auto.assign)
+        invisible(lapply(datl, function(x) assign(names(x), x[[1]], pos=env)))        
         return(Symbols)
     return(fr)
 }
