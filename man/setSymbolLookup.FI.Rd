@@ -2,7 +2,7 @@
 \alias{setSymbolLookup.FI}
 \title{set quantmod-style SymbolLookup for instruments}
 \usage{
-  setSymbolLookup.FI(base_dir, ...,
+  setSymbolLookup.FI(base_dir, Symbols, ...,
     split_method = c("days", "common"),
     storage_method = "rda", use_identifier = "primary_id",
     extension = "rda", src = "FI")
@@ -10,6 +10,9 @@
 \arguments{
   \item{base_dir}{string specifying the base directory
   where data is stored, see Details}
+
+  \item{Symbols}{character vector of names of instruments
+  for which to \code{setSymbolLookup}}
 
   \item{\dots}{any other passthru parameters}
 

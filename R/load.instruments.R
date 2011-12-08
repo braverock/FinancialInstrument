@@ -148,6 +148,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' the data by days, which is why that option is the default.
 #'     
 #' @param base_dir string specifying the base directory where data is stored, see Details 
+#' @param Symbols character vector of names of instruments for which to \code{setSymbolLookup}
 #' @param \dots any other passthru parameters
 #' @param storage_method currently only \sQuote{rda}, but we will eventually support \sQuote{indexing} at least, and maybe others
 #' @param split_method string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details
@@ -160,15 +161,17 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' \code{\link[quantmod]{setSymbolLookup}}
 #' @importFrom zoo as.Date
 #' @export
-setSymbolLookup.FI<-function(base_dir,..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda', src='FI'){
+setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","common"), storage_method='rda', use_identifier='primary_id', extension='rda', src='FI'){
     # check that base_dir exists
     if(!file.exists(base_dir)) stop('base_dir ',base_dir,' does not seem to specify a valid path' )
     
     # take split
     split_method<-split_method[1] # only use the first value
-    
+
     #load all instrument names
-    instr_names<-ls(pos=.instrument)
+    instr_names <- if(missing(Symbols)) {
+        ls_non_currencies(ls(pos=.instrument)) #if roots begin with a dot, this will filter out roots and currencies
+    } else Symbols
     
     #TODO add check to make sure that src is actually the name of a getSymbols function
     
