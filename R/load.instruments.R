@@ -217,9 +217,11 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' If date_format is NULL (the Default), we will assume an ISO date as changed by \code{\link{make.names}}, 
 #' for example, 2010-12-01 would be assumed to be a file containing 2010.12.01
 #' 
-#' If auto.assign is FALSE, you'll only get the last Symbol in the symbols list returned, 
-#' so only use \code{auto.assign=FALSE} with a single symbol.  Patches Welcome.
-#'  
+#' If auto.assign is FALSE, \code{Symbols} should be of length 1.  Otherwise, \code{\link[quantmod]{getSymbols}}
+#' will give you an error that says \dQuote{must use auto.assign=TRUE for multiple Symbols requests}
+#' However, if you were to call \code{getSymbols.FI} directly (which is \emph{NOT} recommended) 
+#' with \code{auto.assign=FALSE} and more than one Symbol, a list would be returned.
+#' 
 #' @param Symbols a character vector specifying the names of each symbol to be loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
 #' @param to Retrieve data through this date. Default Sys.Date().
@@ -370,21 +372,25 @@ getSymbols.FI <- function(Symbols,
                 ) # end split_method switch
             fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
             Symbols[[i]] <-make.names(Symbols[[i]]) 
-            tmp <- NULL
-            if(auto.assign) {
-                #assign(Symbols[[i]],fr,env)
-                tmp <- list()
-                tmp[[Symbols[[i]]]] <- fr
-            }
+            tmp <- list()
+            tmp[[Symbols[[i]]]] <- fr
             if(verbose) cat("done.\n")
             tmp     
         }
     }) #end loop over Symbols
     
-    if(auto.assign)
+    if(auto.assign) {
         invisible(lapply(datl, function(x) assign(names(x), x[[1]], pos=env)))        
         return(Symbols)
-    return(fr)
+    } else {
+        out <- lapply(datl, "[[", 1)
+        if (length(out) == 1)
+            return(out[[1]])
+        else {
+            names(out) <- Symbols
+            return(out)
+        }
+    }
 }
 
 
