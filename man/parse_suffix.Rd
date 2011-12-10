@@ -40,9 +40,16 @@
   contract roll when Volumn rolls), cc.Exp.1 (continuous
   contract rolled 1 day before Expiration)
 
-  Synthetics only return a value for the $type slot: U1.Z1
-  --> type == calendar, spread; U11.Z11 --> type ==
-  calendar, spread; SPY.DIA --> type == synthetic;
+  Synthetics and spreads:
+
+  SPY.DIA --> type == synthetic;
+
+  U1.Z1 or U11.Z11 --> type == "calendar", "spread"; month
+  == 'SEP', year == 2011
+
+  U1.0302 --> type == "ICS", "spread"; month == 'SEP', year
+  == 2011
+
   110917C125.110917P125 --> type == option_spread, spread
 }
 \examples{
@@ -53,6 +60,6 @@ parse_suffix("110917C125")
   Garrett See
 }
 \seealso{
-  \code{\link{parse_id}}
+  \code{\link{parse_id}}, \code{\link{format_id}}, \code
 }
 

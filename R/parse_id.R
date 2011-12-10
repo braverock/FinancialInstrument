@@ -198,10 +198,15 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' cc.Vol (continuous contract roll when Volumn rolls),
 #' cc.Exp.1 (continuous contract rolled 1 day before Expiration)
 #'
-#' Synthetics only return a value for the $type slot:
-#' U1.Z1 --> type == calendar, spread; 
-#' U11.Z11 --> type == calendar, spread; 
+#' Synthetics and spreads:
+#'
 #' SPY.DIA --> type == synthetic; 
+#'
+#' U1.Z1 or U11.Z11 --> type == "calendar", "spread"; month == 'SEP', year == 2011
+#'
+#' U1.0302 --> type == "ICS", "spread"; month == 'SEP', year == 2011
+#'
+#'
 #' 110917C125.110917P125 --> type == option_spread, spread
 #' @param x the suffix_id to be parsed
 #' @param silent silence warnings? (warning will usually be about inferring a 4 digit year from a 1 or 2 digit year)
@@ -210,7 +215,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' \sQuote{right} of option (\dQuote{C} or \dQuote{P}), \sQuote{cm} (maturity in days of a constant maturity contract),
 #' \sQuote{cc} (method for calculating a continuous contract), \sQuote{format} (string that indicates the format of the unparsed id).
 #' @author Garrett See
-#' @seealso \code{\link{parse_id}}
+#' @seealso \code{\link{parse_id}}, \code{\link{format_id}}, \code
 #' @examples
 #' parse_suffix("U11")
 #' parse_suffix("110917C125")
@@ -270,7 +275,7 @@ parse_suffix <- function(x, silent=TRUE) {
         } else type <- c("option_spread","spread")
     } else if (!identical(gsub("\\.","",x),x)) { #has a dot. U1.Z1, U11.Z11, SPY.DIA, 
         if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),1), TRUE)) { #only 1 dot, so it's not a fly
-            #U1.Z1, U11.Z11, SPY.DIA, EUR.USD
+            #U1.Z1, U11.Z11, SPY.DIA, EUR.USD, H2.0302
             s <- strsplit(x,"\\.")[[1]]
             s1 <- try(parse_suffix(s[1],silent=TRUE),silent=TRUE)
             s2 <- try(parse_suffix(s[2],silent=TRUE),silent=TRUE)
@@ -283,8 +288,17 @@ parse_suffix <- function(x, silent=TRUE) {
             
             if (all(c(s1$type,s2$type) == 'root')) {
                 type='synthetic'
-            } else { 
-                type=c('calendar','spread')
+            } else {
+                type <- if (!is.na(s1$format) 
+                         && !is.na(s2$format)
+                         && !s1$format %in% c("opt2", "opt4", "NNNN")
+                         && (s2$format == "NNNN")) {
+                         #H2.0302 (e.g. suffix of March 12 FYT ICS)
+                            c("ICS", "spread")
+                        } else c("calendar", "spread")
+                month <- s1$month
+                year <- s1$year                
+                format <- paste(s1$format, s2$format, sep=".")
             }
         } else if (identical(all.equal(nchar(x) - nchar(gsub("\\.","",x)),2), TRUE)) { #2 dots; it's a fly
             #U1.Z1.H2, U11.Z11.H12, SPY.DIA.QQQ

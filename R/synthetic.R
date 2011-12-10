@@ -106,8 +106,9 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
     identifiers = NULL, assign_i=TRUE, type = c("synthetic.instrument", "synthetic")) 
 {
+    dargs <- list(...)
     if (!is.list(members)) {
-        if (length(members) != length(memberratio) | length(members) < 2) {
+        if (length(members) != length(memberratio) || length(members) < 2) {
             stop("length of members and memberratio must be equal, and contain two or more instruments")
         }
         memberlist <- list(members = members, memberratio = memberratio, 
@@ -123,6 +124,17 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
             }
             else {
                 memberlist$currencies[member] <- tmp_instr$currency
+            }
+        }
+
+        # expires will be whichever member expires first.
+        if (is.character(members)) {
+            ids <- sort_ids(members) #sort chronologically by expiry
+            expires <- try(getInstrument(ids[1], silent=TRUE)$expires)
+            if (!is.null(expires) && 
+                !inherits(expires, "try-error") && 
+                is.null(dargs$expires)) {
+                    dargs$expires <- expires
             }
         }
     }
@@ -153,8 +165,8 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
         currency <- as.character(memberlist$currencies[1])
 	
     synthetic(primary_id = primary_id, currency = currency, multiplier = multiplier, 
-        identifiers = identifiers, memberlist = memberlist, memberratio = memberratio, tick_size=tick_size,
-        ... = ..., members = members, type = type)
+        identifiers = identifiers, assign_i=assign_i, memberlist = memberlist, memberratio = memberratio, tick_size=tick_size,
+        ... = dargs, members = members, type = type)
 }
 
 
