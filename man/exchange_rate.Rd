@@ -3,7 +3,8 @@
 \title{constructor for spot exchange rate instruments}
 \usage{
   exchange_rate(primary_id = NULL, currency = NULL,
-    counter_currency = NULL, identifiers = NULL, ...)
+    counter_currency = NULL, identifiers = NULL,
+    assign_i = TRUE, ...)
 }
 \arguments{
   \item{primary_id}{string identifier, usually expressed as
@@ -17,6 +18,10 @@
 
   \item{identifiers}{named list of any other identifiers
   that should also be stored for this instrument}
+
+  \item{assign_i}{TRUE/FALSE. Should the instrument be
+  assigned in the \code{.instrument} environment? (Default
+  TRUE)}
 
   \item{...}{any other passthru parameters}
 }

@@ -13,23 +13,26 @@
     assign_i = FALSE)
 
   stock(primary_id, currency = NULL, multiplier = 1,
-    tick_size = 0.01, identifiers = NULL, ...)
+    tick_size = 0.01, identifiers = NULL, assign_i = TRUE,
+    ...)
 
   fund(primary_id, currency = NULL, multiplier = 1,
-    tick_size = 0.01, identifiers = NULL, ...)
+    tick_size = 0.01, identifiers = NULL, assign_i = TRUE,
+    ...)
 
   future(primary_id, currency, multiplier,
-    tick_size = NULL, identifiers = NULL, ...,
-    underlying_id = NULL)
+    tick_size = NULL, identifiers = NULL, assign_i = TRUE,
+    ..., underlying_id = NULL)
 
   option(primary_id, currency, multiplier,
-    tick_size = NULL, identifiers = NULL, ...,
-    underlying_id = NULL)
+    tick_size = NULL, identifiers = NULL, assign_i = TRUE,
+    ..., underlying_id = NULL)
 
-  currency(primary_id, identifiers = NULL, ...)
+  currency(primary_id, identifiers = NULL, assign_i = TRUE,
+    ...)
 
   bond(primary_id, currency, multiplier, tick_size = NULL,
-    identifiers = NULL, ...)
+    identifiers = NULL, assign_i = TRUE, ...)
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the
@@ -59,8 +62,9 @@
   \item{type}{instrument type to be appended to the class
   definition, typically not set by user}
 
-  \item{assign_i}{TRUE/FALSE if TRUE, assign the instrument
-  to the .instrument environment, default FALSE}
+  \item{assign_i}{TRUE/FALSE. Should the instrument be
+  assigned to the \code{.instrument} environment?  Default
+  is FALSE for \code{instrument}, TRUE for wrappers.}
 }
 \description{
   All 'currency' instruments must be defined before

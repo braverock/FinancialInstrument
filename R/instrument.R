@@ -69,7 +69,8 @@ is.instrument <- function( x ) {
 #' @param tick_size the tick increment of the instrument price in it's trading venue, as numeric quantity (e.g. 1/8 is .125)
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param type instrument type to be appended to the class definition, typically not set by user
-#' @param assign_i TRUE/FALSE if TRUE, assign the instrument to the .instrument environment, default FALSE
+#' @param assign_i TRUE/FALSE. Should the instrument be assigned to the \code{.instrument} environment?  Default is FALSE for 
+#'  \code{instrument}, TRUE for wrappers.
 #' @aliases 
 #' stock
 #' bond
@@ -154,25 +155,25 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
 
 #' @export
 #' @rdname instrument
-stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, assign_i=TRUE, ...){
     if (is.null(currency)) stop ("'currency' is a required argument")
     if (length(primary_id) > 1) return(unname(sapply(primary_id, stock, 
         currency=currency, multiplier=multiplier, tick_size=tick_size, identifiers=identifiers, ...=...)))
-    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=TRUE)
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="stock", assign_i=assign_i)
 }
 
 #' @export
 #' @rdname instrument
-fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, ...){
+fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01, identifiers = NULL, assign_i=TRUE, ...){
     if (is.null(currency)) stop ("'currency' is a required argument")
     if (length(primary_id) > 1) return(unname(sapply(primary_id, fund,
         currency=currency, multiplier=multiplier, tick_size=tick_size, identifiers=identifiers, ...=...)))
-    instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=TRUE)
+    instrument(primary_id = primary_id, currency = currency, multiplier = multiplier, tick_size = tick_size, identifiers = identifiers, ..., type="fund", assign_i=assign_i)
 }
 
 #' @export
 #' @rdname instrument
-future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+future <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, assign_i=TRUE, ..., underlying_id=NULL){
     if(missing(primary_id)) primary_id <- paste("..",underlying_id,sep="")
     if (length(primary_id) > 1) stop('primary_id must be of length 1')
     if (missing(currency) && !is.null(underlying_id)) {
@@ -192,7 +193,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
         }  
     }
 
-    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=TRUE )
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="future", underlying_id=underlying_id, assign_i=assign_i )
 }
 
 
@@ -217,6 +218,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @param strike strike price of option
 #' @param payment_schedule not currently being implemented
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
+#' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment?
 #' @param ... any other passthru parameters
 #' @aliases 
 #' option_series
@@ -241,7 +243,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' }
 #' @export
 #' @rdname series_instrument
-future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded=NULL, expires=NULL, identifiers = NULL, ...){
+future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded=NULL, expires=NULL, identifiers = NULL, assign_i=TRUE, ...){
   if (missing(primary_id)) {
       if (all(is.null(c(root_id,suffix_id)))) {
           stop('must provide either a primary_id or both a root_id and a suffix_id')
@@ -258,7 +260,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
           stop("'first_traded' and 'expires' must be NULL if calling with multiple primary_ids")
       return(unname(sapply(primary_id, future_series,
           root_id=root_id, suffix_id=suffix_id, first_traded=first_traded, 
-          expires=expires, identifiers = identifiers, ...=...)))
+          expires=expires, identifiers = identifiers, assign_i=assign_i, ...=...)))
   } else if (is.null(root_id) && !is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
       #if we have primary_id, but primary_id looks like a root_id, and we have suffix_id and don't have root_id
       #then primary_id is really root_id and we need to replace primary_id
@@ -319,7 +321,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       if (!is.null(contract$description)) {
           args$series_description <- paste(contract$description, expires)
       }
-      args$assign_i=TRUE
+      args$assign_i=assign_i
       dargs<-list(...)
       dargs$currency=NULL
       dargs$multiplier=NULL
@@ -335,7 +337,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
 
 #' @export
 #' @rdname instrument
-option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, ..., underlying_id=NULL){
+option <- function(primary_id , currency , multiplier , tick_size=NULL, identifiers = NULL, assign_i=TRUE, ..., underlying_id=NULL){
   if (missing(primary_id)) primary_id <- paste(".",underlying_id,sep="")
   if (length(primary_id) > 1) stop("'primary_id' must be of length 1")
   if (missing(currency) && !is.null(underlying_id)) {
@@ -355,13 +357,13 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
       }  
   }
   ## now structure and return
-  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=TRUE )
+  instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ... , type="option", underlying_id=underlying_id, assign_i=assign_i )
 }
 
 #' @export
 #' @rdname series_instrument
 option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_traded=NULL, 
-                            expires=NULL, callput=c("call","put"), strike=NULL, identifiers = NULL, ...){
+                            expires=NULL, callput=c("call","put"), strike=NULL, identifiers = NULL, assign_i=TRUE, ...){
     if (missing(primary_id) ) {
         if (all(is.null(c(root_id,suffix_id)))) 
             stop('must provide either a primary_id or both a root_id and a suffix_id')
@@ -383,7 +385,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
           stop("'first_traded' and 'expires' must be NULL if calling with multiple primary_ids")         
       return(unname(sapply(primary_id, option_series, 
           root_id=root_id, suffix_id=suffix_id, first_traded=first_traded,
-          expires=expires, callput=callput, strike=strike, identifiers=identifiers, ...=...)))
+          expires=expires, callput=callput, strike=strike, identifiers=identifiers, assign_i=assign_i, ...=...)))
     } else if (is.null(root_id) && !is.null(suffix_id) && parse_id(primary_id)$type == 'root') {
           #if we have primary_id, but primary_id looks like a root_id, and we have suffix_id and don't have root_id
           #then primary_id is really root_id and we need to replace primary_id
@@ -439,7 +441,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
                     underlying_id = contract$underlying_id,
                     ...=dargs,
                     type=c("option_series", "option"),
-                    assign_i=TRUE
+                    assign_i=assign_i
                   ) 
     }
 }
@@ -536,7 +538,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 
 #' @export
 #' @rdname instrument
-currency <- function(primary_id, identifiers = NULL, ...){
+currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
     if (length(primary_id) > 1) return(unname(sapply(primary_id, currency, identifiers=identifiers, ...=...)))
     ccy <- try(getInstrument(primary_id,type='currency',silent=TRUE))
     if (is.instrument(ccy)) {
@@ -563,8 +565,11 @@ currency <- function(primary_id, identifiers = NULL, ...){
         ccy <- c(ccy,dargs)
     }        
     class(ccy)<-c("currency","instrument")
-    assign(primary_id, ccy, pos=as.environment(.instrument) )
-    primary_id
+    if (assign_i) {
+        assign(primary_id, ccy, pos=as.environment(.instrument) )
+        return(primary_id)
+    }
+    ccy
 }
 
 #' class test for object supposedly of type 'currency'
@@ -592,10 +597,11 @@ is.currency <- function( x ) {
 #' @param currency string identifying the currency the exchange rate ticks in
 #' @param counter_currency string identifying the currency which the rate uses as the base 'per 1' multiplier
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
+#' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment? (Default TRUE)
 #' @param ... any other passthru parameters
 #' @references http://financial-dictionary.thefreedictionary.com/Base+Currency
 #' @export
-exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency = NULL, identifiers = NULL, ...){
+exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency = NULL, identifiers = NULL, assign_i=TRUE, ...){
   # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
   if (is.null(primary_id) && !is.null(currency) && !is.null(counter_currency)) {
     primary_id <- c(outer(counter_currency,currency,paste,sep=""))
@@ -611,21 +617,21 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
   if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
 
   ## now structure and return
-  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=TRUE)
+  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=assign_i)
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
 #' @export
 #' @rdname instrument
-bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, ...){
+bond <- function(primary_id , currency , multiplier, tick_size=NULL , identifiers = NULL, assign_i=TRUE, ...){
     if (missing(currency)) stop ("'currency' is a required argument")
     if (length(primary_id) > 1) stop("'primary_id' must be of length 1 for this function")
-    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=TRUE )
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , tick_size=tick_size, identifiers = identifiers, ..., type="bond", assign_i=assign_i )
 }
 
 #' @export
 #' @rdname series_instrument
-bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL){
+bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity=NULL, identifiers = NULL, payment_schedule=NULL, assign_i=TRUE){
     contract<-try(getInstrument(primary_id))
     if(!inherits(contract,"bond")) stop("bonds contract spec must be defined first")
     
@@ -656,7 +662,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
                 identifiers = identifiers,
                 type=c("bond_series", "bond"),
                 ...=dargs,
-                assign_i=TRUE
+                assign_i=assign_i
         ) 
     }
 }
@@ -691,6 +697,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' @param multiplier numeric product multiplier
 #' @param silent TRUE/FALSE. silence warnings?
 #' @param default_type What type of instrument to make if it is not clear from the primary_id. ("stock", "future", etc.) Default is NULL.
+#' @param assign_i TRUE/FALSE. Should the \code{instrument} be assigned in the \code{.instrument} environment?
 #' @param ... other passthrough parameters
 #' @return Primarily called for its side-effect, but will return the name of the instrument that was created
 #' @note This is not intended to be used to create instruments of type \code{stock}, \code{future}, \code{option},
@@ -715,7 +722,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' getInstrument("VX_H11") #made a future_series
 #' }
 #' @export
-instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', ...) {
+instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', assign_i=TRUE, ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
     if (!is.currency(currency)) {
@@ -730,15 +737,15 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     pid <- parse_id(primary_id)
     type <- NULL
     if (any(pid$type == 'calendar')) {
-        return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', ...))
+        return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
     } 
     if (any(pid$type == 'butterfly')) {
-        return(butterfly(primary_id, currency=currency, defined.by='auto', ...))
+        return(butterfly(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
     }
     if (any(pid$type == 'future') || any(pid$type == 'SSF')) {
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root) && !inherits(root, 'future_series')) {
-            return(future_series(primary_id,defined.by='auto',...))
+            return(future_series(primary_id,defined.by='auto', assign_i=assign_i,...))
         } else {
             if (!silent) {
                 warning(paste(primary_id," appears to be a future_series, ", 
@@ -754,7 +761,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     if (any(pid$type == 'option')) {
         root <- getInstrument(pid$root,silent=TRUE,type='option')
         if (is.instrument(root) && !inherits(root, 'option_series')) {
-            return(option_series(primary_id, defined.by='auto', ...))
+            return(option_series(primary_id, defined.by='auto', assign_i=assign_i, ...))
         } else {
             if (!silent) {
                 warning(paste(primary_id," appears to be an option_series, ", 
@@ -775,7 +782,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
         }
     } 
     if (any(pid$type == 'exchange_rate'))
-        return(exchange_rate(primary_id, defined.by='auto', ...))
+        return(exchange_rate(primary_id, defined.by='auto', assign_i=assign_i, ...))
     #if we weren't given a default_type, then if it's 6 uppercase letters, make an exchange rate    
     if (default_type == 'NULL' && nchar(primary_id) == 6 && sum(attr(gregexpr("[A-Z]",primary_id)[[1]],"match.length")) == 6) {
         if (!is.instrument(getInstrument(substr(primary_id,1,3), silent=TRUE))) {
@@ -786,13 +793,13 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
             ccy.st <- currency(substr(primary_id,4,6), defined.by='auto') 
             if (!silent) cat("Created currency", ccy.st, "because it was not defined.\n")
         }
-        return(exchange_rate(primary_id, defined.by='auto', ...))
+        return(exchange_rate(primary_id, defined.by='auto', assign_i=assign_i, ...))
     }
     if (any(pid$type == 'synthetic')) {
         if (!is.na(pid$format) && pid$format == 'yahooIndex') {
             return(synthetic(gsub("\\^","",primary_id), currency=currency, identifiers=list(yahoo=primary_id), 
-                            src=list(src='yahoo',name=primary_id), defined_by='auto', ...))
-        } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', ...) )
+                            src=list(src='yahoo',name=primary_id), defined_by='auto', assign_i=assign_i, ...))
+        } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', assign_i=assign_i, ...) )
     } 
     ss <- strsplit(primary_id," ")[[1]]  #take out spaces (OSI uses spaces, but makenames would turn them into dots)
     ss <- ss[!ss %in% ""]
@@ -801,6 +808,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     dargs$currency <- currency
     dargs$multiplier <- multiplier
     dargs$defined.by='auto'
+    dargs$assign_i <- assign_i
     if(is.function(try(match.fun(default_type),silent=TRUE))) {
         if (!silent && !warned) 
             warning('Creating a _', default_type, '_ instrument because ', 
@@ -810,7 +818,6 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     if (!silent && !warned) 
         warning(paste(primary_id, 'is not of an unambiguous format.', 
                 'Creating basic instrument with multiplier 1.'))
-    dargs$assign_i <- TRUE
     do.call(instrument, dargs)
 }
  

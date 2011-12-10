@@ -7,25 +7,26 @@
 \title{synthetic instrument constructors}
 \usage{
   synthetic(primary_id = NULL, currency = NULL,
-    multiplier = 1, identifiers = NULL, ...,
-    members = NULL, type = "synthetic")
+    multiplier = 1, identifiers = NULL, assign_i = TRUE,
+    ..., members = NULL, type = "synthetic")
 
   synthetic.instrument(primary_id, currency, members,
     memberratio, ..., multiplier = 1, tick_size = NULL,
-    identifiers = NULL,
+    identifiers = NULL, assign_i = TRUE,
     type = c("synthetic.instrument", "synthetic"))
 
   spread(primary_id = NULL, currency = NULL, members,
     memberratio, tick_size = NULL, ..., multiplier = 1,
-    identifiers = NULL)
+    identifiers = NULL, assign_i = TRUE)
 
   butterfly(primary_id = NULL, currency = NULL, members,
-    tick_size = NULL, identifiers = NULL, ...)
+    tick_size = NULL, identifiers = NULL, assign_i = TRUE,
+    ...)
 
   guaranteed_spread(primary_id = NULL, currency = NULL,
     root_id = NULL, suffix_id = NULL, members = NULL,
     memberratio = c(1, -1), ..., multiplier = NULL,
-    identifiers = NULL, tick_size = NULL)
+    identifiers = NULL, assign_i = TRUE, tick_size = NULL)
 }
 \arguments{
   \item{primary_id}{chr string of primary identifier of
@@ -47,6 +48,9 @@
   \item{tick_size}{minimum price change of the spread}
 
   \item{identifiers}{identifiers}
+
+  \item{assign_i}{TRUE/FALSE. Should the instrument be
+  assigned in the \code{.instrument} environment?}
 
   \item{type}{type of instrument; wrappers do not require
   this.}

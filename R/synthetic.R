@@ -13,7 +13,7 @@
 
 #' @export
 #' @rdname synthetic.instrument
-synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers = NULL, ..., members=NULL, type="synthetic")
+synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers = NULL, assign_i=TRUE, ..., members=NULL, type="synthetic")
 {
     if (missing(primary_id) || (is.null(primary_id))) primary_id <- make_spread_id(members)
     if (missing(currency) || (is.null(currency))) {
@@ -24,7 +24,7 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
             if (is.instrument(instr)) currency <- instr$currency
         }
     }
-    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, ...=..., type=type, members=members, assign_i=TRUE )
+    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, assign_i=assign_i, ...=..., type=type, members=members)
 }
 
 #' constructors for synthetic instruments
@@ -88,6 +88,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' @param multiplier multiplier of the spread (1 / divisor for price weighted baskets)
 #' @param tick_size minimum price change of the spread
 #' @param identifiers identifiers
+#' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment?
 #' @param type type of instrument; wrappers do not require this.
 #' @param root_id instrument identifier for the root contract, default NULL
 #' @param suffix_id identifiers for the member contract suffixes, default NULL, will be split as \code{members}, see Details
@@ -103,7 +104,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' }
 #' @export
 synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
-    identifiers = NULL, type = c("synthetic.instrument", "synthetic")) 
+    identifiers = NULL, assign_i=TRUE, type = c("synthetic.instrument", "synthetic")) 
 {
     if (!is.list(members)) {
         if (length(members) != length(memberratio) | length(members) < 2) {
@@ -160,18 +161,18 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
 #' @export
 #' @rdname synthetic.instrument
 spread <- function (primary_id = NULL, currency = NULL, members, memberratio, tick_size=NULL,
-    ..., multiplier = 1, identifiers = NULL) 
+    ..., multiplier = 1, identifiers = NULL, assign_i=TRUE) 
 {
     synthetic.instrument(primary_id = primary_id, currency = currency, 
       members = members, memberratio = memberratio, ...=..., tick_size=tick_size,
-      multiplier = multiplier, identifiers = identifiers, 
+      multiplier = multiplier, identifiers = identifiers, assign_i=assign_i,
       type = c("spread", "synthetic.instrument", "synthetic", "instrument"))
 }
 
 
 #' @export
 #' @rdname synthetic.instrument
-butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, identifiers=NULL, ...)
+butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, identifiers=NULL, assign_i=TRUE, ...)
 {
 ##TODO: butterfly can refer to expirations (futures) or strikes (options)
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
@@ -188,7 +189,7 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
   if (length(members) == 3) {
     synthetic.instrument(primary_id=primary_id,currency=currency,members=members,
 	    memberratio=c(1,-2,1), multiplier=1, tick_size=tick_size,
-	    identifiers=NULL, ...=..., type = c('butterfly','spread','synthetic.instrument',
+	    identifiers=NULL, assign_i=assign_i, ...=..., type = c('butterfly','spread','synthetic.instrument',
 	    'synthetic','instrument'))
   } else if (length(members) == 2) {
       stop('butterfly currently only supports 3 leg spreads (i.e. no spread of spreads yet.)')
@@ -201,7 +202,7 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
 #' @export
 #' @rdname synthetic.instrument
 guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL, root_id=NULL, suffix_id=NULL, members = NULL, memberratio = c(1,-1), ..., 
-    multiplier = NULL, identifiers = NULL, tick_size=NULL)
+    multiplier = NULL, identifiers = NULL, assign_i=TRUE, tick_size=NULL)
 {
 
 	if (!is.null(suffix_id)) {
@@ -246,7 +247,7 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
     }
 	
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
-	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, 
+	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, assign_i=assign_i,
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
 	"synthetic.instrument", "synthetic"))
 }

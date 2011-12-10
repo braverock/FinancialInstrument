@@ -6,16 +6,17 @@
 \usage{
   future_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
-    identifiers = NULL, ...)
+    identifiers = NULL, assign_i = TRUE, ...)
 
   option_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
     callput = c("call", "put"), strike = NULL,
-    identifiers = NULL, ...)
+    identifiers = NULL, assign_i = TRUE, ...)
 
   bond_series(primary_id, suffix_id, ...,
     first_traded = NULL, maturity = NULL,
-    identifiers = NULL, payment_schedule = NULL)
+    identifiers = NULL, payment_schedule = NULL,
+    assign_i = TRUE)
 }
 \arguments{
   \item{primary_id}{string describing the unique ID for the
@@ -48,6 +49,9 @@
 
   \item{identifiers}{named list of any other identifiers
   that should also be stored for this instrument}
+
+  \item{assign_i}{TRUE/FALSE. Should the instrument be
+  assigned in the \code{.instrument} environment?}
 
   \item{...}{any other passthru parameters}
 }
