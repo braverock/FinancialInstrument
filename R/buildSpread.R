@@ -391,6 +391,7 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
 #' @param x vector of member primary_ids
 #' @param root optional character string of root_id to use.
 #' @param format string indicating how to format the suffix_ids of the spread.  If \code{NULL} (the default), or \code{FALSE}, no formatting will be done.  the See \code{\link{format_id}} for other accepted values for \code{format}
+#' @param sep character string to separate root_id and suffix_id
 #' @return character string that can be used as a primary_id for a \code{\link{spread}} instrument
 #' @author Garrett See
 #' @seealso \code{\link{spread}}, \code{\link{build_spread_symbols}},  \code{\link{build_series_symbols}}
@@ -400,7 +401,7 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
 #' make_spread_id(ids, format=FALSE)
 #' make_spread_id(c("VIX_JAN11","VIX_FEB11"),root='VX',format='CY')
 #' @export
-make_spread_id <- function(x, root=NULL, format=NULL){
+make_spread_id <- function(x, root=NULL, format=NULL, sep="_"){
 #    if (length(x) != 2) stop("x must be a vector of length 2")
     if (is.null(root)) {
         root <- unlist(unique(sapply(x, parse_id)['root',]))
@@ -410,7 +411,7 @@ make_spread_id <- function(x, root=NULL, format=NULL){
 	#if (is.character(format)) suff <- paste(sapply(strsplit(suff,"\\.")[[1]], format_id, format=format, parse='suffix'), collapse=".")
     if (!is.null(format) && is.character(format)) 
 		suff <- paste(format_id(strsplit(suff,"\\.")[[1]], format=format, parse='suffix'), collapse=".")
-    id <- paste(root,suff, sep="_")
+    id <- paste(root,suff, sep=sep)
     return(make.names(id))
 }
 

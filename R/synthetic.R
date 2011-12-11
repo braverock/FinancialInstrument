@@ -360,7 +360,7 @@ ICS <- function(primary_id, assign_i=TRUE, identifiers = NULL, ...)
     members <- sapply(memlist, function(x) {
         if (x$type[1] == 'future') {
             if (is.null(x$root)) {
-                paste(x$primary_id, suff.1, sep="_")
+                paste(gsub("\\.", "", x$primary_id), suff.1, sep="_")
             } else paste(x$root, suff.1, sep="_")
         } else x$primary_id
     })
