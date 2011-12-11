@@ -60,6 +60,6 @@ parse_suffix("110917C125")
   Garrett See
 }
 \seealso{
-  \code{\link{parse_id}}, \code{\link{format_id}}, \code
+  \code{\link{parse_id}}, \code{\link{format_id}}
 }
 

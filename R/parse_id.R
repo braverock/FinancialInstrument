@@ -215,7 +215,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
 #' \sQuote{right} of option (\dQuote{C} or \dQuote{P}), \sQuote{cm} (maturity in days of a constant maturity contract),
 #' \sQuote{cc} (method for calculating a continuous contract), \sQuote{format} (string that indicates the format of the unparsed id).
 #' @author Garrett See
-#' @seealso \code{\link{parse_id}}, \code{\link{format_id}}, \code
+#' @seealso \code{\link{parse_id}}, \code{\link{format_id}}
 #' @examples
 #' parse_suffix("U11")
 #' parse_suffix("110917C125")
