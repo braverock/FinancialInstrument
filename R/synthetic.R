@@ -74,8 +74,13 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' It will be \code{\link{strsplit}} using the regex "[-;:_,\\.]" to create the \code{members} vector,
 #' and potentially combined with a \code{root_id}.
 #'
-#' The wrappers will build \code{primary_id} if is NULL, either by combining \code{root_id} and \code{suffix_id}, or
+#' Most wrappers will build \code{primary_id} if it is NULL, either by combining \code{root_id} and \code{suffix_id}, or
 #' by passing \code{members} in a call to \code{\link{make_spread_id}}
+#'
+#' \code{ICS} will build an Intercommodity Spread.  Although the expiration date and ratio may change, 
+#' the members of a given ICS will not change.  Therefore, \code{ICS_root} can be used to hold the 
+#' members of an Intercommodity Spread.  If an \code{ICS_root} has not been defined, then \code{members}
+#' will be a required argument for \code{ICS}
 #'
 #' We welcome assistance from others to model more complex OTC derivatives such as swap products.
 #'
@@ -127,10 +132,12 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
             }
         }
 
-        # expires will be whichever member expires first.
-        if (is.character(members)) {
+        # expires will be whichever member expires first (unless it was passed through dots)
+        if (is.character(members) && is.null(dargs$expires)) {
             ids <- sort_ids(members) #sort chronologically by expiry
-            expires <- try(getInstrument(ids[1], silent=TRUE)$expires)
+            expires <- NULL
+            tmpinstr <- try(getInstrument(ids[1], silent=TRUE))
+            if (is.instrument(tmpinstr)) expires <- tmpinstr$expires
             if (!is.null(expires) && 
                 !inherits(expires, "try-error") && 
                 is.null(dargs$expires)) {
@@ -261,9 +268,124 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
 	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, assign_i=assign_i,
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
-	"synthetic.instrument", "synthetic"))
+	"synthetic.instrument", "synthetic", 'instrument'))
 }
 
 
+
+#' @export
+#' @rdname synthetic.instrument
+ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, identifiers=NULL, assign_i=TRUE, ...) {
+    # future roots may begin with a dot; make sure we've got the primary_ids
+    members <- do.call(c, lapply(members, function(x) {
+        instr <- try(getInstrument(x, type='future', silent=TRUE))
+        if (is.instrument(instr)) 
+            instr$primary_id
+        else {
+            warning(x, ' is not defined.') 
+            x
+        }
+    }))
+
+    getfirst <- function(chr) { # value of 'chr' field of the first of "members" that has a field named "chr"
+        tmp <- suppressWarnings(try(na.omit(as.data.frame(
+                buildHierarchy(members, chr), stringsAsFactors=FALSE)[[chr]][[1]])))
+        if (identical(character(0), as.vector(tmp))) stop(chr, ' is required if no members are defined')
+        tmp
+    }
+
+    # If currency was not given, use the currency of the first 'member' that is defined
+    if (is.null(currency)) currency <- getfirst('currency')
+    # do the same with multiplier
+    if (is.null(multiplier)) multiplier <- getfirst('multiplier')
+
+    synthetic(primary_id, currency, multiplier, 
+        identifiers=identifiers, assign_i=assign_i, 
+        ... = ..., type='ICS_root', members=members)
+}    
+
+#' @export
+#' @rdname synthetic.instrument
+ICS <- function(primary_id, assign_i=TRUE, identifiers = NULL, ...)
+{ #author gsee
+    pid <- parse_id(primary_id)
+    if (!"ICS" %in% pid$type) stop("suffix of primary_id should look like 'H2.0302'")
+ 
+    dargs <- list(...)
+    root <- getInstrument(pid$root, silent=TRUE, type=c('ICS_root', 'spread', 'synthetic'))
+    # look in dots for arguments that you can use to call ICS_root if there isn't
+    #       an ICS_root already defined.
+    if (!is.instrument(root)) {
+        if (is.null(dargs$members)) stop(paste('Please provide "members" or define ICS_root', 
+            pid$root))
+        # See if we can create a temporary ICS_root with args in dots
+        icsra <- list() #ICS_root args
+        icsra$primary_id <- pid$root
+        if (!is.null(dargs$currency)) {
+            icsra$currency <- dargs$currency
+            dargs$currency <- NULL
+        }
+        if (!is.null(dargs$multiplier)) {
+            icsra$multiplier <- dargs$multiplier
+            dargs$multiplier <- NULL
+        }
+        if (!is.null(dargs$members)) {
+            icsra$members <- dargs$members
+            dargs$members <- NULL
+        }
+        icsra$assign_i <- FALSE
+        root <- do.call(ICS_root, icsra)
+    } else {
+        dargs$currency <- NULL
+        dargs$multiplier <- NULL
+        dargs$members <- NULL
+    }
+    if (!is.instrument(root)) stop("'ICS_root' must be defined first") 
+    members <- root$members 
+    #split the suffix in half. 1st half is CY, 2nd half is ratio string
+    suff.1 <- strsplit(pid$suffix, "\\.")[[1]][1]
+    suff.2 <- strsplit(pid$suffix, "\\.")[[1]][2]
+
+    # if members are futures (roots) change them to the future_series
+    # get a list of member instruments    
+    memlist <- lapply(members, getInstrument, type=c('future_series', 'future'))
+    #memtypes <- do.call(c, lapply(memlist, "[[", "type"))
+
+    # if any members are future, create a future_series id, else don't change member primary_id
+    members <- sapply(memlist, function(x) {
+        if (x$type[1] == 'future') {
+            if (is.null(x$root)) {
+                paste(x$primary_id, suff.1, sep="_")
+            } else paste(x$root, suff.1, sep="_")
+        } else x$primary_id
+    })
+
+    # Check to make sure members exist in instrument envir.  Warn if not.
+    defined <- sapply(members, exists, where=.instrument)
+    if (any(defined == FALSE)) warning("No instrument definition found for ", 
+                                       paste(members[!defined], collapse=" "))
+    memberratio <- suff.2
+    if (is.character(memberratio) && length(memberratio == 1)) { 
+        # "0503" means c(5, -3).  "010201" is c(1,-2,1)
+        memberratio <- do.call(c, lapply(seq(2, nchar(memberratio), 2), 
+                    function(i) as.numeric(substr(memberratio, i-1, i))))
+        # every other weight will be negative -- i.e. every other position is short
+        if (length(memberratio) > 1) memberratio <- suppressWarnings(memberratio * c(1,-1)) 
+    }
+    #paste(sub("\\.\\.", "", members)
+    if (length(dargs) == 0) dargs <- NULL
+    siargs <- list() #synthetic.instrument arguments
+    siargs$primary_id <- primary_id
+    siargs$currency <- root$currency
+    siargs$members <- members
+    siargs$memberratio <- memberratio
+    siargs$multiplier <- root$multiplier
+    siargs$identifiers <- identifiers
+    siargs$assign_i <- assign_i
+    siargs$tick_size <- root$tick_size
+    siargs$type <- c('ICS', 'guaranteed_spread', 'spread', 'synthetic.instrument', 'synthetic', 'instrument')
+    siargs <- c(siargs, dargs)
+    do.call(synthetic.instrument, siargs)
+}
 
 

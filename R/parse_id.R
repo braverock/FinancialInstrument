@@ -27,6 +27,7 @@
 parse_id <- function(x, silent=TRUE, root=NULL) {
     sufftype <- TRUE #will we use the type given by parse_suffix, or overwrite it with e.g. 'exchange_rate', or 'synthetic'
     suffformat <- TRUE #If x begins with "^" this will be set to FALSE, and we'll overwrite parse_suffix(...)$format with yahooIndex"
+    x <- gsub("-", ".", x)
     all.numeric <- as.logical(!is.na(suppressWarnings(as.numeric(x))))
     if (!is.null(root)) {
         suffix <- sub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 

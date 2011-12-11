@@ -742,6 +742,23 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     if (any(pid$type == 'butterfly')) {
         return(butterfly(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
     }
+    if (any(pid$type == 'ICS')) {
+        root <- getInstrument(pid$root, type='ICS_root', silent=TRUE)
+        if (is.instrument(root)) {
+            return(ICS(primary_id, assign_i=assign_i, ...))
+        } else {
+            #TODO: look for members in dots
+            if (!silent) {
+                warning(paste(primary_id, " appears to be an ICS, ", 
+                        "but its ICS_root cannot be found. ",
+                        "Creating _", default_type, "_ instrument instead.", sep=""))
+                warned <- TRUE
+            }
+            dargs$root_id <- pid$root
+            dargs$suffix_id <- pid$suffix
+            dargs$expires <- paste(pid$year, sprintf("%02d", month_cycle2numeric(pid$month)), sep="-")
+        }
+    }
     if (any(pid$type == 'future') || any(pid$type == 'SSF')) {
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root) && !inherits(root, 'future_series')) {

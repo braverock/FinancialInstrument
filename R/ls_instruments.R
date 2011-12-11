@@ -312,6 +312,33 @@ ls_synthetics <- function(pattern=NULL, match=TRUE) {
     tmp_symbols
 }
 
+#' @export
+#' @rdname ls_instruments
+ls_ICS <- function(pattern=NULL, match=TRUE) {
+    symbols <- ls_instruments(pattern,match)    
+    tmp_symbols <- NULL            
+    for (instr in symbols) {
+        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        if (inherits(tmp_instr, 'ICS') && inherits(tmp_instr, 'instrument')) {
+            tmp_symbols <- c(tmp_symbols,instr)
+        }    
+    }
+    tmp_symbols
+}
+
+#' @export
+#' @rdname ls_instruments
+ls_ICS_roots <- function(pattern=NULL, match=TRUE) {
+    symbols <- ls_instruments(pattern,match)
+    tmp_symbols <- NULL            
+    for (instr in symbols) {
+        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        if (inherits(tmp_instr, 'ICS_root') && inherits(tmp_instr, 'instrument')) {
+            tmp_symbols <- c(tmp_symbols,instr)
+        }    
+    }
+    tmp_symbols
+}
 
 # should it be ls_yahoo, ls_defined.by.yahoo, or ls_src? something else?
 #ls_yahoo <- function(pattern=NULL) {

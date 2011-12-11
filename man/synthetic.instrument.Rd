@@ -1,6 +1,8 @@
 \name{synthetic}
 \alias{butterfly}
 \alias{guaranteed_spread}
+\alias{ICS}
+\alias{ICS_root}
 \alias{spread}
 \alias{synthetic}
 \alias{synthetic.instrument}
@@ -27,6 +29,12 @@
     root_id = NULL, suffix_id = NULL, members = NULL,
     memberratio = c(1, -1), ..., multiplier = NULL,
     identifiers = NULL, assign_i = TRUE, tick_size = NULL)
+
+  ICS_root(primary_id, currency = NULL, members,
+    multiplier = NULL, identifiers = NULL, assign_i = TRUE,
+    ...)
+
+  ICS(primary_id, assign_i = TRUE, identifiers = NULL, ...)
 }
 \arguments{
   \item{primary_id}{chr string of primary identifier of
@@ -97,10 +105,17 @@
   create the \code{members} vector, and potentially
   combined with a \code{root_id}.
 
-  The wrappers will build \code{primary_id} if is NULL,
+  Most wrappers will build \code{primary_id} if it is NULL,
   either by combining \code{root_id} and \code{suffix_id},
   or by passing \code{members} in a call to
   \code{\link{make_spread_id}}
+
+  \code{ICS} will build an Intercommodity Spread.  Although
+  the expiration date and ratio may change, the members of
+  a given ICS will not change.  Therefore, \code{ICS_root}
+  can be used to hold the members of an Intercommodity
+  Spread.  If an \code{ICS_root} has not been defined, then
+  \code{members} will be a required argument for \code{ICS}
 
   We welcome assistance from others to model more complex
   OTC derivatives such as swap products.

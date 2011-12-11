@@ -9,6 +9,8 @@
 \alias{ls_future_series}
 \alias{ls_FX}
 \alias{ls_guaranteed_spreads}
+\alias{ls_ICS}
+\alias{ls_ICS_roots}
 \alias{ls_instruments}
 \alias{ls_non_currencies}
 \alias{ls_non_derivatives}
@@ -68,6 +70,10 @@
   ls_guaranteed_spreads(pattern = NULL, match = TRUE)
 
   ls_synthetics(pattern = NULL, match = TRUE)
+
+  ls_ICS(pattern = NULL, match = TRUE)
+
+  ls_ICS_roots(pattern = NULL, match = TRUE)
 
   ls_derivatives(pattern = NULL, match = TRUE)
 
