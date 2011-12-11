@@ -275,7 +275,8 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
 
 #' @export
 #' @rdname synthetic.instrument
-ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, identifiers=NULL, assign_i=TRUE, ...) {
+ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, 
+                    identifiers=NULL, assign_i=TRUE, tick_size=NULL, ...) {
     # future roots may begin with a dot; make sure we've got the primary_ids
     members <- do.call(c, lapply(members, function(x) {
         instr <- try(getInstrument(x, type='future', silent=TRUE))
@@ -286,7 +287,6 @@ ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, iden
             x
         }
     }))
-
     getfirst <- function(chr) { # value of 'chr' field of the first of "members" that has a field named "chr"
         tmp <- suppressWarnings(try(na.omit(as.data.frame(
                 buildHierarchy(members, chr), stringsAsFactors=FALSE)[[chr]][[1]])))
@@ -296,12 +296,13 @@ ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, iden
 
     # If currency was not given, use the currency of the first 'member' that is defined
     if (is.null(currency)) currency <- getfirst('currency')
-    # do the same with multiplier
+    # do the same with multiplier and tick_size
     if (is.null(multiplier)) multiplier <- getfirst('multiplier')
+    if (is.null(tick_size)) tick_size <- getfirst('tick_size')
 
     synthetic(primary_id, currency, multiplier, 
         identifiers=identifiers, assign_i=assign_i, 
-        ... = ..., type='ICS_root', members=members)
+        tick_size=tick_size, ..., members=members, type='ICS_root')
 }    
 
 #' @export
@@ -332,6 +333,10 @@ ICS <- function(primary_id, assign_i=TRUE, identifiers = NULL, ...)
         if (!is.null(dargs$members)) {
             icsra$members <- dargs$members
             dargs$members <- NULL
+        }
+        if (!is.null(dargs$tick_size)) {
+            icsra$tick_size <- dargs$tick_size
+            dargs$tick_size <- NULL
         }
         icsra$assign_i <- FALSE
         root <- do.call(ICS_root, icsra)

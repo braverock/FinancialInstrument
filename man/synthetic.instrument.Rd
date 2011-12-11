@@ -32,7 +32,7 @@
 
   ICS_root(primary_id, currency = NULL, members,
     multiplier = NULL, identifiers = NULL, assign_i = TRUE,
-    ...)
+    tick_size = NULL, ...)
 
   ICS(primary_id, assign_i = TRUE, identifiers = NULL, ...)
 }
