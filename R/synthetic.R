@@ -266,7 +266,7 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
     }
 	
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
-	memberratio = memberratio, multiplier = multiplier, identifiers = NULL, assign_i=assign_i,
+	memberratio = memberratio, multiplier = multiplier, identifiers = identifiers, assign_i=assign_i,
 	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
 	"synthetic.instrument", "synthetic", 'instrument'))
 }
