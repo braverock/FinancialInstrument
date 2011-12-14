@@ -697,6 +697,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' @param multiplier numeric product multiplier
 #' @param silent TRUE/FALSE. silence warnings?
 #' @param default_type What type of instrument to make if it is not clear from the primary_id. ("stock", "future", etc.) Default is NULL.
+#' @param root character string to pass to \code{\link{parse_id}} to be used as the root_id for easier/more accurate parsing.
 #' @param assign_i TRUE/FALSE. Should the \code{instrument} be assigned in the \code{.instrument} environment?
 #' @param ... other passthrough parameters
 #' @return Primarily called for its side-effect, but will return the name of the instrument that was created
@@ -722,7 +723,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' getInstrument("VX_H11") #made a future_series
 #' }
 #' @export
-instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', assign_i=TRUE, ...) {
+instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', root=NULL, assign_i=TRUE, ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
     if (!is.currency(currency)) {
@@ -734,7 +735,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     }
     warned <- FALSE
     dargs <- list(...)    
-    pid <- parse_id(primary_id)
+    pid <- parse_id(primary_id, root=root)
     type <- NULL
     if (any(pid$type == 'calendar')) {
         return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))

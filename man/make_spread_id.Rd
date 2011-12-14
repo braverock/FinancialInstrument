@@ -2,7 +2,7 @@
 \alias{make_spread_id}
 \title{construct a primary_id for a spread instrument from the primary_ids of its members}
 \usage{
-  make_spread_id(x, root = NULL, format = NULL)
+  make_spread_id(x, root = NULL, format = NULL, sep = "_")
 }
 \arguments{
   \item{x}{vector of member primary_ids}
@@ -14,6 +14,9 @@
   or \code{FALSE}, no formatting will be done.  the See
   \code{\link{format_id}} for other accepted values for
   \code{format}}
+
+  \item{sep}{character string to separate root_id and
+  suffix_id}
 }
 \value{
   character string that can be used as a primary_id for a

@@ -4,7 +4,7 @@
 \usage{
   instrument.auto(primary_id, currency = "USD",
     multiplier = 1, silent = FALSE, default_type = "NULL",
-    assign_i = TRUE, ...)
+    root = NULL, assign_i = TRUE, ...)
 }
 \arguments{
   \item{primary_id}{charater primary identifier of
@@ -20,6 +20,10 @@
   \item{default_type}{What type of instrument to make if it
   is not clear from the primary_id. ("stock", "future",
   etc.) Default is NULL.}
+
+  \item{root}{character string to pass to
+  \code{\link{parse_id}} to be used as the root_id for
+  easier/more accurate parsing.}
 
   \item{assign_i}{TRUE/FALSE. Should the \code{instrument}
   be assigned in the \code{.instrument} environment?}

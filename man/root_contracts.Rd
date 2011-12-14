@@ -7,5 +7,5 @@
   \code{\link{load.instruments}}
 }
 \keyword{data}
-\keyword{datasets}
+\keyword{dataset}
 
