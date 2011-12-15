@@ -195,26 +195,35 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
 {
 ##TODO: butterfly can refer to expirations (futures) or strikes (options)
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
-  if (missing(members)) {  
-    pid <- parse_id(primary_id)
-    root_id <- pid$root
-    suffix_id <- pid$suffix
-    #synthetic flies will have a root_id that looks like "
-    if (suffix_id == "")
-        members <- unlist(strsplit(root_id, "[-;:,\\.]"))
-    else members <- paste(root_id, unlist(strsplit(suffix_id, "[-;:_,\\.]")), sep="_")
-  }
+    if (missing(members)) {  
+        pid <- parse_id(primary_id)
+        root_id <- pid$root
+        suffix_id <- pid$suffix
+        #synthetic flies will have a root_id that looks like "
+        if (suffix_id == "")
+            members <- unlist(strsplit(root_id, "[-;:,\\.]"))
+        else members <- paste(root_id, unlist(strsplit(suffix_id, "[-;:_,\\.]")), sep="_")
+    }
 
-  if (length(members) == 3) {
-    synthetic.instrument(primary_id=primary_id,currency=currency,members=members,
-	    memberratio=c(1,-2,1), multiplier=1, tick_size=tick_size,
-	    identifiers=NULL, assign_i=assign_i, ...=..., type = c('butterfly','spread','synthetic.instrument',
-	    'synthetic','instrument'))
-  } else if (length(members) == 2) {
-      stop('butterfly currently only supports 3 leg spreads (i.e. no spread of spreads yet.)')
-
-  } else stop('A butterfly must either have 3 outright legs or 2 spread legs') 
-  
+    if (length(members) == 3) {
+        if (is.null(currency)) {
+            m1 <- getInstrument(members[[1]],silent=TRUE)
+            if (!is.instrument(m1)) m1 <- getInstrument(members[[2]], silent=TRUE)
+            if (!is.instrument(m1)) m1 <- getInstrument(members[[3]], silent=TRUE)
+            if (is.instrument(m1)) {
+                currency <- m1$currency
+            } else {
+                warning('currency is NULL and spread members are not defined. Using currency of USD')
+                currency <- 'USD'
+            }
+        }
+        synthetic.instrument(primary_id=primary_id,currency=currency,members=members,
+            memberratio=c(1,-2,1), multiplier=1, tick_size=tick_size,
+            identifiers=NULL, assign_i=assign_i, ...=..., type = c('butterfly','spread','synthetic.instrument',
+            'synthetic','instrument'))
+    } else if (length(members) == 2) {
+        stop('butterfly currently only supports 3 leg spreads (i.e. no spread of spreads yet.)')
+    } else stop('A butterfly must either have 3 outright legs or 2 spread legs')
 }
 
 
@@ -260,8 +269,13 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
         }
         if (is.null(currency)) {
             m1 <- getInstrument(members[[1]],silent=TRUE)
-            if (is.instrument(m1))
+            if (!is.instrument(m1)) m1 <- getInstrument(members[[2]], silent=TRUE)
+            if (is.instrument(m1)) {
                 currency <- m1$currency
+            } else {
+                warning('currency is NULL and spread members are not defined. Using currency of USD')
+                currency <- 'USD'
+            }
         }
     }
 	

@@ -723,10 +723,10 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' getInstrument("VX_H11") #made a future_series
 #' }
 #' @export
-instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FALSE, default_type='NULL', root=NULL, assign_i=TRUE, ...) {
+instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALSE, default_type='NULL', root=NULL, assign_i=TRUE, ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
-    if (!is.currency(currency)) {
+    if (!is.null(currency) && !is.currency(currency)) {
         if (nchar(currency) != 3 || currency != toupper(currency))
             stop(paste(currency, "is not defined,",
                 "and it will not be auto defined because it does not appear to be valid."))
@@ -815,6 +815,10 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     }
     if (any(pid$type == 'synthetic')) {
         if (!is.na(pid$format) && pid$format == 'yahooIndex') {
+            if (is.null(currency)) {
+                warning('currency will be assumed to be USD because NULL is not a currency.')
+                currency <- 'USD'
+            }
             return(synthetic(gsub("\\^","",primary_id), currency=currency, identifiers=list(yahoo=primary_id), 
                             src=list(src='yahoo',name=primary_id), defined_by='auto', assign_i=assign_i, ...))
         } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', assign_i=assign_i, ...) )
@@ -823,7 +827,7 @@ instrument.auto <- function(primary_id, currency='USD', multiplier=1, silent=FAL
     ss <- ss[!ss %in% ""]
     if (length(ss) == 2) primary_id <- paste(ss,collapse="_")
     dargs$primary_id <- primary_id
-    dargs$currency <- currency
+    dargs$currency <- if (!is.null(currency)) { currency } else { warning('using USD as the currency'); "USD" }
     dargs$multiplier <- multiplier
     dargs$defined.by='auto'
     dargs$assign_i <- assign_i

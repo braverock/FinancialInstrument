@@ -2,7 +2,7 @@
 \alias{instrument.auto}
 \title{Create an instrument based on name alone}
 \usage{
-  instrument.auto(primary_id, currency = "USD",
+  instrument.auto(primary_id, currency = NULL,
     multiplier = 1, silent = FALSE, default_type = "NULL",
     root = NULL, assign_i = TRUE, ...)
 }
