@@ -825,7 +825,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
     } 
     if (any(pid$type == 'root')) {
         if (primary_id %in% c(paste(pid$root, "O", sep="."), paste(pid$root, "OQ", sep="."))) { #X.RIC for NASDAQ stock.  e.g. AAPL.O, MSFT.OQ
-            stock(pid$root, currency=currency('USD'), identifiers=list(X.RIC=primary_id), defined.by='auto', assign_i=assign_i, ...)
+            return(stock(pid$root, currency=currency('USD'), identifiers=list(X.RIC=primary_id), defined.by='auto', assign_i=assign_i, ...))
             #update_instruments.yahoo(pid$root) 
         }
     }
