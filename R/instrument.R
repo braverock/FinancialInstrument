@@ -823,6 +823,12 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
                             src=list(src='yahoo',name=primary_id), defined_by='auto', assign_i=assign_i, ...))
         } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', assign_i=assign_i, ...) )
     } 
+    if (any(pid$type == 'root')) {
+        if (primary_id %in% c(paste(pid$root, "O", sep="."), paste(pid$root, "OQ", sep="."))) { #X.RIC for NASDAQ stock.  e.g. AAPL.O, MSFT.OQ
+            stock(pid$root, currency=currency('USD'), identifiers=list(X.RIC=primary_id), defined.by='auto', assign_i=assign_i, ...)
+            #update_instruments.yahoo(pid$root) 
+        }
+    }
     ss <- strsplit(primary_id," ")[[1]]  #take out spaces (OSI uses spaces, but makenames would turn them into dots)
     ss <- ss[!ss %in% ""]
     if (length(ss) == 2) primary_id <- paste(ss,collapse="_")
@@ -842,8 +848,8 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
                 'Creating basic instrument with multiplier 1.'))
     do.call(instrument, dargs)
 }
- 
-   
+
+  
 #' primary accessor function for getting objects of type 'instrument'
 #' 
 #' This function will search the \code{.instrument} environment for objects of

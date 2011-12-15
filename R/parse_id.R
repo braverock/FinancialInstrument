@@ -33,8 +33,18 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         suffix <- sub(root,"",x) #turns ESU1 into U1, or ES_U11 into _U11 
         suffix <- gsub("_","",suffix) #take out the underscore if there is one
     } else if (identical(integer(0), grep("[0-9]",x))) { 
-        #if there are no numbers in the id, then it has no year, so it is not a recognized future or option
-        if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),1), TRUE)) { 
+        #if there are no numbers in the id, then it has no year, so it is not a recognized future or option        
+        if (substr(x, nchar(x)-1, nchar(x)) == ".O") {
+            #only one dot, and the id ends with ".O" -- it looks like an X.RIC for a NASDAQ stock
+            suffix <- ""
+            root <- substr(x, 1, nchar(x)-2)
+            type <- 'root'
+        } else if (substr(x, nchar(x)-2, nchar(x)) == ".OQ") {
+            # id ends with ".OQ" -- looks like an X.RIC for NMS stock
+            suffix <- ""
+            root <- substr(x, 1, nchar(x)-3)
+            type <- 'root'
+        } else if (identical(all.equal(nchar(x) - nchar( gsub("\\.","",x)),1), TRUE)) { 
             #only 1 dot, so it's not a fly
             #SPY.DIA, EUR.USD, SPY110917C122.5, T2010917P25
             if (suppressWarnings(!is.na(as.numeric(strsplit(x,"\\.")[[1]][2])))) { #probably an option with a decimal in the strike
