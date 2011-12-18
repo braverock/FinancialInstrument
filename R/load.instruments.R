@@ -326,7 +326,7 @@ getSymbols.FI <- function(Symbols,
         ndc<-nchar(dir)
         if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
         ssd <- strsplit(dir,"/")[[1]]
-        if (identical(character(0), ssd) || ssd[length(ssd)] != Symbol) dir <- paste(dir,Symbol,sep="/")
+        if (identical(character(0), ssd) || (!identical(character(0), ssd) && ssd[length(ssd)] != Symbol)) dir <- paste(dir,Symbol,sep="/")
         
         if(!dir=="" && !file.exists(dir)) {
             if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
@@ -378,7 +378,12 @@ getSymbols.FI <- function(Symbols,
             tmp     
         }
     }) #end loop over Symbols
-    
+
+    if (length(datl[[1]]) == 0) {
+        warning("No data found.")
+        return(NULL) 
+    }
+
     if(auto.assign) {
         invisible(lapply(datl, function(x) assign(names(x), x[[1]], pos=env)))        
         return(Symbols)
