@@ -74,8 +74,8 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     dargs <- list(...)
 
     ## Load required packages
-    require(qmao)
-    #require(FinancialInstrument)
+    #require(qmao)
+    require(FinancialInstrument)
     require(doMC)
     #require(sendmailR) # for email on failure
 
@@ -89,7 +89,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     }
 
     ## Source the config_file -- this will be overwritten by any arguments in dots
-    if (!missing(config.file)) source(config_file)
+    if (!missing(config.file)) source(config.file)
 
     # There are some variables that we need that should be in the config file.
     # Anything passed in through dots will override arguments of the same name that were in config_file
