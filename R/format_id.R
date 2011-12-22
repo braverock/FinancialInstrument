@@ -72,25 +72,34 @@ format_id <- function(id, format=NULL, parse=c('id', 'suffix'), sep="_", ...) {
 #'
 #' This will convert month codes or month names to numeric months.
 #'
-#' Input can be a vector or a comma-delimited string. All elements of \code{month_cycle} should be similar.
+#' Input can be a vector, comma-delimited string, or multiple strings. 
+#' All inputs should be similar.
 #' Do not mix month names, codes and numbers in the same call.
+#'
+#' \code{MC2N} is an alias
 #' @return numeric vector
-#' @param month_cycle the expiration months of a \code{\link{future}}. See examples.
+#' @param ... the expiration months of a \code{\link{future}}. See examples.
 #' @author Garrett See
 #' @seealso \code{\link{M2C}}, \code{\link{C2M}}, \code{\link{next.future_id}}
 #' \code{\link{future}}
 #' @examples
-#' month_cycle2numeric("H,M,U,Z")
-#' month_cycle2numeric(c("H","M","U","Z"))
-#' month_cycle2numeric("Mar,jun,SEP,dEc")
-#' month_cycle2numeric("March,june,sep,decem")
+#' MC2N("H,M,U,Z") # from single string
+#' MC2N(c("H","M","U","Z")) # from single vector
+#' MC2N("h", "M", "u", "Z") # from multiple strings
+#' MC2N(c("F","G"), "H", c("X","Z")) # from multiple vectors
+#' month_cycle2numeric("Mar,jun,SEP,dEc") 
+#' month_cycle2numeric("Mar", "jun", "SEP", "dEc")
+#' MC2N("March,june,sep,decem")
+#' MC2N("March, june, sep, decem") #spaces between commas are ok
 #' month_cycle2numeric("3,6,9,12")
 #' month_cycle2numeric(seq(3,12,3))
 #' @rdname month_cycle2numeric
 #' @export
-month_cycle2numeric <- function(month_cycle) {
+month_cycle2numeric <- function(...) {
+    month_cycle <- unlist(list(...))
     if (is.character(month_cycle)) {
         cycle.chr <- toupper(strsplit(paste(month_cycle, collapse=","), ",")[[1]])
+        cycle.chr <- gsub(" ", "", cycle.chr)
         if (!any(suppressWarnings(is.na(as.numeric(cycle.chr))))) {
             month_cycle <- as.numeric(cycle.chr)
         } else {
