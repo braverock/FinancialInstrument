@@ -2,7 +2,8 @@
 # R (http://r-project.org/) Instrument Class Model
 #
 # Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson 
+# and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
@@ -233,6 +234,9 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' @param use_identifier optional. identifier used to construct the \code{primary_id} of the instrument. If you use this, you must have previously defined the \code{\link{instrument}} 
 #' @param date_format format as per the \code{\link{strptime}}, see Details
 #' @param verbose TRUE/FALSE
+#' @param days_to_omit character vector of names of weekdays that should not be loaded.  
+#'      Default is \code{c("Saturday", "Sunday")}.  Use \code{NULL} to attempt to load data 
+#'      for all days of the week.
 #' @seealso 
 #' \code{\link{saveSymbols.days}}
 #' \code{\link{instrument}}
@@ -250,11 +254,13 @@ getSymbols.FI <- function(Symbols,
                             split_method = c("days", "common"),
                             use_identifier,
                             date_format=NULL,
-                            verbose=TRUE
+                            verbose=TRUE,
+                            days_to_omit=c("Saturday", "Sunday")
                          ) 
 {
     if (missing(use_identifier)) use_identifier <- NA
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
+    if (is.null(days_to_omit)) days_to_omit <- 'NULL'
     importDefaults("getSymbols.FI")
     this.env <- environment()
     for(var in names(list(...))) {
@@ -286,6 +292,7 @@ getSymbols.FI <- function(Symbols,
     default.use_identifier <- use_identifier
     default.date_format <- date_format
     default.verbose <- verbose
+    default.days_to_omit <- days_to_omit
     # quantmod:::getSymbols will provide auto.assign and env
     # so the next 2 if statements should always be TRUE
     auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
@@ -310,6 +317,8 @@ getSymbols.FI <- function(Symbols,
         date_format <- ifelse(is.null(date_format), default.date_format, date_format)
         verbose <- getSymbolLookup()[[Symbols[[i]]]]$verbose
         verbose <- ifelse(is.null(verbose), default.verbose, verbose)
+        days_to_omit <- getSymbolLookup()[[Symbols[[i]]]]$days_to_omit
+        days_to_omit <- ifelse(is.null(days_to_omit), default.days_to_omit, days_to_omit)
   
         # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
         # First, find out what the instrument name is
@@ -337,7 +346,7 @@ getSymbols.FI <- function(Symbols,
                         StartDate <- as.Date(from) 
                         EndDate <- as.Date(to) 
                         date.vec <- as.Date(StartDate:EndDate)
-                        date.vec <- date.vec[weekdays(date.vec) != 'Saturday' & weekdays(date.vec) != 'Sunday']
+                        date.vec <- date.vec[!weekdays(date.vec) %in% days_to_omit]  
                         date.vec <- format(date.vec, format=date_format)
                         sym.files <- paste(date.vec, Symbol, extension, sep=".")
                         if (dir != "") sym.files <- file.path(dir, sym.files)

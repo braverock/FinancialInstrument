@@ -5,7 +5,8 @@
   getSymbols.FI(Symbols, from = "2010-01-01",
     to = Sys.Date(), ..., dir = "", return.class = "xts",
     extension = "rda", split_method = c("days", "common"),
-    use_identifier, date_format = NULL, verbose = TRUE)
+    use_identifier, date_format = NULL, verbose = TRUE,
+    days_to_omit = c("Saturday", "Sunday"))
 }
 \arguments{
   \item{Symbols}{a character vector specifying the names of
@@ -39,6 +40,11 @@
   \code{\link{strptime}}, see Details}
 
   \item{verbose}{TRUE/FALSE}
+
+  \item{days_to_omit}{character vector of names of weekdays
+  that should not be loaded.  Default is
+  \code{c("Saturday", "Sunday")}.  Use \code{NULL} to
+  attempt to load data for all days of the week.}
 }
 \description{
   This function should probably get folded back into

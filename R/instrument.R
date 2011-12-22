@@ -93,8 +93,8 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(substr(primary_id,1,1)==1) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
   
-  if(missing(currency) || (!missing(currency) && !is.currency(currency)))
-    stop("currency ",currency," must be an object of type 'currency'")
+  if(missing(currency) || is.null(currency) || (!missing(currency) && !is.currency(currency)))
+    stop("currency ",currency," must be defined first")
 
   if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
   if(!is.list(identifiers)) {
@@ -723,7 +723,8 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
 #' getInstrument("VX_H11") #made a future_series
 #' }
 #' @export
-instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALSE, default_type='NULL', root=NULL, assign_i=TRUE, ...) {
+instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALSE, 
+                            default_type='unknown', root=NULL, assign_i=TRUE, ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
     if (!is.null(currency) && !is.currency(currency)) {
@@ -845,7 +846,8 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
     }
     if (!silent && !warned) 
         warning(paste(primary_id, 'is not of an unambiguous format.', 
-                'Creating basic instrument with multiplier 1.'))
+                'Creating _unknown_ instrument with multiplier 1.'))
+    dargs$type <- 'unknown'
     do.call(instrument, dargs)
 }
 

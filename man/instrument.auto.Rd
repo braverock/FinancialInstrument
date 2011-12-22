@@ -3,8 +3,9 @@
 \title{Create an instrument based on name alone}
 \usage{
   instrument.auto(primary_id, currency = NULL,
-    multiplier = 1, silent = FALSE, default_type = "NULL",
-    root = NULL, assign_i = TRUE, ...)
+    multiplier = 1, silent = FALSE,
+    default_type = "unknown", root = NULL, assign_i = TRUE,
+    ...)
 }
 \arguments{
   \item{primary_id}{charater primary identifier of
