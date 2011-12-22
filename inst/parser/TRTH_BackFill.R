@@ -22,7 +22,6 @@
 # any arguments provided in dots will override arguments of same name from config.file
 ##
 #path.output = '~/TRTH/'                # base directory for output
-#Tick2Sec_file = '~/TRTH/Tick2Sec.R'    # path/to/Tick2Sec.R which contains to_secBATV function definition
 #tick_dir = '~/TRTH/tick'               # directory in which to store tick data
 #archive_dir = '~/TRTH/archive'         # directory in which to store downloaded .gz files
 #csv_dir = '~/TRTH/csv'                 # directory in which to store zipped csv files
@@ -69,7 +68,7 @@
 #############################################################################################
 
 
-configureTRTH <- function(config.file, path.output='~/TRTH/', Tick2Sec_file, ...) {
+configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     ## Create environment to hold variables that more than one function needs to access    
     .TRTH <- new.env(parent=.GlobalEnv)
     dargs <- list(...)
@@ -103,10 +102,6 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', Tick2Sec_file, ...
 
     #if (!is.null(dargs$path.output)) 
     .TRTH$path.output <- path.output <- addslash(path.output)
-    if (missing(Tick2Sec_file) && !exists('Tick2Sec_file')) 
-        Tick2Sec_file <- paste(path.output, "Tick2Sec.R", sep="") 
-    if (!file.exists(Tick2Sec_file)) stop("Please provide a valid filepath for 'Tick2Sec_file' or move 'Tick2Sec.R' into 'path.output'")
-    .TRTH$Tick2Sec_file <- Tick2Sec_file
 
     .TRTH$archive_dir <- pickDirArg("archive_dir")
     .TRTH$csv_dir <- pickDirArg("csv_dir")
@@ -456,8 +451,6 @@ FEreut2xts <- function(.TRTH) {
     # Make sure csv_dir exists since it is where we read the data from
     if (!file.exists(csv_dir)) stop("There is no directory", paste(csv_dir))
     if (!exists('files.xts')) stop("Cannot find 'files.xts' -- Run splitCSV first")
-    if (!exists('Tick2Sec_file')) stop("Cannot find 'Tick2Sec_file' -- Should have been specified when you ran 'configureTRTH'")
-    source(Tick2Sec_file)
     oldTZ <- Sys.getenv("TZ")
     Sys.setenv(TZ='GMT')
 

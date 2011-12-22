@@ -388,7 +388,7 @@ getSymbols.FI <- function(Symbols,
         }
     }) #end loop over Symbols
 
-    if (is.null(unlist(datl)) {
+    if (is.null(unlist(datl))) {
         warning("No data found.")
         return(NULL) 
     }
