@@ -75,7 +75,8 @@ Reuters.output <-  Reuters.output[grep(job.name,Reuters.output)]
 
 Reuters.new <- Reuters.output[!(Reuters.output %in% Archive.output)]
 
-# or to start from the file list
+# or to start here in the script from the file list
+# (see comment above about fixing broken set)
 # Reuters.output <-  Archive.output[grep(job.name,Archive.output)]
 # Reuters.new <- Reuters.output
 
@@ -113,7 +114,9 @@ for(i in 1:length(Reuters.new))
 ## now unzip, split, rezip
 setwd(archive_dir)
 #foreach(j=1:length(Reuters.new)) %dopar%
-for(j in 1:length(Reuters.new))
+if (!length(Reuters.new)){
+    stop('you have no files to download, maybe you need to define a file list manually and run from there?')
+} else for(j in 1:length(Reuters.new))
 {
 	
 	#	system(paste("split --lines=10000000 -d ",filename.csv," split.",sep=""))
@@ -159,15 +162,15 @@ for(j in 1:length(Reuters.new))
 	
 }	
 
+#initialize output list empty
+files.xts <- NULL
 
-
+#build the file list to work on
 files.csv <- list.files(archive_dir)
 files.csv <- files.csv[-grep(".csv.gz",files.csv)]
 files.csv <- files.csv[grep(".csv",files.csv)]
-
 files.header <- files.csv[grep("RIC",files.csv)]
 files.csv <- files.csv[-grep("RIC",files.csv)]
-files.xts <- NULL
 
 for(k in 1:length(files.csv))
 {
@@ -175,14 +178,25 @@ for(k in 1:length(files.csv))
 	name.csv <- files.csv[k]
 	name <- unlist(strsplit(name.csv,".",fixed=TRUE))[1]
 	RIC.date <- try(as.Date(unlist(strsplit(name.csv,".",fixed=TRUE))[2], format="%d-%b-%Y"))
+    #if this failed, see if it is one of Reuters .O or similar symbols
+    if(class(RIC.date)=='try-error') {
+        RIC.date <- try(as.Date(unlist(strsplit(name.csv,".",fixed=TRUE))[3], format="%d-%b-%Y"))
+        if(!class(RIC.date)=='try-error'){
+            tmp<-unlist(strsplit(name.csv,".",fixed=TRUE))
+            name <- paste(tmp[1],tmp[2],sep=.)
+        } else {
+            print(paste('File',name.csv,'could not be converted.'))
+            next
+        }
+    }
 	date.format <- gsub("-",".",RIC.date)
 	
-	if(weekdays(RIC.date)=="Saturday" | weekdays(RIC.date)=="Sunday")
+	try(if( weekdays(RIC.date)=="Saturday" | weekdays(RIC.date)=="Sunday")
 	{
 		file.remove(paste(archive_dir,name.csv,sep=""))
 		next
 				
-	}
+	})
 		
 	## Handle leading digits and VIX and Cash
 	if(substr(name,1,1)==1){name.new <- substr(name,2,nchar(name));name.new <- make.names(name.new)}
@@ -232,7 +246,7 @@ H <- H[nrow(H),]
 H <- make.names(H)
 
 ## Into xts###############################################################
-reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
+reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE, xFUN=NULL )
 {
 	prod <- data[,'name.new']
 	date <- data[,'date.format']
@@ -282,15 +296,16 @@ reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
 	
 	if(type !="guaranteed_spread")
 	{
+        #remove prints with Prices less than or equal to zero
 		Data$Bid.Price[Data$Bid.Price<=0,] <- NA
 		Data$Ask.Price[Data$Ask.Price<=0,] <- NA
 		Data$Price[Data$Ask.Price<=0,] <- NA
-	}else{
-		Data$Bid.Price[Data$Bid.Price==0,] <- NA
-		Data$Ask.Price[Data$Ask.Price==0,] <- NA
-		Data$Price[Data$Ask.Price==0,] <- NA
-	}
-	
+        ## Remove Trades with Price or Volume of zero   
+        Price.remove <- which(Data$Price == 0)    
+    } else {
+        Price.remove<-NULL
+    }
+    
 	## Carry last bid/offer forward
 	
 	Data$Bid.Price <- na.locf(Data$Bid.Price)
@@ -299,10 +314,8 @@ reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
 	Data$Bid.Size <- na.locf(Data$Bid.Size)
 	Data$Ask.Size <- na.locf(Data$Ask.Size)
 	
-	## Remove Trades with Price or Volume of zero
-	
-	Price.remove <- which(Data$Price == 0)
-	Volume.remove <- which(Data$Volume == 0)
+    ## Remove empty Trade rows (Volume of zero)   
+    Volume.remove <- which(Data$Volume == 0)
 	
 	if(length(c(Price.remove,Volume.remove))!=0)
 	{
@@ -349,7 +362,13 @@ reut2xts <- function( data, datapath, image=TRUE, overwrite=FALSE )
 	datarange <- range(index(Data),na.rm = TRUE)
 	datarange.dif <- difftime(datarange[2],datarange[1],units="secs")
 	
-	if(isTRUE(image) && datarange.dif>3600)
+    #do we need to run some custom post-process parsing?
+    if(!is.null(xFUN) && is.function(try(get(xFUN),silent=TRUE))){
+        #run any additional custom, local function required by the user
+        do.call(osFUN)
+    }
+	
+    if(isTRUE(image) && datarange.dif>3600)
 	{
 		## Bid
 		if(!file.exists(paste(datapath,"xts/",RIC.code,"/Bid.Image/",sep=""))){dir.create(paste(datapath,"xts/",RIC.code,"/Bid.Image/",sep=""),mode="775")}
