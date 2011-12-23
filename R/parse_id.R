@@ -96,6 +96,14 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                     !is.na(parse_suffix(substr(x,4,nchar(x)))$format))) {
                 root <- substr(x,1,3)        
                 suffix <- substr(x,4,nchar(x))
+            } else if (suppressWarnings(!is.null(parse_suffix(substr(x,5,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,5,nchar(x)))$format))) {
+                root <- substr(x,1,4)        
+                suffix <- substr(x,5,nchar(x))
+            } else if (suppressWarnings(!is.null(parse_suffix(substr(x,5,nchar(x)))) && 
+                    !is.na(parse_suffix(substr(x,6,nchar(x)))$format))) {
+                root <- substr(x,1,5)        
+                suffix <- substr(x,6,nchar(x))
             } else if (suppressWarnings(!is.null(parse_suffix(substr(x,2,nchar(x)))) && 
                     !is.na(parse_suffix(substr(x,2,nchar(x)))$format))) {
                 root <- substr(x,1,1)
@@ -104,8 +112,8 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                 root <- substr(x, 1, nchar(x))
                 suffix <- "" 
             } else { 
-                root <- substr(x,1,4)
-                suffix <- substr(x,5,nchar(x))
+                root <- substr(x,1,6)
+                suffix <- substr(x,7,nchar(x))
             }
         } else {
             # Look for spread (e.g. CLF2.F3). Split by the dot, then try to extract suffix_id from the part before
@@ -360,7 +368,9 @@ parse_suffix <- function(x, silent=TRUE) {
             if (!silent)
                 warning('Converting 2 digit year to 4 digit year will result in a year between 1941 and 2040')
             format <- 'CYY'
-        } else type <- 'root'
+        } else if (suppressWarnings(is.na(as.numeric(x)))) {
+            type <- 'root'
+        } else if (!silent) warning("Could not parse 3 character suffix")
     } else if (nchar(x) == 4) { #SEP1, VXU1, 0911
         if (toupper(substr(x, 1, 3)) %in% toupper(C2M()) && !is.na(suppressWarnings(as.numeric(substr(x,4,4))))) { 
             #sep1, Sep1, SEP1
@@ -384,7 +394,7 @@ parse_suffix <- function(x, silent=TRUE) {
         } else {
             if (!silent)
                 warning("Could not parse 4 character suffix")
-            return(NULL)
+            #return(NULL)
         }
 
     } else if (nchar(x) == 5) { #SEP11, U2011
