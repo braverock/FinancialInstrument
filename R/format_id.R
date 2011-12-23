@@ -7,7 +7,7 @@
 #' Formats for the suffix_id include 
 #' 'CY', 'CYY', and 'CYYYY' where C is the month code and Y is numeric.
 #' 'MMMY', 'MMMYY', 'MMMYYYY' where MMM is an uppercase month abbreviation.
-#' 'xxCY', 'xxCYY', 'xxCYYYY' where xx can be any 2 characters.
+#' '1xCY', '1xCYY', '1xCYYYY' for single-stock-futures.
 #' 
 #' There are currently only 2 formats available for \code{\link{option_series}}: 'opt2' and 'opt4'
 #' where opt2 uses a 2 digit year and opt4 uses a 4 digit year.

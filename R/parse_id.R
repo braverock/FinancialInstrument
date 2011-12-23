@@ -341,7 +341,7 @@ parse_suffix <- function(x, silent=TRUE) {
         suff <- parse_suffix(substr(x,3,nchar(x)),silent=silent)
         month <- suff$month
         year <- suff$year
-        format <- paste('xx', suff$format, sep="")
+        format <- paste('1x', suff$format, sep="")
     } else if (nchar(x) == 2) { #U1
         if (substr(x,1,1) %in% M2C() && !is.na(suppressWarnings(as.numeric(substr(x,2,2))))) {
             type <- c("outright","future")
@@ -368,12 +368,12 @@ parse_suffix <- function(x, silent=TRUE) {
             out <- parse_suffix(suff,silent=silent) #call recursively with 2 character suffix
             out$format <- 'MMMY'
             return(out) 
-        } else if (substr(x,3,3) %in% M2C() && !is.na(as.numeric(substr(x,4,4)))) {
-            #xxU1, VXU1 #ignore the 1st 2 characters, and call recursively with 2 character suffix
-            suff <- parse_suffix(substr(x,3,4),silent=silent) 
-            month <- suff$month
-            year <- suff$year
-            format <- 'xxCY'
+#        } else if (substr(x,3,3) %in% M2C() && !is.na(as.numeric(substr(x,4,4)))) {
+#            #xxU1, VXU1 #ignore the 1st 2 characters, and call recursively with 2 character suffix            
+#            suff <- parse_suffix(substr(x,3,4),silent=silent) 
+#            month <- suff$month
+#            year <- suff$year
+#            format <- 'xxCY'
         } else if (!is.na(as.numeric(x))) { 
             #0911
             #convert to U11 and call recursively
