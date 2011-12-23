@@ -733,7 +733,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
                 "and it will not be auto defined because it does not appear to be valid."))
         currency(currency)    
         if (!silent) cat(paste('Created currency', currency,'because it was not defined.\n'))
-    }
+    } 
     warned <- FALSE
     dargs <- list(...)    
     pid <- parse_id(primary_id, root=root)
@@ -762,9 +762,12 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         }
     }
     if (any(pid$type == 'future') || any(pid$type == 'SSF')) {
+        currency <- if (!is.null(currency)) { 
+            currency 
+        } else { if (!silent) warning('using USD as the currency'); currency("USD") } 
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root) && !inherits(root, 'future_series')) {
-            return(future_series(primary_id,defined.by='auto', assign_i=assign_i,...))
+            return(future_series(primary_id, currency=currency, defined.by='auto', assign_i=assign_i,...))
         } else {
             if (!silent) {
                 warning(paste(primary_id," appears to be a future_series, ", 
@@ -778,9 +781,12 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         }
     }
     if (any(pid$type == 'option')) {
+        currency <- if (!is.null(currency)) { 
+            currency 
+        } else { if (!silent) warning('using USD as the currency'); currency("USD") } 
         root <- getInstrument(pid$root,silent=TRUE,type='option')
         if (is.instrument(root) && !inherits(root, 'option_series')) {
-            return(option_series(primary_id, defined.by='auto', assign_i=assign_i, ...))
+            return(option_series(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
         } else {
             if (!silent) {
                 warning(paste(primary_id," appears to be an option_series, ", 
@@ -834,7 +840,9 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
     ss <- ss[!ss %in% ""]
     if (length(ss) == 2) primary_id <- paste(ss,collapse="_")
     dargs$primary_id <- primary_id
-    dargs$currency <- if (!is.null(currency)) { currency } else { warning('using USD as the currency'); "USD" }
+    dargs$currency <- if (!is.null(currency)) { 
+        currency 
+    } else { if (!silent) warning('using USD as the currency'); currency("USD") } 
     dargs$multiplier <- multiplier
     dargs$defined.by='auto'
     dargs$assign_i <- assign_i
