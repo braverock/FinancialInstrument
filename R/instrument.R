@@ -826,7 +826,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         if (!is.na(pid$format) && pid$format == 'yahooIndex') {
             if (is.null(currency)) {
                 if (!silent) warning('currency will be assumed to be USD because NULL is not a currency.')
-                currency <- 'USD'
+                currency <- currency('USD')
             }
             return(synthetic(gsub("\\^","",primary_id), currency=currency, multiplier=multiplier, 
                             identifiers=list(yahoo=primary_id), src=list(src='yahoo',name=primary_id),
@@ -837,7 +837,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
                 #at least 1 member is not defined. So we have to assume this is an index (e.g. TICK-NYSE)
                 if (is.null(currency)) {
                     if (!silent) warning('currency will be assumed to be USD because NULL is not a currency.')
-                    currency <- 'USD'
+                    currency <- currency('USD')
                 }
                 return(synthetic(primary_id, currency=currency, multiplier=multiplier, 
                                 defined.by='auto', assign_i=assign_i, ...))
