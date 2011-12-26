@@ -735,11 +735,13 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         if (!silent) cat(paste('Created currency', currency,'because it was not defined.\n'))
     } 
     warned <- FALSE
-    dargs <- list(...)    
+    dargs <- list(...)
+    primary_id <- make.names(primary_id)
     pid <- parse_id(primary_id, root=root)
     type <- NULL
     if (any(pid$type == 'calendar')) {
-        return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
+        return(guaranteed_spread(primary_id, currency=currency, defined.by='auto', 
+                                multiplier=multiplier, assign_i=assign_i, ...))
     } 
     if (any(pid$type == 'butterfly')) {
         return(butterfly(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
@@ -809,7 +811,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
     if (any(pid$type == 'exchange_rate'))
         return(exchange_rate(primary_id, defined.by='auto', assign_i=assign_i, ...))
     #if we weren't given a default_type, then if it's 6 uppercase letters, make an exchange rate    
-    if (default_type == 'NULL' && nchar(primary_id) == 6 && sum(attr(gregexpr("[A-Z]",primary_id)[[1]],"match.length")) == 6) {
+    if (default_type == 'unknown' && nchar(primary_id) == 6 && sum(attr(gregexpr("[A-Z]",primary_id)[[1]],"match.length")) == 6) {
         if (!is.instrument(getInstrument(substr(primary_id,1,3), silent=TRUE))) {
             ccy.st <- currency(substr(primary_id,1,3), defined.by='auto') 
             if (!silent) cat("Created currency", ccy.st, "because it was not defined.\n") 
@@ -823,16 +825,32 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
     if (any(pid$type == 'synthetic')) {
         if (!is.na(pid$format) && pid$format == 'yahooIndex') {
             if (is.null(currency)) {
-                warning('currency will be assumed to be USD because NULL is not a currency.')
+                if (!silent) warning('currency will be assumed to be USD because NULL is not a currency.')
                 currency <- 'USD'
             }
-            return(synthetic(gsub("\\^","",primary_id), currency=currency, identifiers=list(yahoo=primary_id), 
-                            src=list(src='yahoo',name=primary_id), defined_by='auto', assign_i=assign_i, ...))
-        } else return(synthetic(members=strsplit(primary_id,"\\.")[[1]], currency=currency, defined.by='auto', assign_i=assign_i, ...) )
+            return(synthetic(gsub("\\^","",primary_id), currency=currency, multiplier=multiplier, 
+                            identifiers=list(yahoo=primary_id), src=list(src='yahoo',name=primary_id),
+                            defined_by='auto', assign_i=assign_i, ...))
+        } else {
+            members <- strsplit(primary_id,"\\.")[[1]]
+            if(!all(suppressWarnings(sapply(members, function(x) is.instrument(getInstrument(x)))))) {
+                #at least 1 member is not defined. So we have to assume this is an index (e.g. TICK-NYSE)
+                if (is.null(currency)) {
+                    if (!silent) warning('currency will be assumed to be USD because NULL is not a currency.')
+                    currency <- 'USD'
+                }
+                return(synthetic(primary_id, currency=currency, multiplier=multiplier, 
+                                defined.by='auto', assign_i=assign_i, ...))
+            }
+            # if all members are already defined, we'll pass those to synthetic and let it figure out currency.
+            return(synthetic(members=members, currency=currency, multiplier=multiplier, 
+                            defined.by='auto', assign_i=assign_i, ...) )
+        }
     } 
     if (any(pid$type == 'root')) {
         if (primary_id %in% c(paste(pid$root, "O", sep="."), paste(pid$root, "OQ", sep="."))) { #X.RIC for NASDAQ stock.  e.g. AAPL.O, MSFT.OQ
-            return(stock(pid$root, currency=currency('USD'), identifiers=list(X.RIC=primary_id), defined.by='auto', assign_i=assign_i, ...))
+            return(stock(pid$root, currency=currency('USD'), multiplier=multiplier, 
+                        identifiers=list(X.RIC=primary_id), defined.by='auto', assign_i=assign_i, ...))
             #update_instruments.yahoo(pid$root) 
         }
     }
