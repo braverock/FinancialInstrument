@@ -300,26 +300,26 @@ getSymbols.FI <- function(Symbols,
     fr <- NULL
     datl <- lapply(1:length(Symbols), function(i) {
         from <- getSymbolLookup()[[Symbols[[i]]]]$from 
-        from <- ifelse(is.null(from), default.from, from)        
+        from <- if(is.null(from)) { default.from } else from
         to <- getSymbolLookup()[[Symbols[[i]]]]$to
-        to <- ifelse(is.null(to), default.to, to)
+        to <- if(is.null(to)) { default.to } else to
         dir <- getSymbolLookup()[[Symbols[[i]]]]$dir
-        dir <- ifelse(is.null(dir),default.dir, dir)
+        dir <- if(is.null(dir)) { default.dir } else dir
         return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
-        return.class <- ifelse(is.null(return.class),default.return.class, return.class)
+        return.class <- if(is.null(return.class)) { default.return.class } else return.class
         extension <- getSymbolLookup()[[Symbols[[i]]]]$extension
-        extension <- ifelse(is.null(extension),default.extension, extension)
+        extension <- if (is.null(extension)) { default.extension } else extension
         split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
-        split_method <- ifelse(is.null(split_method), default.split_method, split_method)
+        split_method <- if (is.null(split_method)) { default.split_method } else split_method
         use_identifier <- getSymbolLookup()[[Symbols[[i]]]]$use_identifier
-        use_identifier <- ifelse(is.null(use_identifier), default.use_identifier, use_identifier)
+        use_identifier <- if (is.null(use_identifier)) { default.use_identifier } else use_identifier
         date_format <- getSymbolLookup()[[Symbols[[i]]]]$date_format
-        date_format <- ifelse(is.null(date_format), default.date_format, date_format)
+        date_format <- if(is.null(date_format)) { default.date_format } else date_format
         verbose <- getSymbolLookup()[[Symbols[[i]]]]$verbose
-        verbose <- ifelse(is.null(verbose), default.verbose, verbose)
+        verbose <- if(is.null(verbose)) { default.verbose } else verbose
         days_to_omit <- getSymbolLookup()[[Symbols[[i]]]]$days_to_omit
-        days_to_omit <- ifelse(is.null(days_to_omit), default.days_to_omit, days_to_omit)
-  
+        days_to_omit <- if(is.null(days_to_omit)) { default.days_to_omit } else days_to_omit
+
         # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
         # First, find out what the instrument name is
         instr_str <- NA
