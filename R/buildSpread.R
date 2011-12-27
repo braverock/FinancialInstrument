@@ -106,7 +106,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
         } else pref=prefer
         if (!is.logical(instr_prices) || ncol(instr_prices) > 1) instr_prices <- getPrice(instr_prices,prefer=pref)
         if (instr$currency != spread_currency) 
-            instr_prices <- getPrice(redenominate(instr_prices,spread_currency,instr$currency), pref=pref)
+            instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
         instr_norm <- instr_prices * instr_mult * instr_ratio
         colnames(instr_norm) <- paste(as.character(spread_instr$members[i]), 
             prefer, sep = ".")
@@ -122,6 +122,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
     }
     spreadseries <- spreadseries[paste(last.from, first.to, sep="/")]
     spreadseries <- na.locf(spreadseries,na.rm=TRUE)
+    #browser()
     spreadlevel = xts(rowSums(spreadseries),order.by=index(spreadseries)) #assumes negative memberratio values for shorts in 'memberratio'
     if (onelot) 
         spreadlevel = spreadlevel/abs(spread_instr$memberratio[1]) #abs() takes care of things like a crack spread which is -3:2:1.
