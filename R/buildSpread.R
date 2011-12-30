@@ -107,7 +107,7 @@ buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, aut
         if (!is.logical(instr_prices) || ncol(instr_prices) > 1) instr_prices <- getPrice(instr_prices,prefer=pref)
         if (instr$currency != spread_currency) 
             instr_prices <- redenominate(instr_prices,spread_currency,instr$currency)
-        if (NCOL(instr_prices) > 1) instr_prices <- getPrice(instr_prices, prefer=pref)
+        if (ncol(instr_prices) > 1) instr_prices <- getPrice(instr_prices, prefer=pref)
         instr_norm <- instr_prices * instr_mult * instr_ratio
         colnames(instr_norm) <- paste(as.character(spread_instr$members[i]), 
             prefer, sep = ".")
