@@ -115,8 +115,18 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
       }
   }
   if (!is.null(arg$src)) {
+      # Clear out anything stored in SymbolLookupTable
+      eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
+
       sarg <- list()
-      sarg[[primary_id]] <- arg$src
+      if (length(arg$src) == 1) {
+          sarg[[primary_id]] <- arg$src
+      }  else {
+          sarg[[primary_id]] <- arg$src$src
+          tmparg <- arg
+          tmparg$src$src <- NULL
+          do.call(setDefaults, c("getSymbols.FI", tmparg$src))
+      }
       setSymbolLookup(sarg)
       #arg[["src"]]<-NULL
   }
@@ -945,7 +955,9 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' If the \code{attr} you are trying to change is the \dQuote{primary_id,} the instrument will be renamed.
 #' (A copy of the instrument will be stored by the name of \code{value} and the old instrument will be removed.)
 #' If the \code{attr} you are changing is \dQuote{type}, the instrument will be reclassed with that type.
-#' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.
+#' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.  If \dQuote{src}
+#' is a list with more than 1 item, \code{setSymbolLookup} will be called with the item named \sQuote{src}, and
+#' the remaining items will be passed used in a call to \code{setDefaults} along with \code{.name='getSymbols.FI'}
 #' Other checks are in place to make sure that \dQuote{currency} remains a \code{\link{currency}} object and that
 #' \dQuote{multiplier} and \dQuote{tick_size} can only be changed to reasonable values.
 #' @param primary_id primary_id of the instrument that will be updated
@@ -998,10 +1010,21 @@ instrument_attr <- function(primary_id, attr, value) {
         }
     }
     if (attr == 'src') {
-        sarg <- list()
-        sarg[[instr$primary_id]] <- value
-        setSymbolLookup(sarg)
-    }
+      # Clear out anything stored in SymbolLookupTable
+      eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
+
+      sarg <- list()
+      if (length(value) == 1) {
+          sarg[[primary_id]] <- value
+      }  else {
+          sarg[[primary_id]] <- value$src
+          value$src <- NULL
+          do.call(setDefaults, c("getSymbols.FI", value))
+      }
+      setSymbolLookup(sarg)
+      #arg[["src"]]<-NULL
+  }
+
     assign(instr$primary_id, instr, pos=.instrument)
 }
 

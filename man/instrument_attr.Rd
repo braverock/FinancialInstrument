@@ -29,8 +29,13 @@
   the \code{attr} you are changing is \dQuote{type}, the
   instrument will be reclassed with that type. If
   \code{attr} is \dQuote{src}, \code{value} will be used in
-  a call to \code{setSymbolLookup}. Other checks are in
-  place to make sure that \dQuote{currency} remains a
+  a call to \code{setSymbolLookup}.  If \dQuote{src} is a
+  list with more than 1 item, \code{setSymbolLookup} will
+  be called with the item named \sQuote{src}, and the
+  remaining items will be passed used in a call to
+  \code{setDefaults} along with
+  \code{.name='getSymbols.FI'} Other checks are in place to
+  make sure that \dQuote{currency} remains a
   \code{\link{currency}} object and that
   \dQuote{multiplier} and \dQuote{tick_size} can only be
   changed to reasonable values.
