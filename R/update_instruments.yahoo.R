@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' updates instrument metadata with data from yahoo
 #' 
 #' Adds/updates information in instrument with data downloaded from yahoo
@@ -99,7 +114,7 @@ update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) 
 			instr$defined.by=db 
 		    instr$updated=Sys.time()
             
-		    assign(Symbols[i], instr, pos=.instrument)
+		    assign(Symbols[i], instr, pos=FinancialInstrument:::.instrument)
 		}
     }        
     Symbols
@@ -108,7 +123,7 @@ update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) 
 #' @export
 #' @rdname update_instruments.yahoo
 update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AMEX","NASDAQ","NYSE")) {
-    if (!suppressWarnings(is.currency("USD"))) currency("USD")
+    if (!suppressWarnings(is.currency.name("USD"))) currency("USD")
     df <- stockSymbols(exchange=exchange)    
     if (!is.null(Symbols) && !(any(Symbols == c("stocks","all")))) {
         cols <- try( match(Symbols,df$Symbol) )
@@ -130,8 +145,8 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
         if (is.instrument(instr) && !inherits(instr, 'stock')) {
             #make a unique primary_id
             primary_id <- make.names(c(instr$primary_id, 
-                                    ls(.instrument)),unique=TRUE)[-match(ls(.instrument),
-                                        make.names(c(instr$primary_id, ls(.instrument)),unique=TRUE))]            
+                                    ls_instruments()),unique=TRUE)[-match(ls_instruments(),
+                                        make.names(c(instr$primary_id, ls_instruments()),unique=TRUE))]            
             warning(paste("instrument",instr$primary_id,
                           "is already defined, but not as stock.",
                           "A new instrument", primary_id ,"will be created"))

@@ -1,3 +1,17 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
 #' convert tick data to one-second data
 #'
 #' From tick data with columns: \dQuote{Price}, \dQuote{Volume}, \dQuote{Bid.Price},

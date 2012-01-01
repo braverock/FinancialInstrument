@@ -437,7 +437,7 @@ formatSpreadPrice <- function(x,multiplier=1,tick_size=0.01) {
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2011
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
 # Joshua Ulrich, Brian G. Peterson, and Garrett See
 #

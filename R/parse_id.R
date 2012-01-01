@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' Parse a primary_id
 #'
 #' Extract/infer descriptive information about an instrument from its name.

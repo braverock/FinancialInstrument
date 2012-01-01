@@ -70,6 +70,16 @@
   is \emph{NOT} recommended) with \code{auto.assign=FALSE}
   and more than one Symbol, a list would be returned.
 }
+\note{
+  getSymbols and getSymbols.FI both have a \code{verbose}
+  argument.  If a value has been set for \code{verbose} in
+  the SymbolLookup table, it will be used in spite of any
+  local args. If you want to change it, you will have to
+  change it with a call to \code{instrument_attr} or
+  \code{setSymbolLookup}.  If you call either of those with
+  \code{verbose=NULL}, the \code{verbose} arg will be unset
+  and local arguments will again be respected.
+}
 \seealso{
   \code{\link{saveSymbols.days}} \code{\link{instrument}}
   \code{\link{setSymbolLookup.FI}}

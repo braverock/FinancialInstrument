@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' show names of underlyings
 #' 
 #' shows names that are stored in the \code{underlying_id} slot of derivative
@@ -23,7 +38,7 @@ ls_underlyings <- function(pattern=NULL, match=TRUE) {
     symbols <- ls_derivatives(pattern, match)
     tmp_symbols <- NULL
     for (symbol in symbols) {
-        tmp_instr <- try(get(symbol,pos=.instrument),silent=TRUE)
+        tmp_instr <- try(get(symbol,pos=FinancialInstrument:::.instrument),silent=TRUE)
         #if (is.instrument(tmp_instr))  
         if (!is.null(tmp_instr$underlying_id)) 
             tmp_symbols <- c(tmp_symbols,tmp_instr$underlying_id)

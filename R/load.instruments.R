@@ -1,9 +1,9 @@
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich, Brian G. Peterson 
-# and Garrett See
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
@@ -82,7 +82,7 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
             dotargs$type <- NULL        
         }
     }
-    if (!is.null(dotargs$currency) && !is.currency(dotargs$currency)) currency(dotargs$currency)
+    if (!is.null(dotargs$currency) && !is.currency.name(dotargs$currency)) currency(dotargs$currency)
     
     #now process the data
     for(rn in 1:nrow(filedata)){
@@ -171,7 +171,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 
     #load all instrument names
     instr_names <- if(missing(Symbols)) {
-        ls_non_currencies(ls(pos=.instrument)) #if roots begin with a dot, this will filter out roots and currencies
+        ls_non_currencies(ls(pos=FinancialInstrument:::.instrument)) #if roots begin with a dot, this will filter out roots and currencies
     } else Symbols
     
     #TODO add check to make sure that src is actually the name of a getSymbols function
@@ -259,6 +259,11 @@ setSymbolLookup.FI2 <- function (Symbols, dir, from = "2010-01-01", to = Sys.Dat
 #' However, if you were to call \code{getSymbols.FI} directly (which is \emph{NOT} recommended) 
 #' with \code{auto.assign=FALSE} and more than one Symbol, a list would be returned.
 #' 
+#' @note getSymbols and getSymbols.FI both have a \code{verbose} argument.  If a value has been
+#' set for \code{verbose} in the SymbolLookup table, it will be used in spite of any local args.
+#' If you want to change it, you will have to change it with a call to \code{instrument_attr} 
+#' or \code{setSymbolLookup}.  If you call either of those with \code{verbose=NULL}, the \code{verbose}
+#' arg will be unset and local arguments will again be respected.
 #' @param Symbols a character vector specifying the names of each symbol to be loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
 #' @param to Retrieve data through this date. Default Sys.Date().

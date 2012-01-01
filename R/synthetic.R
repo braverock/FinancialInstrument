@@ -1,8 +1,9 @@
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua Ulrich and Brian G. Peterson
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
@@ -380,7 +381,7 @@ ICS <- function(primary_id, assign_i=TRUE, identifiers = NULL, ...)
     })
 
     # Check to make sure members exist in instrument envir.  Warn if not.
-    defined <- sapply(members, exists, where=.instrument)
+    defined <- sapply(members, exists, where=FinancialInstrument:::.instrument)
     if (any(defined == FALSE)) warning("No instrument definition found for ", 
                                        paste(members[!defined], collapse=" "))
     memberratio <- suff.2

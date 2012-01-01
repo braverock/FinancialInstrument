@@ -5,8 +5,7 @@
   is.instrument(x)
 }
 \arguments{
-  \item{x}{object or primary_id of instrument to test for
-  type}
+  \item{x}{object to test for type}
 }
 \description{
   class test for object supposedly of type 'instrument'

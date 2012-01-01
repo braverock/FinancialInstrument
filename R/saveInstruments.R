@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' Save and Load all instrument definitions
 #' 
 #' Saves (loads) the .instrument environment to (from) disk.
@@ -13,8 +28,6 @@
 #' @param dir Directory of file (defaults to current working directory. ie. "")
 #' @param extension File extension of file. default is RData. This will be ignored if 
 #' \code{file_name} ends with either \sQuote{.rda} or \sQuote{.RData}.
-#' @param env What environment holds .instrument environment to be updated;
-#' usually .GlobalEnv.
 #' @return Called for side-effect
 #' @author Garrett See
 #' @seealso save, load load.instrument define_stocks, define_futures,
@@ -31,7 +44,8 @@
 saveInstruments <- function(file_name="MyInstruments", dir="", extension="RData") {
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
-	.instrument <- get('.instrument', pos=.GlobalEnv)
+	#.instrument <- get('FinancialInstrument:::.instrument', pos=.GlobalEnv)
+    .instrument <- FinancialInstrument:::.instrument
     ssfn <- strsplit(file_name, "\\.")[[1]]
     if(any(tail(ssfn, 1) == c("rda", "RData"))) {
         file_name <- paste(ssfn[1:(length(ssfn)-1)], collapse=".")
@@ -42,7 +56,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="", extension="RData"
 
 #' @export
 #' @rdname saveInstruments
-loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData", env=.GlobalEnv) {
+loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData") {
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
     tmpenv <- new.env()
@@ -52,11 +66,12 @@ loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData",
         extension <- tail(ssfn, 1)
     }
 	load(paste(dir,file_name,".",extension,sep=""),envir=tmpenv)
-    .instrument <- get(".instrument",pos=env)
+    #.instrument <- get("FinancialInstrument:::.instrument",pos=env)
+    .instrument <- FinancialInstrument:::.instrument
     il <- ls(tmpenv$.instrument,all.names=TRUE)
     for (i in il) {
         .instrument[[i]] <- tmpenv$.instrument[[i]]
     }
-    assign(".instrument",.instrument, pos=env)
+    assign("FinancialInstrument:::.instrument", .instrument, pos=.GlobalEnv)
 }
 

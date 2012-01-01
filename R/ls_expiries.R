@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' show unique expiration dates of instruments
 #' 
 #' show unique expiration dates of instruments
@@ -41,7 +56,7 @@ ls_expiries <- function(pattern=NULL, match=TRUE, underlying_id=NULL, type='deri
     dates <- NULL   
     underlyings <- NULL
     for (symbol in symbols) { 
-        tmp_instr <- try(get(symbol,pos=.instrument),silent=TRUE)
+        tmp_instr <- try(get(symbol,pos=FinancialInstrument:::.instrument),silent=TRUE)
         if (!is.null(tmp_instr$underlying_id) && any(tmp_instr$underlying_id==underlying_id)) { #the underlying_id of this instr mathces one of the one's we're interested in.
         underlying <- tmp_instr$underlying_id            
             if (is.null(tmp_instr$expires)) { #get value for expiry; may be in 'expires' or 'expiry' slot

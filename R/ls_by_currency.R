@@ -1,3 +1,17 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
 #' shows or removes instruments of given currency denomination(s)
 #' 
 #' ls_ functions get names of instruments denominated in a given currency (or
@@ -57,17 +71,17 @@ ls_by_currency <- function(currency, pattern=NULL, match=TRUE,show.currencies=FA
 	}
 
     if (!is.null(pattern) && match) {   #there's a pattern and match is TRUE
-        symbols <- ls(.instrument, all.names=TRUE)
+        symbols <- ls_instruments()
         symbols <- symbols[match(pattern,symbols)]
     } else if (!match && length(pattern) == 1) { # pattern is length(1) and match is FALSE
-        symbols <- ls(.instrument, all.names=TRUE, pattern=pattern)
+        symbols <- ls_instruments(pattern=pattern)
     } else if (is.null(pattern)) {  #no pattern
-        symbols <- ls(.instrument, all.names=TRUE)
+        symbols <- ls_instruments()
     } # else pattern length > 1 & don't match
         
     tmp_symbols <- NULL            
     for (symbol in symbols) {
-        tmp_instr <- try(get(symbol, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(symbol, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (is.instrument(tmp_instr) && 
           tmp_instr$currency == currency ){    
             tmp_symbols <- c(tmp_symbols,symbol)
@@ -87,7 +101,7 @@ rm_by_currency <- function(x,currency,keep.currencies=TRUE) {
     if (missing(x)) {
         x <- ls_by_currency(currency,show.currencies=sc)
     } else x <- ls_by_currency(currency,pattern=x,show.currencies=sc)
-    rm(list=x,pos=.instrument)
+    rm(list=x,pos=FinancialInstrument:::.instrument)
 }
 
 #AUD GBP CAD EUR JPY CHF HKD SEK NZD

@@ -188,8 +188,9 @@ build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2011
-# Peter Carl, Lance Levenson, Brian G. Peterson
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
 # This code is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING

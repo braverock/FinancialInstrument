@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' List or Remove instrument objects
 #' 
 #' display the names of or delete instruments, stocks, options, futures,
@@ -103,17 +118,17 @@ ls_instruments <- function(pattern=NULL, match=TRUE, verbose=TRUE) {
         match <- TRUE    
     }    
     if (!is.null(pattern) && match) {   #there's a pattern and match is TRUE
-        symbols <- ls(.instrument, all.names=TRUE)
+        symbols <- ls(FinancialInstrument:::.instrument, all.names=TRUE)
         symbols <- symbols[match(pattern,symbols)]
     } else if (!match && length(pattern) == 1) { # pattern is length(1) and don't match
-        symbols <- ls(.instrument, all.names=TRUE, pattern=pattern)
+        symbols <- ls(FinancialInstrument:::.instrument, all.names=TRUE, pattern=pattern)
     } else if (is.null(pattern)) {  #no pattern
-        symbols <- ls(.instrument, all.names=TRUE)
+        symbols <- ls(FinancialInstrument:::.instrument, all.names=TRUE)
     } # else pattern length > 1 & don't match
         
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (is.instrument(tmp_instr))  {    
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -127,7 +142,7 @@ ls_stocks <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'stock') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -141,7 +156,7 @@ ls_options <- function(pattern=NULL,match=TRUE, include.series=TRUE) {
     symbols <- ls_instruments(pattern,match)    
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'option') && inherits(tmp_instr, 'instrument')) {
             if (!inherits(tmp_instr, 'option_series') || include.series)
                 tmp_symbols <- c(tmp_symbols,instr)
@@ -156,7 +171,7 @@ ls_option_series <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)    
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'option_series') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -170,7 +185,7 @@ ls_futures <- function(pattern=NULL,match=TRUE, include.series=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'future') && inherits(tmp_instr, 'instrument')) {
             if (!inherits(tmp_instr, 'future_series') || include.series)
                 tmp_symbols <- c(tmp_symbols,instr)
@@ -185,7 +200,7 @@ ls_future_series <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'future_series') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -199,7 +214,7 @@ ls_currencies <- function(pattern=NULL, match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'currency') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -213,7 +228,7 @@ ls_non_currencies <- function(pattern=NULL, includeFX=TRUE, match=TRUE) {
     symbols <- ls_instruments(pattern, match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (!inherits(tmp_instr, 'currency') || 
                 (inherits(tmp_instr, 'exchange_rate') && includeFX) ) {
             tmp_symbols <- c(tmp_symbols,instr)
@@ -230,7 +245,7 @@ ls_exchange_rates <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern=pattern,match=match)    
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'exchange_rate') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -248,7 +263,7 @@ ls_bonds <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'bond') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -262,7 +277,7 @@ ls_funds <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'fund') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -276,7 +291,7 @@ ls_spreads <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'spread') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -290,7 +305,7 @@ ls_guaranteed_spreads <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'guaranteed_spread') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -304,7 +319,7 @@ ls_synthetics <- function(pattern=NULL, match=TRUE) {
     symbols <- ls_instruments(pattern,match)    
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'synthetic') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -318,7 +333,7 @@ ls_ICS <- function(pattern=NULL, match=TRUE) {
     symbols <- ls_instruments(pattern,match)    
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'ICS') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -332,7 +347,7 @@ ls_ICS_roots <- function(pattern=NULL, match=TRUE) {
     symbols <- ls_instruments(pattern,match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
         if (inherits(tmp_instr, 'ICS_root') && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
@@ -346,7 +361,7 @@ ls_ICS_roots <- function(pattern=NULL, match=TRUE) {
 #    symbols <- ls_instruments(pattern) #TODO: other functions should be updated to get symbols like this too   
 #    tmp_symbols <- NULL
 #    for (instr in symbols) {
-#        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+#        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
 #        if ( is.instrument(tmp_instr) && !is.null(tmp_instr$defined.by) )  {        
 #            dby <- unlist(strsplit( tmp_instr$defined.by,";"))    
 #            if (any(dby == "yahoo" )) 
@@ -361,7 +376,7 @@ ls_ICS_roots <- function(pattern=NULL, match=TRUE) {
 #    symbols <- ls_instruments(pattern)   
 #    tmp_symbols <- NULL
 #    for (instr in symbols) {
-#        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+#        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
 #        if ( is.instrument(tmp_instr) && !is.null(tmp_instr$defined.by) )  {        
 #            dby <- unlist(strsplit( tmp_instr$defined.by,";"))    
 #            if (any(dby == "IB" )) tmp_symbols <- c(tmp_symbols,instr)
@@ -375,7 +390,7 @@ ls_ICS_roots <- function(pattern=NULL, match=TRUE) {
 #	symbols <- ls_instruments(pattern)
 #	tmp_symbols <- NULL
 #	for (symbol in symbols) {
-#		tmp_instr <- try(get(symbol, pos=.instrument),silent=TRUE)
+#		tmp_instr <- try(get(symbol, pos=FinancialInstrument:::.instrument),silent=TRUE)
 #		if (is.instrument(tmp_instr) && !is.null(tmp_instr$defined.by) ) {
 #			dby <- unlist(strsplit( tmp_instr$defined.by,";"))
 #			if (any(dby == x)) tmp_symbols <- c(tmp_symbols,symbol)
@@ -392,7 +407,7 @@ ls_derivatives <- function(pattern=NULL,match=TRUE) {
     #but check for it in case someone made one    
     tmp_symbols <- NULL
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
          if (inherits(tmp_instr, 'derivative') || 
                  inherits(tmp_instr, 'option') ||
                  inherits(tmp_instr, 'future') ) {
@@ -410,7 +425,7 @@ ls_non_derivatives <- function(pattern=NULL,match=TRUE) {
     #but check for it in case someone made one    
     tmp_symbols <- NULL
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
          if (!inherits(tmp_instr, 'derivative') && 
                  !inherits(tmp_instr, 'option') &&
                  !inherits(tmp_instr, 'future') ) {
@@ -427,7 +442,7 @@ ls_calls <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_options(pattern=pattern,match=match)
 	tmp_symbols <- NULL
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
 		if (is.instrument(tmp_instr) && inherits(tmp_instr, 'option')) {
 			if (!is.null(tmp_instr$callput)) {
 				right <- tmp_instr$callput
@@ -449,7 +464,7 @@ ls_puts <- function(pattern=NULL,match=TRUE) {
     symbols <- ls_options(pattern=pattern,match=match)
 	tmp_symbols <- NULL
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = .instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
 		if (is.instrument(tmp_instr) && inherits(tmp_instr, 'option')) {
 			if (!is.null(tmp_instr$callput)) {
 				right <- tmp_instr$callput
@@ -481,7 +496,7 @@ rm_instruments <- function(x, keep.currencies=TRUE) {
         } else stop('Use keep.currencies=FALSE to delete a currency')    
     }
 
-    rm(list=x,pos=.instrument)
+    rm(list=x,pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -490,7 +505,7 @@ rm_stocks <- function(x) {
     if (missing(x)) {
         x <- ls_stocks()
     }
-    rm(list=x[x %in% ls_stocks()], pos=.instrument)
+    rm(list=x[x %in% ls_stocks()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -499,7 +514,7 @@ rm_options <- function(x) {
     if (missing(x)) {
         x <- ls_options()
     }
-    rm(list=x[x %in% ls_options()], pos=.instrument)
+    rm(list=x[x %in% ls_options()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -508,7 +523,7 @@ rm_option_series <- function(x) {
     if (missing(x)) {
         x <- ls_option_series()
     }
-    rm(list=x[x %in% ls_option_series()], pos=.instrument)
+    rm(list=x[x %in% ls_option_series()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -517,7 +532,7 @@ rm_futures <- function(x) {
     if (missing(x)) {
         x <- ls_futures()
     }
-    rm(list=x[x %in% ls_futures()], pos=.instrument)
+    rm(list=x[x %in% ls_futures()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -526,7 +541,7 @@ rm_future_series <- function(x) {
     if (missing(x)) {
         x <- ls_future_series()
     }
-    rm(list=x[x %in% ls_future_series()], pos=.instrument)
+    rm(list=x[x %in% ls_future_series()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -535,7 +550,7 @@ rm_currencies <- function(x) {
     if (missing(x)) {
         x <- ls_currencies()
     }
-    rm(list=x[x %in% ls_currencies()], pos=.instrument)
+    rm(list=x[x %in% ls_currencies()], pos=FinancialInstrument:::.instrument)
 }   
 
 #' @export
@@ -544,7 +559,7 @@ rm_exchange_rates <- rm_FX <- function(x) {
     if (missing(x)) {
         x <- ls_exchange_rates()
     }
-    rm(list=x[x %in% ls_exchange_rates()], pos=.instrument)
+    rm(list=x[x %in% ls_exchange_rates()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -553,7 +568,7 @@ rm_bonds <- function(x) {
     if (missing(x)) {
         x <- ls_bonds()
     }
-    rm(list=x[x %in% ls_bonds()], pos=.instrument)
+    rm(list=x[x %in% ls_bonds()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -562,7 +577,7 @@ rm_funds <- function(x) {
     if (missing(x)) {
         x <- ls_funds()
     }
-    rm(list=x[x %in% ls_funds()], pos=.instrument)
+    rm(list=x[x %in% ls_funds()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -571,7 +586,7 @@ rm_spreads <- function(x) {
     if (missing(x)) {
         x <- ls_spreads()
     }
-    rm(list=x[x %in% ls_spreads()], pos=.instrument)
+    rm(list=x[x %in% ls_spreads()], pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -580,7 +595,7 @@ rm_synthetics <- function(x) {
     if (missing(x)) {
         x <- ls_synthetics()
     }
-    rm(list=x[x %in% ls_synthetics()],pos=.instrument)
+    rm(list=x[x %in% ls_synthetics()],pos=FinancialInstrument:::.instrument)
 }
 
 
@@ -590,7 +605,7 @@ rm_derivatives <- function(x) {
     if (missing(x)) {
         x <- ls_derivatives()
     }
-    rm(list=x[x %in% ls_derivatives()],pos=.instrument)
+    rm(list=x[x %in% ls_derivatives()],pos=FinancialInstrument:::.instrument)
 }
 
 #' @export
@@ -605,7 +620,7 @@ rm_non_derivatives <- function(x, keep.currencies=TRUE) {
                 x <- x[-match(ls_currencies(),x)] #then take them out of to-be-removed
         } else stop('Use keep.currencies=FALSE to delete a currency')    
     }
-    rm(list=x[x %in% ls_non_derivatives()],pos=.instrument) 
+    rm(list=x[x %in% ls_non_derivatives()],pos=FinancialInstrument:::.instrument) 
 }
 
 

@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
+
 #' show strike prices of defined options
 #' 
 #' list the strike prices of previously defined options.
@@ -21,7 +36,7 @@ ls_strikes <- function(pattern=NULL) {
     symbols <- ls_options(pattern)
     tmp_symbols <- NULL
     for (symbol in symbols) {
-        tmp_instr <- try(get(symbol,pos=.instrument),silent=TRUE)
+        tmp_instr <- try(get(symbol,pos=FinancialInstrument:::.instrument),silent=TRUE)
         #if (is.instrument(tmp_instr))  
         if (!is.null(tmp_instr$strike)) 
             tmp_symbols <- c(tmp_symbols,tmp_instr$strike)

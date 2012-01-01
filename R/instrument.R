@@ -1,7 +1,7 @@
 ###############################################################################
 # R (http://r-project.org/) Instrument Class Model
 #
-# Copyright (c) 2009-2011
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
 # Joshua Ulrich, Brian G. Peterson, and Garrett See
 #
@@ -12,17 +12,48 @@
 #
 ###############################################################################
 
-.onLoad <- function(lib, pkg) {
-    if(!exists('.instrument'))
-        .instrument <<- new.env(hash=TRUE)
-}
+#.onLoad <- function(lib, pkg) {
+#    if(!exists('.instrument'))
+#        .instrument <<- new.env(hash=TRUE)
+#}
+
+.instrument <- new.env(parent=emptyenv())
+
 
 #' class test for object supposedly of type 'instrument'
-#' @param x object or primary_id of instrument to test for type
+#' @param x object to test for type
 #' @export
 is.instrument <- function( x ) {
   inherits( x, "instrument" )
 }
+
+
+#' test to see if a string is the name of a \code{\link{instrument}}
+#' @param x object
+#' @export
+is.instrument.name <- function(x) {
+  x <- suppressWarnings(getInstrument(x, silent=TRUE))
+  inherits(x, 'instrument')
+}
+
+
+#' class test for object supposedly of type 'currency'
+#' @param x object to test for type
+#' @export
+is.currency <- function( x ) {
+#  x<-getInstrument(x, silent=TRUE) # Please use is.currency.name if x is character
+  inherits( x, "currency" )
+}
+
+
+#' test to see if a string is the name of a \code{\link{currency}}
+#' @param x character string to test.
+#' @export
+is.currency.name <- function( x ) {
+  x <- suppressWarnings(getInstrument(x, type='currency', silent=TRUE))
+  inherits( x, "currency" )
+}
+
 
 #' instrument class constructors
 #' 
@@ -93,7 +124,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if(substr(primary_id,1,1)==1) primary_id <- substr(primary_id,2,nchar(primary_id))
   primary_id<-make.names(primary_id)
   
-  if(missing(currency) || is.null(currency) || (!missing(currency) && !is.currency(currency)))
+  if(missing(currency) || is.null(currency) || (!missing(currency) && !is.currency.name(currency)))
     stop("currency ",currency," must be defined first")
 
   if(!hasArg(identifiers) || is.null(identifiers)) identifiers = list()
@@ -115,16 +146,28 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
       }
   }
   if (!is.null(arg$src)) {
-      # Clear out anything stored in SymbolLookupTable
+      # Clear out anything stored in SymbolLookupTable for this instrument
       eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
 
       sarg <- list()
       if (length(arg$src) == 1) {
           sarg[[primary_id]] <- arg$src
       }  else {
-          sarg[[primary_id]] <- arg$src$src
+          #FIXME: @quantmod developers: getSymbols should not have a "verbose" argument.
+          # The 'verbose' arg belongs in the methods because the user may want to verbose=TRUE
+          # for some getSymbols methods, but verbose=FALSE for other ones. For now, I will
+          # store the "verbose" value in the SymbolLookup table so that the user can set different
+          # defaults for different methods, but that means that local args will be ignored.
+          # i.e. if you call stock("SPY", currency("USD"), src=list(src='FI', verbose=TRUE)), then
+          # if you call getSymbols("SPY", verbose=FALSE), it will use verbose=TRUE.
+          sarg[[primary_id]] <- if (is.null(arg$src$verbose)) {
+              arg$src$src
+          } else {
+              arg$src[c('src', 'verbose')]
+          }
           tmparg <- arg
           tmparg$src$src <- NULL
+          #tmparg$src$verbose <- NULL #make NULL if we decide to only use verbose arg of getSymbols
           do.call(setDefaults, c("getSymbols.FI", tmparg$src))
       }
       setSymbolLookup(sarg)
@@ -158,7 +201,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   class(tmpinstr)<-tclass
   
   if(assign_i)  {
-      assign(primary_id, tmpinstr, envir=as.environment(.instrument) )
+      assign(primary_id, tmpinstr, envir=as.environment(FinancialInstrument:::.instrument) )
       return(primary_id)  
   } else return(tmpinstr) 
 }
@@ -195,7 +238,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
     if(is.null(underlying_id)) {
         warning("underlying_id should only be NULL for cash-settled futures")
     } else {
-        if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
+        if(!exists(underlying_id, where=FinancialInstrument:::.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
         if (primary_id == underlying_id) {
             primary_id <- paste("..",primary_id,sep="")
             warning(paste('primary_id is the same as underlying_id,',
@@ -304,7 +347,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
       message("updating existing first_traded and expires for ",primary_id)
       temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
       temp_series$expires<-unique(c(temp_series$expires,expires))
-      assign(primary_id, temp_series, envir=as.environment(.instrument))
+      assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
       primary_id
   } else {
       args <- list()
@@ -359,7 +402,7 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled options")
   } else {
-      if(!exists(underlying_id, where=.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
+      if(!exists(underlying_id, where=FinancialInstrument:::.instrument,inherits=TRUE)) warning("underlying_id not found") # assumes that we know where to look
       if (primary_id == underlying_id) {
           primary_id <- paste(".",primary_id,sep="")
           warning(paste('primary_id is the same as underlying_id,',
@@ -430,7 +473,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         message("updating existing first_traded and expires for ", primary_id)
         temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
         temp_series$expires<-unique(c(temp_series$expires,expires))
-        assign(primary_id, temp_series, envir=as.environment(.instrument))
+        assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
         primary_id
     } else {
         dargs <- list(...)
@@ -480,7 +523,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
 #' \dontrun{
 #' option_series.yahoo('SPY') #only nearby calls and puts
 #' option_series.yahoo('DIA', Exp=NULL) #all chains
-#' ls(.instrument, all.names=TRUE)
+#' ls_instruments()
 #' }
 #' @export
 option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, first_traded=NULL, tick_size=NULL) {
@@ -576,20 +619,12 @@ currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
     }        
     class(ccy)<-c("currency","instrument")
     if (assign_i) {
-        assign(primary_id, ccy, pos=as.environment(.instrument) )
+        assign(primary_id, ccy, pos=as.environment(FinancialInstrument:::.instrument) )
         return(primary_id)
     }
     ccy
 }
 
-#' class test for object supposedly of type 'currency'
-#' @param x object to test for type
-#' @export
-is.currency <- function( x ) {
-#FIXME: This should not get instrument, but it will break everyone's code if I change it. -Garrett
-  x<-getInstrument(x, silent=TRUE)
-  inherits( x, "currency" )
-}
 
 #' constructor for spot exchange rate instruments
 #' 
@@ -623,8 +658,8 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
   
   if (is.null(currency)) currency <- substr(primary_id,4,6)
   if (is.null(counter_currency)) counter_currency <- substr(primary_id,1,3)
-  if(!exists(currency, where=.instrument,inherits=TRUE)) warning(paste("currency",currency,"not found")) # assumes that we know where to look
-  if(!exists(counter_currency, where=.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
+  if(!exists(currency, where=FinancialInstrument:::.instrument,inherits=TRUE)) warning(paste("currency",currency,"not found")) # assumes that we know where to look
+  if(!exists(counter_currency, where=FinancialInstrument:::.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
 
   ## now structure and return
   instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=assign_i)
@@ -656,7 +691,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL, maturity
         message("updating existing first_traded and maturity for ",id)
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
         temp_series$maturity<-c(temp_series$maturity,maturity)
-        assign(id, temp_series, envir=as.environment(.instrument))
+        assign(id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
     } else {
         dargs<-list(...)
         dargs$currency=NULL
@@ -737,7 +772,7 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
                             default_type='unknown', root=NULL, assign_i=TRUE, ...) {
 ##TODO: check formals against dots and remove duplicates from dots before calling constructors to avoid
 # 'formal argument "multiplier" matched by multiple actual arguments'
-    if (!is.null(currency) && !is.currency(currency)) {
+    if (!is.null(currency) && !is.currency.name(currency)) {
         if (nchar(currency) != 3 || currency != toupper(currency))
             stop(paste(currency, "is not defined,",
                 "and it will not be auto defined because it does not appear to be valid."))
@@ -918,12 +953,12 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
 #' @export
 #' @rdname getInstrument
 getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
-    tmp_instr <- try(get(x,pos=.instrument),silent=TRUE) #removed inherits=TRUE
+    tmp_instr <- try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE) #removed inherits=TRUE
     if(inherits(tmp_instr,"try-error") || !inherits(tmp_instr, type)){
         #first search
-        instr_list <- ls(pos=.instrument, all.names=TRUE)
+        instr_list <- ls(pos=FinancialInstrument:::.instrument, all.names=TRUE)
         for (instr in instr_list){
-            tmp_instr <- try(get(instr, pos=.instrument), silent=TRUE)
+            tmp_instr <- try(get(instr, pos=FinancialInstrument:::.instrument), silent=TRUE)
             if(inherits(tmp_instr, type) && (x %in% tmp_instr$identifiers || x %in% make.names(tmp_instr$identifiers))) {
                 return(tmp_instr)
             }
@@ -931,11 +966,11 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
         #If not found, see if it begins with dots (future or option root)
         #strip out the dots and add them back 1 at a time to the beginning of id
         x <- gsub("\\.", "", x) 
-        tmp_instr<-try(get(x,pos=.instrument),silent=TRUE)
+        tmp_instr<-try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE)
         if(!inherits(tmp_instr,type)) {
-            tmp_instr<-try(get(paste(".",x,sep=""),pos=.instrument),silent=TRUE)
+            tmp_instr<-try(get(paste(".",x,sep=""),pos=FinancialInstrument:::.instrument),silent=TRUE)
             if(!inherits(tmp_instr,type)) {
-                tmp_instr<-try(get(paste("..",x,sep=""),pos=.instrument),silent=TRUE)
+                tmp_instr<-try(get(paste("..",x,sep=""),pos=FinancialInstrument:::.instrument),silent=TRUE)
             }
         }
         if (!inherits(tmp_instr,'try-error') && inherits(tmp_instr, type)) return(tmp_instr)
@@ -990,7 +1025,7 @@ instrument_attr <- function(primary_id, attr, value) {
     if (inherits(instr, 'try-error') || !is.instrument(instr))
         stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
     instr[[attr]] <- value
-    if (attr == 'primary_id') rm(list = primary_id, pos = .instrument)
+    if (attr == 'primary_id') rm(list = primary_id, pos = FinancialInstrument:::.instrument)
     if (attr == 'currency' && !is.instrument(getInstrument(value,type='currency',silent=TRUE)))
         stop("currency ", value, " must be an object of type 'currency'")
     if (attr == 'multiplier' && (!is.numeric(value) || length(value) > 1))
@@ -1012,20 +1047,31 @@ instrument_attr <- function(primary_id, attr, value) {
     if (attr == 'src') {
       # Clear out anything stored in SymbolLookupTable
       eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
-
       sarg <- list()
       if (length(value) == 1) {
           sarg[[primary_id]] <- value
       }  else {
-          sarg[[primary_id]] <- value$src
+          #FIXME: @quantmod developers: getSymbols should not have a "verbose" argument.
+          # The 'verbose' arg belongs in the methods because the user may want to verbose=TRUE
+          # for some getSymbols methods, but verbose=FALSE for other ones. For now, I will
+          # store the "verbose" value in the SymbolLookup table so that the user can set different
+          # defaults for different methods, but that means that local args will be ignored.
+          # i.e. if you call instrument_attr("SPY", "src", list(src='FI', verbose=TRUE)), then
+          # if you call getSymbols("SPY", verbose=FALSE), it will use verbose=TRUE.
+          sarg[[primary_id]] <- if (is.null(value$verbose)) {
+              value$src
+          } else {
+              value[c('src', 'verbose')]
+          }
           value$src <- NULL
+          #value$verbose <- NULL
           do.call(setDefaults, c("getSymbols.FI", value))
       }
       setSymbolLookup(sarg)
       #arg[["src"]]<-NULL
   }
 
-    assign(instr$primary_id, instr, pos=.instrument)
+    assign(instr$primary_id, instr, pos=FinancialInstrument:::.instrument)
 }
 
 #' instrument class print method

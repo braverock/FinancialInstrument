@@ -49,7 +49,7 @@
 \dontrun{
 option_series.yahoo('SPY') #only nearby calls and puts
 option_series.yahoo('DIA', Exp=NULL) #all chains
-ls(.instrument, all.names=TRUE)
+ls_instruments()
 }
 }
 \author{

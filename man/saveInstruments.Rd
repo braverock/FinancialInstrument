@@ -7,7 +7,7 @@
     extension = "RData")
 
   loadInstruments(file_name = "MyInstruments", dir = "",
-    extension = "RData", env = .GlobalEnv)
+    extension = "RData")
 }
 \arguments{
   \item{file_name}{What to name the file (name of file that
@@ -20,9 +20,6 @@
   \item{extension}{File extension of file. default is
   RData. This will be ignored if \code{file_name} ends with
   either \sQuote{.rda} or \sQuote{.RData}.}
-
-  \item{env}{What environment holds .instrument environment
-  to be updated; usually .GlobalEnv.}
 }
 \value{
   Called for side-effect
