@@ -208,41 +208,6 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 }
 
 
-setSymbolLookup.FI2 <- function (Symbols, dir, from = "2010-01-01", to = Sys.Date(), 
-    return.class = "xts", extension = "rda", split_method = c("days", "common"), 
-    use_identifier = "primary_id", date_format = NULL, verbose = TRUE, 
-    days_to_omit = c("Saturday", "Sunday")) 
-{
-    # check that base_dir exists
-    if(!file.exists(dir)) stop('dir ', dir, ' does not seem to specify a valid path' )
-    
-    # take split
-    split_method<-split_method[1] # only use the first value
-
-    #load all instrument names
-    Symbols <- if(missing(Symbols)) {
-        ls_non_currencies(ls(pos=.instrument)) #if roots begin with a dot, this will filter out roots and currencies
-    } else Symbols
-
-    args <- list(
-                src="FI",
-                dir=dir, 
-                from=from, 
-                to=to,
-                return.class=return.class, 
-                extension=extension,
-                split_method=split_method,
-                use_identifier=use_identifier,
-                date_format=date_format, 
-                verbose=verbose, 
-                days_to_omit=days_to_omit)
-
-    for (s in Symbols) {
-        instrument_attr(s, "src", args)
-    }
-}
-
-
 #' getSymbols method for loading data from split files
 #' 
 #' This function should probably get folded back into getSymbols.rda in quantmod.
