@@ -135,7 +135,6 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
   if (raw_id != primary_id) {
       identifiers <- c(identifiers, raw_id=raw_id)
   }
-
   arg<-list(...)
   if(is.list(arg[['...']])){
       if(length(arg)==1) arg <- arg[['...']]
@@ -146,30 +145,8 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, i
       }
   }
   if (!is.null(arg$src)) {
-      # Clear out anything stored in SymbolLookupTable for this instrument
-      eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
-
       sarg <- list()
-      if (length(arg$src) == 1) {
-          sarg[[primary_id]] <- arg$src
-      }  else {
-          #FIXME: @quantmod developers: getSymbols should not have a "verbose" argument.
-          # The 'verbose' arg belongs in the methods because the user may want to verbose=TRUE
-          # for some getSymbols methods, but verbose=FALSE for other ones. For now, I will
-          # store the "verbose" value in the SymbolLookup table so that the user can set different
-          # defaults for different methods, but that means that local args will be ignored.
-          # i.e. if you call stock("SPY", currency("USD"), src=list(src='FI', verbose=TRUE)), then
-          # if you call getSymbols("SPY", verbose=FALSE), it will use verbose=TRUE.
-          sarg[[primary_id]] <- if (is.null(arg$src$verbose)) {
-              arg$src$src
-          } else {
-              arg$src[c('src', 'verbose')]
-          }
-          tmparg <- arg
-          tmparg$src$src <- NULL
-          #tmparg$src$verbose <- NULL #make NULL if we decide to only use verbose arg of getSymbols
-          do.call(setDefaults, c("getSymbols.FI", tmparg$src))
-      }
+      sarg[[primary_id]] <- arg$src
       setSymbolLookup(sarg)
       #arg[["src"]]<-NULL
   }
@@ -990,9 +967,7 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' If the \code{attr} you are trying to change is the \dQuote{primary_id,} the instrument will be renamed.
 #' (A copy of the instrument will be stored by the name of \code{value} and the old instrument will be removed.)
 #' If the \code{attr} you are changing is \dQuote{type}, the instrument will be reclassed with that type.
-#' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.  If \dQuote{src}
-#' is a list with more than 1 item, \code{setSymbolLookup} will be called with the item named \sQuote{src}, and
-#' the remaining items will be passed used in a call to \code{setDefaults} along with \code{.name='getSymbols.FI'}
+#' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.  
 #' Other checks are in place to make sure that \dQuote{currency} remains a \code{\link{currency}} object and that
 #' \dQuote{multiplier} and \dQuote{tick_size} can only be changed to reasonable values.
 #' @param primary_id primary_id of the instrument that will be updated
@@ -1045,32 +1020,10 @@ instrument_attr <- function(primary_id, attr, value) {
         }
     }
     if (attr == 'src') {
-      # Clear out anything stored in SymbolLookupTable
-      eval(parse(text=paste('setSymbolLookup(', primary_id, '=', 'NULL', ')', sep="")))
-      sarg <- list()
-      if (length(value) == 1) {
-          sarg[[primary_id]] <- value
-      }  else {
-          #FIXME: @quantmod developers: getSymbols should not have a "verbose" argument.
-          # The 'verbose' arg belongs in the methods because the user may want to verbose=TRUE
-          # for some getSymbols methods, but verbose=FALSE for other ones. For now, I will
-          # store the "verbose" value in the SymbolLookup table so that the user can set different
-          # defaults for different methods, but that means that local args will be ignored.
-          # i.e. if you call instrument_attr("SPY", "src", list(src='FI', verbose=TRUE)), then
-          # if you call getSymbols("SPY", verbose=FALSE), it will use verbose=TRUE.
-          sarg[[primary_id]] <- if (is.null(value$verbose)) {
-              value$src
-          } else {
-              value[c('src', 'verbose')]
-          }
-          value$src <- NULL
-          #value$verbose <- NULL
-          do.call(setDefaults, c("getSymbols.FI", value))
-      }
-      setSymbolLookup(sarg)
-      #arg[["src"]]<-NULL
-  }
-
+        sarg <- list()
+        sarg[[instr$primary_id]] <- value
+        setSymbolLookup(sarg)
+    }
     assign(instr$primary_id, instr, pos=FinancialInstrument:::.instrument)
 }
 

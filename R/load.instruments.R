@@ -259,11 +259,6 @@ setSymbolLookup.FI2 <- function (Symbols, dir, from = "2010-01-01", to = Sys.Dat
 #' However, if you were to call \code{getSymbols.FI} directly (which is \emph{NOT} recommended) 
 #' with \code{auto.assign=FALSE} and more than one Symbol, a list would be returned.
 #' 
-#' @note getSymbols and getSymbols.FI both have a \code{verbose} argument.  If a value has been
-#' set for \code{verbose} in the SymbolLookup table, it will be used in spite of any local args.
-#' If you want to change it, you will have to change it with a call to \code{instrument_attr} 
-#' or \code{setSymbolLookup}.  If you call either of those with \code{verbose=NULL}, the \code{verbose}
-#' arg will be unset and local arguments will again be respected.
 #' @param Symbols a character vector specifying the names of each symbol to be loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
 #' @param to Retrieve data through this date. Default Sys.Date().
@@ -309,7 +304,7 @@ getSymbols.FI <- function(Symbols,
     }
 
     #The body of the following function comes from Dominik's answer here: 
-    #browseURL{"http://stackoverflow.com/questions/7224938/can-i-rbind-be-parallelized-in-r"}
+    #browseURL("http://stackoverflow.com/questions/7224938/can-i-rbind-be-parallelized-in-r")
     #it does what do.call(rbind, lst) would do, but faster and with less memory usage
     do.call.rbind <- function(lst) {
         while(length(lst) > 1) {
@@ -324,7 +319,21 @@ getSymbols.FI <- function(Symbols,
         lst[[1]]
     }
 
-    default.from <- from    
+    # Find out if user provided a value for each formal
+    hasArg.from <- hasArg(from)
+    hasArg.to <- hasArg(to)
+    hasArg.dir <- hasArg(dir)
+    hasArg.return.class <- hasArg(return.class)
+    hasArg.extension <- hasArg(extension)
+    hasArg.split_method <- hasArg(split_method)
+    hasArg.use_identifier <- hasArg(use_identifier)
+    hasArg.date_format <- hasArg(date_format)
+    hasArg.verbose <- hasArg(verbose)
+    hasArg.days_to_omit <- hasArg(days_to_omit)
+
+    # Now get the values for each formal that we'll use if not provided
+    # by the user and not found in the SymbolLookup table
+    default.from <- from
     default.to <- to
     default.dir <- dir
     default.return.class <- return.class
@@ -338,29 +347,29 @@ getSymbols.FI <- function(Symbols,
     # so the next 2 if statements should always be TRUE
     auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
     env <- if(hasArg(env)) {env} else .GlobalEnv 
+
+    # make an argument matching function to sort out which values to use for each arg
+    pickArg <- function(x, Symbol) {
+        if(get(paste('hasArg', x, sep="."))) {
+            get(x)
+        } else if(!is.null(SymbolLookup[[Symbol]][[x]])) {
+            SymbolLookup[[Symbol]][[x]]
+        } else get(paste("default", x, sep="."))
+    }
+
+    SymbolLookup <- getSymbolLookup()
     fr <- NULL
     datl <- lapply(1:length(Symbols), function(i) {
-        from <- getSymbolLookup()[[Symbols[[i]]]]$from 
-        from <- if(is.null(from)) { default.from } else from
-        to <- getSymbolLookup()[[Symbols[[i]]]]$to
-        to <- if(is.null(to)) { default.to } else to
-        dir <- getSymbolLookup()[[Symbols[[i]]]]$dir
-        dir <- if(is.null(dir)) { default.dir } else dir
-        return.class <- getSymbolLookup()[[Symbols[[i]]]]$return.class
-        return.class <- if(is.null(return.class)) { default.return.class } else return.class
-        extension <- getSymbolLookup()[[Symbols[[i]]]]$extension
-        extension <- if (is.null(extension)) { default.extension } else extension
-        split_method <- getSymbolLookup()[[Symbols[[i]]]]$split_method
-        split_method <- if (is.null(split_method)) { default.split_method } else split_method
-        use_identifier <- getSymbolLookup()[[Symbols[[i]]]]$use_identifier
-        use_identifier <- if (is.null(use_identifier)) { default.use_identifier } else use_identifier
-        date_format <- getSymbolLookup()[[Symbols[[i]]]]$date_format
-        date_format <- if(is.null(date_format)) { default.date_format } else date_format
-        verbose <- getSymbolLookup()[[Symbols[[i]]]]$verbose
-        verbose <- if(is.null(verbose)) { default.verbose } else verbose
-        days_to_omit <- getSymbolLookup()[[Symbols[[i]]]]$days_to_omit
-        days_to_omit <- if(is.null(days_to_omit)) { default.days_to_omit } else days_to_omit
-
+        from <- pickArg("from", Symbols[[i]])
+        to <- pickArg("to", Symbols[[i]])
+        dir <- pickArg("dir", Symbols[[i]])
+        return.class <- pickArg("return.class", Symbols[[i]])
+        extension <- pickArg('extension', Symbols[[i]])
+        split_method <- pickArg('split_method', Symbols[[i]])
+        use_identifier <- pickArg('use_identifier', Symbols[[i]])
+        date_format <- pickArg('date_format', Symbols[[i]])
+        verbose <- pickArg('verbose', Symbols[[i]])
+        days_to_omit <- pickArg('days_to_omit', Symbols[[i]])
         # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
         # First, find out what the instrument name is
         instr_str <- NA
