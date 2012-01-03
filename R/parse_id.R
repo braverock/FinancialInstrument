@@ -49,7 +49,7 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
         suffix <- gsub("_","",suffix) #take out the underscore if there is one
     } else if (identical(integer(0), grep("[0-9]",x))) { 
         #if there are no numbers in the id, then it has no year, so it is not a recognized future or option        
-        if (substr(x, nchar(x)-1, nchar(x)) == ".O") {
+        if (substr(x, nchar(x)-1, nchar(x)) %in% c(".O", ".K")) {
             #only one dot, and the id ends with ".O" -- it looks like an X.RIC for a NASDAQ stock
             suffix <- ""
             root <- substr(x, 1, nchar(x)-2)

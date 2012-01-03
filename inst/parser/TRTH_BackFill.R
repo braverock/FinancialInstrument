@@ -193,8 +193,9 @@ download_reut <- function(.TRTH) {
 
     files.gz <- Reuters.output[!(Reuters.output %in% Archive.output)]
     #files.gz <- paste(username, "-", job.name, ".csv.gz", sep="")
-
+    
     if (length(files.gz) == 0) files.gz <- Reuters.output
+    if (length(files.gz) == 0) stop('Cannot find .gz file containing "job.name" Maybe it has already been purged?')
     .TRTH$files.gz = files.gz
     assign(".TRTH", .TRTH, pos=.GlobalEnv)
     
