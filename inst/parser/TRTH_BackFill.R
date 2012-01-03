@@ -429,7 +429,7 @@ splitCSV <- function(.TRTH) {
     # Remove everything from .instrument, put back the auto-defined missing instruments and save them
     try(rm_instruments(), silent=TRUE)
     lapply(missing_list, function(x) {
-        assign(x$primary_id, x, pos=.instrument)
+        assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
     })
 
     saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), path.output) #If you load this with loadInstruments it will not clobber .instrument
