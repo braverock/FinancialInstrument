@@ -66,12 +66,11 @@ loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData")
         extension <- tail(ssfn, 1)
     }
 	load(paste(dir,file_name,".",extension,sep=""),envir=tmpenv)
-    #.instrument <- get("FinancialInstrument:::.instrument",pos=env)
     .instrument <- FinancialInstrument:::.instrument
     il <- ls(tmpenv$.instrument,all.names=TRUE)
     for (i in il) {
-        .instrument[[i]] <- tmpenv$.instrument[[i]]
+         assign(i, tmpenv$.instrument[[i]], pos=.instrument, inherits=FALSE)
     }
-    assign("FinancialInstrument:::.instrument", .instrument, pos=.GlobalEnv)
 }
+
 
