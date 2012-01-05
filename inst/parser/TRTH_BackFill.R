@@ -1,5 +1,5 @@
 #############################################################################################
-# This file contains functions that are used to parse zipped csv files from Reuters         
+# This file contains functions that are used to parse zipped csv files from Reuters.         
 # After sourcing these functions (this script),                                             
 # 1st run "configureTRTH" which will create an environment to hold parameter values         
 # 2nd run "download_reut" to download the big zipped csv files to your archive directory    
@@ -399,10 +399,9 @@ splitCSV <- function(.TRTH) {
     .TRTH$files.xts <- files.xts
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
     
-
     missing_i <- NULL
     instr_s <- unique(files.xts[,'name.new'])
-    print(paste('Defining', length(instr_s), 'missing instruments'))
+    print(paste('Defining', length(instr_s[!instr_s %in% ls_instruments()]), 'missing instruments'))
     missing_list <- list() # list to hold auto-defined missing instruments
     for(i in 1:length(instr_s)){
         instr <- getInstrument(instr_s[i], silent=TRUE)
@@ -415,9 +414,9 @@ splitCSV <- function(.TRTH) {
                                     default_type=default_type, assign_i=FALSE)
             if (!is.instrument(iauto)) {
                 warning(paste("Could NOT create ", default_type, " from ", 
-                            instr_s[i], ". Creating _NULL_ instrument instead.", sep=""))
-                iauto <- suppressWarnings(instrument.auto(instr_s[i], currency=default_currency,
-                                            default_type="NULL", assign_i=FALSE))
+                            instr_s[i], ". Creating _unknown_ instrument instead.", sep=""))
+                iauto <- try(suppressWarnings(instrument.auto(instr_s[i], currency=default_currency,
+                                            default_type="unknown", assign_i=FALSE)))
             }
             missing_list[[iauto$primary_id]] <- iauto
             #assign(iauto$primary_id, iauto, pos=missing_i_envir) 
@@ -547,14 +546,18 @@ FEreut2xts <- function(.TRTH) {
         Data <- xts(Data,order.by=index.new,tz="GMT")
 
         ## Turn bids/offers that are less than zero into NA for outrights
-        type <- unlist(strsplit(type, ";"))	
-        if(!"synthetic" %in% type)
+        type <- try(unlist(strsplit(type, ";")))
+        if (inherits(type, 'try-error')) {
+            warning('type is incorrect. Using "synthetic"')
+            type <- 'synthetic'
+        }        
+        if(!any(c("unknown", "synthetic") %in% type))
         { #outrights
             Data$Bid.Price[Data$Bid.Price < 0, ] <- NA
 	        Data$Ask.Price[Data$Ask.Price < 0, ] <- NA
 	        Data$Price[Data$Price < 0, ] <- NA
         } 
-
+    
         ## If Bid.Price and Bid.Size are zero set both to NA
         zero.replace <- which(Data$Bid.Price == 0 & Data$Bid.Size == 0)
         if (length(zero.replace) != 0) {
@@ -577,6 +580,14 @@ FEreut2xts <- function(.TRTH) {
         ## Remove Trades with Volume of zero
         Volume.remove <- which(Data$Volume == 0)
         if(length(Volume.remove) != 0) Data <- Data[-Volume.remove]
+
+        ## Remove Bids with Size of zero
+        Bid.remove <- which(Data$Bid.Size == 0)
+        if(length(Bid.remove) != 0) Data <- Data[-Bid.remove]
+
+        ## Remove Asks with Size of zero
+        Ask.remove <- which(Data$Ask.Size == 0)
+        if(length(Ask.remove) != 0) Data <- Data[-Ask.remove]
 
         if(dim(Data)[1]<=25){return(NULL)}
 
