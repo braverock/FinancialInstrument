@@ -54,7 +54,7 @@
 #    username = 'email@domain.com',
 #    password = 'password',
 #    default_type = 'guaranteed_spread',
-#    default_currecy = "USD",
+#    default_currency = "USD",
 #    job.name = "ReutersJobName",
 #    overwrite = FALSE,
 #    tick.image = TRUE,
@@ -70,7 +70,9 @@
 
 configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     ## Create environment to hold variables that more than one function needs to access    
-    .TRTH <- new.env(parent=.GlobalEnv)
+    if (!exists('.TRTH', .GlobalEnv)) {
+        .TRTH <- new.env(parent=.GlobalEnv)
+    } else .TRTH <- get('.TRTH', pos=.GlobalEnv)
     dargs <- list(...)
 
     ## Load required packages
@@ -96,6 +98,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     # Some things (subdirectory names) we will create if they aren't in dots or config_file
     pickDirArg <- function(x) {
         if (!is.null(dargs[[x]])) return(dargs[[x]]) #passed through dots
+        if (!is.null(.TRTH[[x]])) return(.TRTH[[x]])        
         if (exists(x)) return(addslash(get(x)))
         addslash(paste(path.output, sub("_dir", "", x), sep=""))
     }
@@ -120,6 +123,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
         # otherwise, if it was in config_file, use that
         # if it's neither in dots, nor in config_file, use default
         if (!is.null(dargs[[x]])) return(dargs[[x]]) #passed through dots
+        if (!is.null(.TRTH[[x]])) return(.TRTH[[x]])
         if (exists(x)) return(get(x))
         default
     }
@@ -158,10 +162,10 @@ download_reut <- function(.TRTH) {
         .TRTH <- try(get('.TRTH', pos=.GlobalEnv))
         if (inherits(.TRTH, 'try-error')) stop("Run configureTRTH function first")
     }
-    attach(.TRTH)
+#    attach(.TRTH)
     Sys.umask("0002")
 
-    Archive.output <- list.files(archive_dir)
+    Archive.output <- list.files(.TRTH$archive_dir)
     Archive.output <- Archive.output[grep("\\.gz",Archive.output)]
     omit <- c(grep("confirmation",Archive.output),grep("report",Archive.output))
     if (length(omit) > 0) Archive.output <- Archive.output[-omit]
@@ -171,7 +175,7 @@ download_reut <- function(.TRTH) {
     {
         clear <- warnings() #currency loads from oanda alway generate warnings, clear them out
         Reuters <- system(paste("curl ftp://tickhistory-ftp.thomsonreuters.com:15500/results/ -u ",
-                                username,":",password," --ftp-ssl -k -l",sep=""),intern=TRUE)
+                                .TRTH$username,":",.TRTH$password," --ftp-ssl -k -l",sep=""),intern=TRUE)
         cat("\n")
         w <- ''
         w <- warnings()[!warnings() %in% clear]
@@ -189,19 +193,18 @@ download_reut <- function(.TRTH) {
     Reuters.report <- Reuters[grep("report",Reuters)]
 
     Reuters.output <-  Reuters[-c(grep("report",Reuters),grep("confirmation",Reuters))]
-    Reuters.output <-  Reuters.output[grep(job.name, Reuters.output)]
+    Reuters.output <-  Reuters.output[grep(.TRTH$job.name, Reuters.output)]
 
     files.gz <- Reuters.output[!(Reuters.output %in% Archive.output)]
     #files.gz <- paste(username, "-", job.name, ".csv.gz", sep="")
     
-    if (length(files.gz) == 0) files.gz <- Reuters.output
-    if (length(files.gz) == 0) stop('Cannot find .gz file containing "job.name" Maybe it has already been purged?')
-    .TRTH$files.gz = files.gz
+    if (length(.TRTH$files.gz) == 0) .TRTH$files.gz <- Reuters.output
+    if (length(.TRTH$files.gz) == 0) stop('Cannot find .gz file containing "job.name" Maybe it has already been purged?')
     assign(".TRTH", .TRTH, pos=.GlobalEnv)
     
-    for(i in 1:length(files.gz))
+    for(i in 1:length(.TRTH$files.gz))
     {	
-        filename.gz <- files.gz[i]
+        filename.gz <- .TRTH$files.gz[i]
         filename.csv <- substr(filename.gz,1,(nchar(filename.gz)-3))
 	
         alias <- unlist(strsplit(filename.gz,"-"))[3]
@@ -213,9 +216,9 @@ download_reut <- function(.TRTH) {
         Reuters2 <- 0
         while(!fileflag) #try to download individual files
         {
-            if (!file.exists(paste(archive_dir, filename.gz, sep="")) || overwrite) {
+            if (!file.exists(paste(.TRTH$archive_dir, filename.gz, sep="")) || .TRTH$overwrite) {
                 Reuters2 <- system(paste("curl -m 10800 --max-filesize 1610612736 ftp://tickhistory-ftp.thomsonreuters.com:15500/results/", 
-                                    filename.gz, " -u ", username, ":", password, " --ssl -k > ", archive_dir, filename.gz, sep=""))
+                                    filename.gz, " -u ", .TRTH$username, ":", .TRTH$password, " --ssl -k > ", .TRTH$archive_dir, filename.gz, sep=""))
             } #else cat(paste(filename.gz, 'already exists, and overwrite==FALSE; not re-downloading.'), "\n")
             if(Reuters2 != 0)
             {
@@ -230,19 +233,20 @@ download_reut <- function(.TRTH) {
         }
         
 	    ## Download Report s
-        if (!file.exists(paste(archive_dir, Reuters.report[grep(alias,Reuters.report)], sep="")) || overwrite) { 
+        if (!file.exists(paste(.TRTH$archive_dir, Reuters.report[grep(alias,Reuters.report)], sep="")) || .TRTH$overwrite) { 
     	    system(paste("curl ftp://tickhistory-ftp.thomsonreuters.com:15500/results/",
-                        Reuters.report[grep(alias,Reuters.report)], " -u ", username, ":", password,
-                        " --ftp-ssl -k > ", archive_dir, Reuters.report[grep(alias,Reuters.report)], sep=""))
+                        Reuters.report[grep(alias,Reuters.report)], " -u ", .TRTH$username, ":", .TRTH$password,
+                        " --ftp-ssl -k > ", .TRTH$archive_dir, Reuters.report[grep(alias,Reuters.report)], sep=""))
 	        #system(paste("gzip -d -f ",archive_dir,"Report/",Reuters.report[grep(alias,Reuters.report)],sep=""))
 	        cat("\n")
         } #else cat(paste(Reuters.report[grep(alias,Reuters.report)], 
           #      "already exists, and overwrite==FALSE; not re-downloading.\n"))
     }
 
-    #save(files.gz, file=paste(archive_dir, 'files.gz.tmp.rda', sep=""))
+    #save(files.gz, file=paste(.TRTH$archive_dir, 'files.gz.tmp.rda', sep=""))
     #files.gz
-    detach(.TRTH)
+#    detach(.TRTH)
+    assign(".TRTH", .TRTH, pos=.GlobalEnv)
     .TRTH
 }
 
@@ -265,40 +269,40 @@ get_files.gz <- function(archive_dir, job.name){
 splitCSV <- function(.TRTH) {
     #FIXME: respect overwrite argument
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
-    attach(.TRTH)
-    if (substr(path.output, nchar(path.output), nchar(path.output)) != "/") {
-        .TRTH$path.output <- path.output <- paste(path.output, "/", sep="")
+#    attach(.TRTH)
+    if (substr(.TRTH$path.output, nchar(.TRTH$path.output), nchar(.TRTH$path.output)) != "/") {
+        .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="")
     }
 
-    if (!exists('files.gz')) .TRTH$files.gz <- files.gz <- get_files.gz(archive_dir, job.name)
+    if (is.null(.TRTH$files.gz)) .TRTH$files.gz <- get_files.gz(.TRTH$archive_dir, .TRTH$job.name)
 
-    if (!exists('instrument_file')) { #Don't need this anymore
-        tmp <- list.files(paste(path.output))
-        instrument_file <- paste(path.output, tail(tmp[grep("instruments", tmp)], 1), sep="")
+    if (is.null(.TRTH$instrument_file)) { #Don't need this anymore
+        tmp <- list.files(paste(.TRTH$path.output))
+        instrument_file <- paste(.TRTH$path.output, tail(tmp[grep("instruments", tmp)], 1), sep="")
         if (!file.exists(instrument_file)) {
             stop("Could not find instrument_file; please specify")
         } else .TRTH$instrument_file <- instrument_file
     }
 
-    loadInstruments(instrument_file)
-    registerDoMC(no.cores)
+    loadInstruments(.TRTH$instrument_file)
+    registerDoMC(.TRTH$no.cores)
 
     ## unzip and split (new unzip method does not require rezip; keeps original gz file)
-    setwd(archive_dir)
+    setwd(.TRTH$archive_dir)
 
-    foreach(i = 1:length(files.gz)) %dopar% 
+    foreach(i = 1:length(.TRTH$files.gz)) %dopar% 
     { # unzip in parallel
-        filename.gz <- files.gz[i]
+        filename.gz <- .TRTH$files.gz[i]
         filename.csv <- substr(filename.gz,1,(nchar(filename.gz)-3))
 	    #unzip the file
 	    print(paste("unzipping ",filename.gz, sep=""))
         #system(paste("gzip -d -f ",archive_dir,filename.gz,sep=""))
-        system(paste("gunzip -f < ", archive_dir, filename.gz, " > ", archive_dir, filename.csv, sep=""))
+        system(paste("gunzip -f < ", .TRTH$archive_dir, filename.gz, " > ", .TRTH$archive_dir, filename.csv, sep=""))
     }
 
-    for (i in 1:length(files.gz)) 
+    for (i in 1:length(.TRTH$files.gz)) 
     {
-        filename.gz <- files.gz[i]
+        filename.gz <- .TRTH$files.gz[i]
         filename.csv <- substr(filename.gz,1,(nchar(filename.gz)-3))
         # Use awk to split the big CSV into daily CSVs.  Each CSV will have a single
         # row which we will then overwrite with the column headers.  Then we'll
@@ -310,7 +314,7 @@ splitCSV <- function(.TRTH) {
         system(paste('awk -v f2="" -F "," '," '",'{f1 = $1"."$2".csv";if(f1 != f2) { print >> f1; close(f2); f2=f1; } }',"' ",filename.csv, sep=""))
     }
 
-    tmpfiles <- list.files(archive_dir)
+    tmpfiles <- list.files(.TRTH$archive_dir)
     files.header <- tmpfiles[grep("RIC",tmpfiles)]        
     big.files <- tmpfiles[grep("@", tmpfiles)] #Big zipped CSVs from Reuters have e-mail address in name
     #big.files <- tmpfiles[grep(job.name, tmpfiles)]
@@ -323,22 +327,21 @@ splitCSV <- function(.TRTH) {
                 tmpfiles[grep("missing_instruments", tmpfiles)]               
                 )
 
-    files.csv <- tmpfiles[!tmpfiles %in% ignore]
-    .TRTH$files.csv <- files.csv
+    .TRTH$files.csv <- tmpfiles[!tmpfiles %in% ignore]
     # files.header now has several identical rows. Delete all but first by extracting first row, and overwritting file with it
     system(paste('head -1 "', files.header, '" > header.csv', sep="")) # extract 1st line
     # head -1 "RIC.Date[G].csv" > header.csv
     system(paste('mv header.csv "', files.header, '"', sep=""))        # replace files.header with only 1st line
     # mv header.csv "RIC.Date[G].csv"
 
-    for (fl in files.csv) {
-        system(paste('cp "', files.header, '" ', paste(archive_dir, fl, sep=""), sep=""))
+    for (fl in .TRTH$files.csv) {
+        system(paste('cp "', files.header, '" ', paste(.TRTH$archive_dir, fl, sep=""), sep=""))
         #cp "#RIC.Date[G].csv" /home/garrett/TRTH/archive/GEM1-U1.01-APR-2008.csv
     }
 
-    for (j in 1:length(files.gz))
+    for (j in 1:length(.TRTH$files.gz))
     {   
-        filename.gz <- files.gz[j]
+        filename.gz <- .TRTH$files.gz[j]
         filename.csv <- substr(filename.gz,1,(nchar(filename.gz)-3))
 
 	    ## Split the Files 
@@ -353,9 +356,9 @@ splitCSV <- function(.TRTH) {
 	    print(paste('Done splitting ', filename.csv, sep=""))
 
         # remove header file
-        invisible(file.remove(paste(archive_dir, files.header, sep="")))
+        invisible(file.remove(paste(.TRTH$archive_dir, files.header, sep="")))
         # remove unzipped csv
-        invisible(file.remove(paste(archive_dir, filename.csv, sep="")))
+        invisible(file.remove(paste(.TRTH$archive_dir, filename.csv, sep="")))
 	    ## Zip the File
         # print(paste("zipping ",filename.csv,sep=""))
         # system(paste("gzip -f ",archive_dir,filename.csv,sep=""))
@@ -366,11 +369,11 @@ splitCSV <- function(.TRTH) {
 
     # Move split CSVs into csv_dir
     files.xts <- NULL
-#    foreach (k = icount(length(files.csv))) %dopar%
-    for (k in 1:length(files.csv))
+#    foreach (k = icount(length(.TRTH$files.csv))) %dopar%
+    for (k in 1:length(.TRTH$files.csv))
     {
         #print(k)
-        name.csv <- files.csv[k]                        # "ASBC.O.08-JAN-2011.csv"
+        name.csv <- .TRTH$files.csv[k]                        # "ASBC.O.08-JAN-2011.csv"
         #name <- unlist(strsplit(name.csv,".",fixed=TRUE))[1]
         spl.name <- unlist(strsplit(name.csv, "\\."))   # "ASBC" "O" "08-JAN-2011" "csv" 
         last2 <- (length(spl.name) - 1):length(spl.name)# 3 4
@@ -385,11 +388,11 @@ splitCSV <- function(.TRTH) {
         } else make.names(name)
 
         ## Create directory if it does not exist
-        dir.create(paste(csv_dir, date.format, "/", sep=""), showWarnings=FALSE, recursive=TRUE, mode='0775') #mode='0664'
+        dir.create(paste(.TRTH$csv_dir, date.format, "/", sep=""), showWarnings=FALSE, recursive=TRUE, mode='0775') #mode='0664'
 
         ## Move files to appropriate place
         #system(paste("mv -vf ", path.output,"Archives/",name.csv, " ", path.output,date.format,"/",date.format,".",name.new,".csv", sep=""))
-        system(paste("mv -f ", name.csv, " ", csv_dir, date.format, "/", date.format, ".", name.new, ".csv", sep=""))
+        system(paste("mv -f ", name.csv, " ", .TRTH$csv_dir, date.format, "/", date.format, ".", name.new, ".csv", sep=""))
 
         print(paste(date.format, name.new, "moved", sep=" "))
         files.xts <- rbind(files.xts,as.data.frame(cbind(name.new,date.format),stringsAsFactors=FALSE))
@@ -401,7 +404,8 @@ splitCSV <- function(.TRTH) {
     
     missing_i <- NULL
     instr_s <- unique(files.xts[,'name.new'])
-    print(paste('Defining', length(instr_s[!instr_s %in% ls_instruments()]), 'missing instruments'))
+    alldefined <- c(ls_instruments(), ls_instruments_by('identifiers', NULL))
+    print(paste('Defining', length(instr_s[!instr_s %in% alldefined]), 'missing instruments'))
     missing_list <- list() # list to hold auto-defined missing instruments
     for(i in 1:length(instr_s)){
         instr <- getInstrument(instr_s[i], silent=TRUE)
@@ -410,12 +414,12 @@ splitCSV <- function(.TRTH) {
             files.xts[files.xts$name.new ==instr_s[i],]$type <- paste(instr$type, collapse=";")
         } else {
             #print(paste(instr_s[i], 'does not appear to be an instrument, setting it to', default_type))
-            iauto <- instrument.auto(instr_s[i], currency=default_currency, 
-                                    default_type=default_type, assign_i=FALSE)
+            iauto <- instrument.auto(instr_s[i], currency=.TRTH$default_currency, 
+                                    default_type=.TRTH$default_type, assign_i=FALSE)
             if (!is.instrument(iauto)) {
-                warning(paste("Could NOT create ", default_type, " from ", 
+                warning(paste("Could NOT create ", .TRTH$default_type, " from ", 
                             instr_s[i], ". Creating _unknown_ instrument instead.", sep=""))
-                iauto <- try(suppressWarnings(instrument.auto(instr_s[i], currency=default_currency,
+                iauto <- try(suppressWarnings(instrument.auto(instr_s[i], currency=.TRTH$default_currency,
                                             default_type="unknown", assign_i=FALSE)))
             }
             missing_list[[iauto$primary_id]] <- iauto
@@ -431,34 +435,38 @@ splitCSV <- function(.TRTH) {
         assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
     })
 
-    saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), path.output) #If you load this with loadInstruments it will not clobber .instrument
-    # now that we've save only the newly defined instruments, we can load back our other instruments
-    loadInstruments(instrument_file)
+    saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), .TRTH$path.output)
+    # now that we've saved only the newly defined instruments, we can load back our other instruments
+    loadInstruments(.TRTH$instrument_file)
     if (!is.null(iauto)) {
         .TRTH$missing_i <- missing_i <- data.frame(symbol=missing_i,type=iauto$type[1]) #legacy
-        write.csv(missing_i,file=paste(path.output,'missing_instruments.CSV',sep='')) 
+        write.csv(missing_i,file=paste(.TRTH$path.output,'missing_instruments.CSV',sep='')) 
     }
     .TRTH$files.xts <- files.xts
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
-    detach(.TRTH)
+    #detach(.TRTH)
     .TRTH
 }
 
 
 FEreut2xts <- function(.TRTH) {
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
-    attach(.TRTH)
+    #attach(.TRTH)
     # Make sure csv_dir exists since it is where we read the data from
-    if (!file.exists(csv_dir)) stop("There is no directory", paste(csv_dir))
-    if (!exists('files.xts')) stop("Cannot find 'files.xts' -- Run splitCSV first")
+    if (!file.exists(.TRTH$csv_dir)) stop("There is no directory", paste(.TRTH$csv_dir))
+    if (is.null(.TRTH$files.xts)) stop("Cannot find 'files.xts' -- Run splitCSV first")
+
+    files.xts <- .TRTH$files.xts
+
     oldTZ <- Sys.getenv("TZ")
     Sys.setenv(TZ='GMT')
 
     write.tick <- TRUE #if the tickdata file already exists and overwrite==FALSE, this will be set to FALSE
     write.sec <- TRUE #if the secdata file already exists and overwrite==FALSE, this will be set to FALSE
 
-    nc <- nchar(path.output) # make sure path.output ends with a forward slash
-    if(substr(path.output, nc, nc) != "/") path.output <- paste(path.output, "/", sep="") 
+
+    nc <- nchar(.TRTH$path.output) # make sure path.output ends with a forward slash
+    if(substr(.TRTH$path.output, nc, nc) != "/") .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="") 
 
     # Function that we'll use to save charts of the data
     makeImages <- function(Data, dir, RIC, date) {
@@ -489,18 +497,18 @@ FEreut2xts <- function(.TRTH) {
         date=files.xts[ii, 2] 
         type=files.xts[ii, 3]        
 
-        file.name.xts <- paste(tick_dir, RIC, "/", date, ".", RIC, ".RData", sep="")
-        file.name.sec <- paste(sec_dir, RIC, "/", date, ".", RIC, ".RData", sep="")	
-        if(!isTRUE(overwrite)) {
+        file.name.xts <- paste(.TRTH$tick_dir, RIC, "/", date, ".", RIC, ".RData", sep="")
+        file.name.sec <- paste(.TRTH$sec_dir, RIC, "/", date, ".", RIC, ".RData", sep="")	
+        if(!isTRUE(.TRTH$overwrite)) {
             if (file.exists(file.name.xts)){
 	            cat(paste(file.name.xts, "already exists, not overwriting\n"))
                 write.tick <- FALSE
-                tick.image <- FALSE
+                .TRTH$tick.image <- FALSE
             }
             if (file.exists(file.name.sec)) {
             	cat(paste(file.name.sec, "already exists, not overwriting\n"))
                 write.sec <- FALSE
-                sec.image <- FALSE
+                .TRTH$sec.image <- FALSE
             }
         }
 
@@ -510,7 +518,7 @@ FEreut2xts <- function(.TRTH) {
         # there is nothing to be done -- return NULL
         if (!any(c(write.tick, write.sec))) return(NULL) 
 
-        CSV.name <- paste(csv_dir, date, '/', date, '.', RIC, '.csv', sep="")
+        CSV.name <- paste(.TRTH$csv_dir, date, '/', date, '.', RIC, '.csv', sep="")
         if (!file.exists(CSV.name) && file.exists(paste(CSV.name, ".gz", sep=""))) {
             #only zipped file on disk. We'll have to unzip.
             system(paste("gzip -d -f ", CSV.name, ".gz", sep=""))
@@ -610,28 +618,29 @@ FEreut2xts <- function(.TRTH) {
         if(dim(Data)[1]<=25){return(NULL)}
 
         if(write.tick) {
-            dir.create(paste(tick_dir, RIC, sep=""), showWarnings=FALSE, mode='0775')
+            dir.create(paste(.TRTH$tick_dir, RIC, sep=""), showWarnings=FALSE, mode='0775')
             assign(RIC, Data)  # Rename Data to RIC
             save(list=RIC, file=file.name.xts)
         }
 
         datarange <- range(index(Data),na.rm = TRUE)
         datarange.dif <- difftime(datarange[2],datarange[1],units="secs")
-        if(isTRUE(tick.image) && datarange.dif>3600) makeImages(Data, tick_dir, RIC, date)
+        if(isTRUE(.TRTH$tick.image) && datarange.dif>3600) makeImages(Data, .TRTH$tick_dir, RIC, date)
 
         # Convert to 1 second data and save
         if (write.sec) {
-            dir.create(paste(sec_dir, RIC, "/", sep=""), showWarnings=FALSE, mode='0775')
+            dir.create(paste(.TRTH$sec_dir, RIC, "/", sep=""), showWarnings=FALSE, mode='0775')
             secData <- to_secBATV(Data)
             if (length(secData) == 0) return(NULL)
             assign(RIC, secData)
             save(list=RIC, file=file.name.sec)
         }
-        if (isTRUE(sec.image) && datarange.dif > 3600) makeImages(Data, sec_dir, RIC, date)
+        if (isTRUE(.TRTH$sec.image) && datarange.dif > 3600) makeImages(Data, .TRTH$sec_dir, RIC, date)
     } # End foreach loop
     #rm(list = 'RIC')
     Sys.setenv(TZ=oldTZ)
-    save(.TRTH, file=paste(path.output, 'config.env.RData', sep=""))
+    save(.TRTH, file=paste(.TRTH$path.output, 'config.env.RData', sep=""))
+    assign('.TRTH', .TRTH, pos=.GlobalEnv)
     Out
 }  ## End fn reut2xts 
 
