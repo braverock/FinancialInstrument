@@ -57,6 +57,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="", extension="RData"
 #' @export
 #' @rdname saveInstruments
 loadInstruments <-function(file_name="MyInstruments", dir="", extension="RData") {
+    require("utils")
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
     tmpenv <- new.env()

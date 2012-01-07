@@ -195,7 +195,7 @@ download_reut <- function(.TRTH) {
     Reuters.output <-  Reuters[-c(grep("report",Reuters),grep("confirmation",Reuters))]
     Reuters.output <-  Reuters.output[grep(.TRTH$job.name, Reuters.output)]
 
-    files.gz <- Reuters.output[!(Reuters.output %in% Archive.output)]
+    .TRTH$files.gz <- Reuters.output[!(Reuters.output %in% Archive.output)]
     #files.gz <- paste(username, "-", job.name, ".csv.gz", sep="")
     
     if (length(.TRTH$files.gz) == 0) .TRTH$files.gz <- Reuters.output
