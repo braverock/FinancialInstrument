@@ -67,6 +67,7 @@
 #system.time(Out <- FEreut2xts(.TRTH))  # Convert to xts data: tick and second
 #############################################################################################
 
+#TODO: if user changes the value of .TRTH$path.output, do we want to change the value of .TRTH$csv_dir, xts_dir, etc?
 
 configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     ## Create environment to hold variables that more than one function needs to access    
@@ -274,7 +275,9 @@ splitCSV <- function(.TRTH) {
         .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="")
     }
 
-    if (is.null(.TRTH$files.gz)) .TRTH$files.gz <- get_files.gz(.TRTH$archive_dir, .TRTH$job.name)
+    # get files.gz if it is NULL, or if the job.name was changed
+    if (is.null(.TRTH$files.gz) || identical(integer(0), grep(.TRTH$job.name, .TRTH$files.gz))) 
+        .TRTH$files.gz <- get_files.gz(.TRTH$archive_dir, .TRTH$job.name)
 
     if (is.null(.TRTH$instrument_file)) { #Don't need this anymore
         tmp <- list.files(paste(.TRTH$path.output))
@@ -404,7 +407,7 @@ splitCSV <- function(.TRTH) {
     
     missing_i <- NULL
     instr_s <- unique(files.xts[,'name.new'])
-    alldefined <- c(ls_instruments(), ls_instruments_by('identifiers', NULL))
+    alldefined <- unique(c(ls_instruments(), ls_instruments_by("X.RIC", NULL, in.slot='identifiers')))
     print(paste('Defining', length(instr_s[!instr_s %in% alldefined]), 'missing instruments'))
     missing_list <- list() # list to hold auto-defined missing instruments
     for(i in 1:length(instr_s)){
