@@ -11,14 +11,18 @@
   an xts object of 1 second frequency
 }
 \description{
+  This is like taking a snapshot of the market at the end
+  of every second, except the volume over the second is
+  summed.
+}
+\details{
   From tick data with columns: \dQuote{Price},
   \dQuote{Volume}, \dQuote{Bid.Price}, \dQuote{Bid.Size},
   \dQuote{Ask.Price}, \dQuote{Ask.Size}, to data of one
   second frequency with columns \dQuote{Bid.Price},
   \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size},
   \dQuote{Trade.Price}, and \dQuote{Volume}
-}
-\details{
+
   The primary purpose of this function is to reduce the
   amount of data on disk so that it will take less time to
   load the data into memory.
@@ -28,6 +32,12 @@
   If there were no trades, but the bid or ask price
   changed, then we _will_ have a row but the Volume and
   Trade.Price will be NA.
+
+  If there are multiple trades in the same second, Volume
+  will be the sum of the volume, but only the last trade
+  price in that second will be printed. Similarly, if there
+  is a trade, and then later in the same second, there is a
+  bid/ask update, the last Bid/Ask Price/Size will be used.
 }
 \examples{
 \dontrun{

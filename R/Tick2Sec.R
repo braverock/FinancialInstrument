@@ -14,6 +14,9 @@
 
 #' convert tick data to one-second data
 #'
+#' This is like taking a snapshot of the market at the end of every second, except
+#' the volume over the second is summed.
+#' 
 #' From tick data with columns: \dQuote{Price}, \dQuote{Volume}, \dQuote{Bid.Price},
 #' \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size}, to data of one second frequency
 #' with columns \dQuote{Bid.Price}, \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size},
@@ -25,6 +28,11 @@
 #' If there are no trades or bid/ask price updates in a given second, we will not make
 #' a row for that timestamp.  If there were no trades, but the bid or ask
 #' price changed, then we _will_ have a row but the Volume and Trade.Price will be NA.  
+#'
+#' If there are multiple trades in the same second, Volume will be the sum of the volume, 
+#' but only the last trade price in that second will be printed. Similarly, if there
+#' is a trade, and then later in the same second, there is a bid/ask update, the last
+#' Bid/Ask Price/Size will be used.
 #' 
 #' @param x the xts series to convert to 1 minute BATMV
 #' @return an xts object of 1 second frequency
@@ -62,13 +70,38 @@ to_secBATV <- function(x) {
     xx <- cbind(Bi(xx), As(xx), ClVo, all=TRUE)
     xx[, 1:4] <- na.locf(xx[, 1:4])
     colnames(xx) <- c("Bid.Price", "Bid.Size", "Ask.Price", "Ask.Size", "Trade.Price", "Volume")
+
     #if volume is zero, and all other rows are unchanged, delete that row 
-    out <- xx
-    v <- out[, 6]
+    xxx <- xx
+    v <- xxx[, 6]
     v[is.na(v)] <- 0
-    dout <- cbind(diff(out[,c(1, 3)]), v)
-    align.time(out[index(dout[!rowSums(dout) == 0])], 1)
-}
+    dxxx <- cbind(diff(xxx[,c(1, 3)]), v)
+    xxx <- align.time(xxx[index(dxxx[!rowSums(dxxx) == 0])], 1)
+
+    # if, during a second, there is a trade, and then later in the same second there is a quote update,
+    # then we'll have a duplicate timestamp;  Something like
+    #                      Bid.Price Bid.Size Ask.Price Ask.Size Trade.Price Volume
+    #2011-12-06 07:00:02   1249.75       13      1250       40        1250      7
+    #2011-12-06 07:00:02   1249.75       14      1250       15          NA     NA
+    #
+    #We're going to use the non-NA Trade.Price/Volume and the last Bid.Price/Size Ask.Price/Size
+    # A duplicate index should only have 2 rows, and the second row should always be the one that has NAs
+    # so, a simple na.locf should be fine
+    dupidx <- index(xxx)[duplicated(index(xxx))] # indexes of duplicates
+    tmp <- xxx[dupidx] # data at duplicate rownames
+
+    # make sure that first row of each duplicate is not NA
+    firstDupes <- tmp[seq(1, nrow(tmp), 2),] 
+    if (any(is.na(firstDupes)))
+        warning(paste("NA in first row of dupe is unexpected; First offense at ", head(firstDupes[is.na(firstDupes)], 1)))
+    
+    # Fill forward Trade.Price and Volume, then remove first row of duplicate
+    tmp <- na.locf(tmp)
+    tmp <- tmp[seq(2, nrow(tmp), 2),] # only use 2nd row of each duplicate
+    nodupe <- xxx[!index(xxx) %in% dupidx]
+    out <- rbind(nodupe, tmp)
+    out
+} 
 
 
 
@@ -114,6 +147,8 @@ alltick2sec <- function(getdir = '~/TRTH/tick/',
                             sfl <- paste(sdir, fl, sep="/")
                             save(list = xsym, file = sfl, envir = tmpenv)
                             rm(xsym, pos=tmpenv)
+                            rm(list='x')
+                            gc()
                             fl
                         }
                     }
