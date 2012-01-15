@@ -1,4 +1,4 @@
-Copyright: (c) 2004 - 2011
+Copyright: (c) 2004 - 2012
 Package: FinancialInstrument
 Maintainer: Garrett See <gsee000@gmail.com>
 License: GPL
@@ -11,7 +11,7 @@ Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
     multi-asset class and multi-currency portfolios. Still
     in heavy development.
-Version: 0.10.5
+Version: 0.10.6
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:

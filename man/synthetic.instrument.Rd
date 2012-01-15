@@ -1,8 +1,8 @@
 \name{synthetic}
-\alias{butterfly}
-\alias{guaranteed_spread}
 \alias{ICS}
 \alias{ICS_root}
+\alias{butterfly}
+\alias{guaranteed_spread}
 \alias{spread}
 \alias{synthetic}
 \alias{synthetic.instrument}
