@@ -377,7 +377,7 @@ getSymbols.FI <- function(Symbols,
                                 get(local.name)
                             }
                         })
-                        if (verbose) cat('rbinding data ... \n')
+                        if (verbose) cat('rbinding data ... ')
                         fr <- do.call.rbind(dl)
                     },
                     common = , {
@@ -403,7 +403,7 @@ getSymbols.FI <- function(Symbols,
         }
     }) #end loop over Symbols
 
-    if (is.null(unlist(datl))) {
+    if (length(Filter("+", lapply(datl, length))) == 0) {
         warning("No data found.")
         return(NULL) 
     }
