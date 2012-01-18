@@ -6,7 +6,8 @@
 \usage{
   future_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
-    identifiers = NULL, assign_i = TRUE, ...)
+    identifiers = NULL, assign_i = TRUE, overwrite = TRUE,
+    ...)
 
   option_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
@@ -52,6 +53,9 @@
 
   \item{assign_i}{TRUE/FALSE. Should the instrument be
   assigned in the \code{.instrument} environment?}
+
+  \item{overwrite}{TRUE/FALSE. If FALSE, only
+  \code{first_traded} and \code{expires} will be updated.}
 
   \item{...}{any other passthru parameters}
 }

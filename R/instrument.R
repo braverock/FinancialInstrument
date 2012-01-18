@@ -249,6 +249,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' @param payment_schedule not currently being implemented
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment?
+#' @param overwrite TRUE/FALSE. If FALSE, only \code{first_traded} and \code{expires} will be updated.
 #' @param ... any other passthru parameters
 #' @aliases 
 #' option_series
@@ -273,7 +274,9 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 #' }
 #' @export
 #' @rdname series_instrument
-future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded=NULL, expires=NULL, identifiers = NULL, assign_i=TRUE, ...){
+future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, 
+                          first_traded=NULL, expires=NULL, identifiers = NULL, 
+                          assign_i=TRUE, overwrite=TRUE, ...){
   if (missing(primary_id)) {
       if (all(is.null(c(root_id,suffix_id)))) {
           stop('must provide either a primary_id or both a root_id and a suffix_id')
@@ -319,50 +322,52 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL, first_traded
   ## with futures series we probably need to be more sophisticated,
   ## and find the existing series from prior periods (probably years or months)
   ## and then add the first_traded and expires to the time series bu splicing
-  temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
-  if(inherits(temp_series,"future_series")) {
-      message("updating existing first_traded and expires for ",primary_id)
-      temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
-      temp_series$expires<-unique(c(temp_series$expires,expires))
-      assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
-      primary_id
-  } else {
-      args <- list()
-      args$primary_id <- primary_id
-      args$root_id <- root_id
-      args$suffix_id=suffix_id
-      args$currency = contract$currency
-      args$multiplier = contract$multiplier
-      args$tick_size=contract$tick_size
-      args$identifiers = identifiers
-      args$first_traded = first_traded
-      args$type=c("future_series", "future")
-      args$expires = expires
-      if (!is.null(contract$exchange)) {
-          args$exchange <- contract$exchange
-      }
-      args$underlying_id = contract$underlying_id
-      if (!is.null(contract$marketName)) {
-          args$marketName <- contract$marketName
-      }
-      if (!is.null(contract$exchange_id)) {
-          args$exchange_id <- contract$exchange_id
-      }
-      if (!is.null(contract$description)) {
-          args$series_description <- paste(contract$description, expires)
-      }
-      args$assign_i=assign_i
-      dargs<-list(...)
-      dargs$currency=NULL
-      dargs$multiplier=NULL
-      dargs$type=NULL
-      if (is.null(dargs$src) && !is.null(contract$src)){
-          dargs$src <- contract$src
-      }
-      args <- c(args, dargs)
-
-      do.call(instrument, args)
+  #temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
+  if (!overwrite) {
+      temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
+      if(inherits(temp_series,"future_series")) {
+          message("updating existing first_traded and expires for ",primary_id)
+          temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
+          temp_series$expires<-unique(c(temp_series$expires,expires))
+          assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
+          return(primary_id)
+      } else warning("No contract found to update. A new one will be created.")
   }
+  args <- list()
+  args$primary_id <- primary_id
+  args$root_id <- root_id
+  args$suffix_id=suffix_id
+  args$currency = contract$currency
+  args$multiplier = contract$multiplier
+  args$tick_size=contract$tick_size
+  args$identifiers = identifiers
+  args$first_traded = first_traded
+  args$type=c("future_series", "future")
+  args$expires = expires
+  if (!is.null(contract$exchange)) {
+      args$exchange <- contract$exchange
+  }
+  args$underlying_id = contract$underlying_id
+  if (!is.null(contract$marketName)) {
+      args$marketName <- contract$marketName
+  }
+  if (!is.null(contract$exchange_id)) {
+      args$exchange_id <- contract$exchange_id
+  }
+  if (!is.null(contract$description)) {
+      args$series_description <- paste(contract$description, expires)
+  }
+  args$assign_i=assign_i
+  dargs<-list(...)
+  dargs$currency=NULL
+  dargs$multiplier=NULL
+  dargs$type=NULL
+  if (is.null(dargs$src) && !is.null(contract$src)){
+      dargs$src <- contract$src
+  }
+  args <- c(args, dargs)
+
+  do.call(instrument, args)
 }
 
 #' @export
@@ -932,17 +937,29 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
 getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
     tmp_instr <- try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE) #removed inherits=TRUE
     if(inherits(tmp_instr,"try-error") || !inherits(tmp_instr, type)){
-        #first search
-        instr_list <- ls(pos=FinancialInstrument:::.instrument, all.names=TRUE)
-        for (instr in instr_list){
-            tmp_instr <- try(get(instr, pos=FinancialInstrument:::.instrument), silent=TRUE)
-            if(inherits(tmp_instr, type) && (x %in% tmp_instr$identifiers || x %in% make.names(tmp_instr$identifiers))) {
-                return(tmp_instr)
+        xx <- make.names(x)
+        ## First, look to see if x matches any identifiers.
+        # unlist all instruments into a big named vector
+        ul.instr <- unlist(as.list(FinancialInstrument:::.instrument, all.names=TRUE))
+        # subset by names that include "identifiers"
+        ul.ident <- ul.instr[grep('identifiers', names(ul.instr))]
+        # if x is in the identifiers subset, extract the primary_id from the name
+        tmpname <- ul.ident[match(xx, ul.ident, 0)]
+        # if x was not in ul.ident, tmpname will == named character(0)
+        if (length(tmpname) > 0) {
+            #primary_id is everything before .identifiers
+            id <- gsub("\\.identifiers.*", "", names(tmpname))
+            tmp_instr <- try(get(id, pos=FinancialInstrument:::.instrument), silent=TRUE)
+            if (inherits(tmp_instr, type)) {
+                #&& (x %in% tmp_instr$identifiers || x %in% make.names(tmp_instr$identifiers))
+                return(tmp_instr) 
             }
         }
         #If not found, see if it begins with dots (future or option root)
-        #strip out the dots and add them back 1 at a time to the beginning of id
-        x <- gsub("\\.", "", x) 
+        #Remove any dots at beginning of string and add them back 1 at a time 
+        # to the beginning of id.
+        char.x <- strsplit(x, "")[[1]] # split x into vector of characters
+        x <- substr(x, grep("[^\\.]", char.x)[1], length(char.x)) # excluding leading dots
         tmp_instr<-try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE)
         if(!inherits(tmp_instr,type)) {
             tmp_instr<-try(get(paste(".",x,sep=""),pos=FinancialInstrument:::.instrument),silent=TRUE)
@@ -950,7 +967,7 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
                 tmp_instr<-try(get(paste("..",x,sep=""),pos=FinancialInstrument:::.instrument),silent=TRUE)
             }
         }
-        if (!inherits(tmp_instr,'try-error') && inherits(tmp_instr, type)) return(tmp_instr)
+        if (inherits(tmp_instr, type)) return(tmp_instr)
         if(!silent) warning(paste(type,x,"not found, please create it first."))
         return(FALSE)
     } else{

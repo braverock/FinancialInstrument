@@ -1,5 +1,6 @@
 \name{ls_by_currency}
 \alias{ls_AUD}
+\alias{ls_by_currency}
 \alias{ls_CAD}
 \alias{ls_CHF}
 \alias{ls_EUR}
@@ -9,7 +10,6 @@
 \alias{ls_NZD}
 \alias{ls_SEK}
 \alias{ls_USD}
-\alias{ls_by_currency}
 \alias{rm_by_currency}
 \title{shows or removes instruments of given currency denomination(s)}
 \usage{
