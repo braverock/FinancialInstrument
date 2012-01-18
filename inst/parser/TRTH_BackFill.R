@@ -408,7 +408,10 @@ splitCSV <- function(.TRTH) {
     missing_i <- NULL
     instr_s <- unique(files.xts[,'name.new'])
     alldefined <- unique(c(ls_instruments(), ls_instruments_by("X.RIC", NULL, in.slot='identifiers')))
-    print(paste('Defining', length(instr_s[!instr_s %in% alldefined]), 'missing instruments'))
+    #FIXME: we really need a list of X.RICs, not a list of instrument_names that have X.RICs
+    print(paste('Creating files.xts.  No more than', 
+                length(instr_s[!instr_s %in% alldefined]), 
+                'missing instruments will have to be defined'))
     missing_list <- list() # list to hold auto-defined missing instruments
     for(i in 1:length(instr_s)){
         instr <- getInstrument(instr_s[i], silent=TRUE)
@@ -416,9 +419,16 @@ splitCSV <- function(.TRTH) {
         if(is.instrument(instr)){ 
             files.xts[files.xts$name.new ==instr_s[i],]$type <- paste(instr$type, collapse=";")
         } else {
-            #print(paste(instr_s[i], 'does not appear to be an instrument, setting it to', default_type))
-            iauto <- instrument.auto(instr_s[i], currency=.TRTH$default_currency, 
-                                    default_type=.TRTH$default_type, assign_i=FALSE)
+            #NOTE: If we skip all this define-on-the-fly stuff, it would be much faster.
+            pid <- try(parse_id(instr_s[i]))
+            tmpid <- if(!inherits(pid, 'try-error') 
+                        && !"" %in% c(pid$root, pid$suffix)) {
+                paste(pid$root, pid$suffix, sep="_")
+            } else if (!inherits(pid, 'try-error')) {
+                pid$root
+            } else instr_s[i]
+            iauto <- instrument.auto(tmpid, currency=.TRTH$default_currency, 
+                                    default_type=.TRTH$default_type, identifiers=list(X.RIC=instr_s[i]), assign_i=FALSE)
             if (!is.instrument(iauto)) {
                 warning(paste("Could NOT create ", .TRTH$default_type, " from ", 
                             instr_s[i], ". Creating _unknown_ instrument instead.", sep=""))
@@ -431,19 +441,21 @@ splitCSV <- function(.TRTH) {
             missing_i <- c(missing_i, instr_s[i])
         }
     }
-
-    # Remove everything from .instrument, put back the auto-defined missing instruments and save them
-    try(rm_instruments(), silent=TRUE)
-    lapply(missing_list, function(x) {
-        assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
-    })
-
-    saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), .TRTH$path.output)
-    # now that we've saved only the newly defined instruments, we can load back our other instruments
-    loadInstruments(.TRTH$instrument_file)
-    if (!is.null(iauto)) {
-        .TRTH$missing_i <- missing_i <- data.frame(symbol=missing_i,type=iauto$type[1]) #legacy
-        write.csv(missing_i,file=paste(.TRTH$path.output,'missing_instruments.CSV',sep='')) 
+  
+    if (length(missing_list) > 0) {
+        # Remove everything from .instrument, put back the auto-defined missing instruments and save them
+        print("saving RData file with auto-defined missing instruments.")
+        try(rm_instruments(), silent=TRUE)
+        lapply(missing_list, function(x) {
+            assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
+        })
+        saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), .TRTH$path.output)
+        # now that we've saved only the newly defined instruments, we can load back our other instruments
+        loadInstruments(.TRTH$instrument_file)
+        if (!is.null(iauto)) {
+            .TRTH$missing_i <- missing_i <- data.frame(symbol=missing_i,type=iauto$type[1]) #legacy
+            write.csv(missing_i,file=paste(.TRTH$path.output,'missing_instruments.CSV',sep='')) 
+        }
     }
     .TRTH$files.xts <- files.xts
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
