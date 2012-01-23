@@ -14,16 +14,17 @@
 
 #' convert tick data to one-second data
 #'
-#' This is like taking a snapshot of the market at the end of every second, except
-#' the volume over the second is summed.
+#' This is like taking a snapshot of the market at the end of every second, 
+#' except the volume over the second is summed.
 #' 
-#' From tick data with columns: \dQuote{Price}, \dQuote{Volume}, \dQuote{Bid.Price},
-#' \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size}, to data of one second frequency
-#' with columns \dQuote{Bid.Price}, \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size},
+#' From tick data with columns: \dQuote{Price}, \dQuote{Volume}, 
+#' \dQuote{Bid.Price}, \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size}, 
+#' to data of one second frequency with columns \dQuote{Bid.Price}, 
+#' \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size},
 #' \dQuote{Trade.Price}, and \dQuote{Volume}
 #'
-#' The primary purpose of this function is to reduce the amount of data on disk so that
-#' it will take less time to load the data into memory.
+#' The primary purpose of this function is to reduce the amount of data on disk 
+#' so that it will take less time to load the data into memory.
 #'
 #' If there are no trades or bid/ask price updates in a given second, we will not make
 #' a row for that timestamp.  If there were no trades, but the bid or ask
@@ -56,51 +57,25 @@ to_secBATV <- function(x) {
             return(x[, grep("Ask", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Ask\"")
     }
-
-    x <- make.index.unique(x)
-    ohlcv <- suppressWarnings(to.period(x[,1:2], 'seconds', 1))
+    ohlcv <- suppressWarnings(to.period(x[, 1:2], 'seconds', 1))
+    ba <- x[, -c(1:2)]
     Volm <- if (!has.Vo(ohlcv)) {
-                rep(NA, NROW(ohlcv)) 
-            } else Vo(ohlcv)
+        rep(NA, NROW(ohlcv)) 
+    } else Vo(ohlcv)
     ClVo <- if(length(ohlcv) != 0) { ohlcv[, 4:5] } else {
         tmp <- xts(cbind(rep(NA, NROW(x)), rep(NA, NROW(x))), index(x))
         tmp[endpoints(tmp, 'seconds')]
     }
-    xx <- x[endpoints(x, 'seconds')]
-    xx <- cbind(Bi(xx), As(xx), ClVo, all=TRUE)
-    xx[, 1:4] <- na.locf(xx[, 1:4])
-    colnames(xx) <- c("Bid.Price", "Bid.Size", "Ask.Price", "Ask.Size", "Trade.Price", "Volume")
-
-    #if volume is zero, and all other rows are unchanged, delete that row 
-    xxx <- xx
-    v <- xxx[, 6]
-    v[is.na(v)] <- 0
-    dxxx <- cbind(diff(xxx[,c(1, 3)]), v)
-    xxx <- align.time(xxx[index(dxxx[!rowSums(dxxx) == 0])], 1)
-
-    # if, during a second, there is a trade, and then later in the same second there is a quote update,
-    # then we'll have a duplicate timestamp;  Something like
-    #                      Bid.Price Bid.Size Ask.Price Ask.Size Trade.Price Volume
-    #2011-12-06 07:00:02   1249.75       13      1250       40        1250      7
-    #2011-12-06 07:00:02   1249.75       14      1250       15          NA     NA
-    #
-    #We're going to use the non-NA Trade.Price/Volume and the last Bid.Price/Size Ask.Price/Size
-    # A duplicate index should only have 2 rows, and the second row should always be the one that has NAs
-    # so, a simple na.locf should be fine
-    dupidx <- index(xxx)[duplicated(index(xxx))] # indexes of duplicates
-    tmp <- xxx[dupidx] # data at duplicate rownames
-
-    # make sure that first row of each duplicate is not NA
-    firstDupes <- tmp[seq(1, nrow(tmp), 2),] 
-    if (any(is.na(firstDupes)))
-        warning(paste("NA in first row of dupe is unexpected; First offense at ", head(firstDupes[is.na(firstDupes)], 1)))
     
-    # Fill forward Trade.Price and Volume, then remove first row of duplicate
-    tmp <- na.locf(tmp)
-    tmp <- tmp[seq(2, nrow(tmp), 2),] # only use 2nd row of each duplicate
-    nodupe <- xxx[!index(xxx) %in% dupidx]
-    out <- rbind(nodupe, tmp)
-    out
+    ClVo <- align.time(ClVo, 1)
+    
+    ba.sec <- align.time(to.period(ba, 'seconds', 1, OHLC=FALSE), 1)
+    ba.sec <- na.locf(ba.sec)
+    
+    xx <- cbind(ba.sec, ClVo, all=TRUE)
+    colnames(xx) <- c("Bid.Price", "Bid.Size", "Ask.Price", "Ask.Size", "Trade.Price", "Volume")
+    
+    xx
 } 
 
 
@@ -158,4 +133,3 @@ alltick2sec <- function(getdir = '~/TRTH/tick/',
         } else warning(paste(gdir, 'does not exist'))
     }
 }
-
