@@ -260,9 +260,12 @@ sort_ids <- function(ids, ...) {
         tmpi <- getInstrument(x, silent=TRUE)
         if (is.instrument(tmpi)) {
             if (is.timeBased(suppressWarnings(try(as.Date(tmpi$expires), silent=TRUE)))) {
-                return(as.Date(tmpi$expires))
-            } else if (is.timeBased(suppressWarnings(try(as.Date(tmpi$expires, format='%Y%m%d'), silent=TRUE)))) {
-                return(as.Date(tmpi$expires, format='%Y%m%d'))
+                out <- as.Date(tmpi$expires)
+                if (!is.na(out)) return(out)
+            } 
+            if (is.timeBased(suppressWarnings(try(as.Date(tmpi$expires, format='%Y%m%d'), silent=TRUE)))) {
+                out <- as.Date(tmpi$expires, format = "%Y%m%d")
+                if (!is.na(out)) return(out)
             }
         }
         pid <- parse_id(x, ...)
