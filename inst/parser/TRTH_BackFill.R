@@ -32,6 +32,8 @@
 #default_currency = 'USD'               # passed to instrument.auto if type cannot be inferred from RIC
 #digits.sec = 6                         # for options(digits.secs=digits.secs)
 #width = 200                            # for options(width=width)
+#use.instrument = FALSE                 # If TRUE, non-defined instruments will be defined, and 
+                                        # negative prices will be removed from non-synthetics
 #instrument_file = [searches path.output for filename containing 'instruments'] #name of instrument envir RData file
 #job.name = ""                          # the Reuters TRTH job name (by default all files not on disk)
 #no.cores = 4                           # number of cores for foreach
@@ -50,6 +52,7 @@
 #    path.output = '~/TRTH/',
 #    width = 200,
 #    digits.secs = 6,
+#    use.instrument = FALSE,
 #    instrument_file = '~/TRTH/instruments.RData',
 #    username = 'email@domain.com',
 #    password = 'password',
@@ -59,7 +62,7 @@
 #    overwrite = FALSE,
 #    tick.image = TRUE,
 #    sec.image = TRUE,
-#    no.cores = 20
+#    no.cores = 20,
 #)
 #
 #download_reut(.TRTH)                   # Download big zipped CSV
@@ -145,11 +148,19 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     .TRTH$sec.image <- pickArg('sec.image', TRUE)
     .TRTH$no.cores <- pickArg('no.cores', 4)
 
-    instr.file.bak <- tail(list.files(path.output)[grep("instruments", list.files(path.output))], 1)
-    .TRTH$instrument_file <- pickArg('instrument_file', instr.file.bak)
-    if (length(.TRTH$instrument_file) == 0 || is.na(.TRTH$instrument_file) || !file.exists(.TRTH$instrument_file))
-        stop("Please specify a valid filepath for instrument_file or move a file with 'instruments' in its name to 'path.output'")
+    .TRTH$use.instrument <- pickArg('use.instrument', FALSE) 
+    # if `use.instrument` is TRUE, then the code will remove negative prices from
+    # instruments that are not of type='synthetic'.  An instrument_file that contains an .instrument is required
+    # and will be loaded. If the RIC cannot be found in the .instrument environment, it will be auto defined
+    # using instrument.auto.
+    # Using use.instrument=TRUE can take a while.
 
+    if (isTRUE(.TRTH$use.instrument)) {
+        instr.file.bak <- tail(list.files(path.output)[grep("instruments", list.files(path.output))], 1)
+        .TRTH$instrument_file <- pickArg('instrument_file', instr.file.bak)
+        if (length(.TRTH$instrument_file) == 0 || is.na(.TRTH$instrument_file) || !file.exists(.TRTH$instrument_file))
+            stop("Please specify a valid filepath for instrument_file or move a file with 'instruments' in its name to 'path.output'")
+    }
     registerDoMC(.TRTH$no.cores)
     # registerDoSEQ()
 
@@ -287,7 +298,7 @@ splitCSV <- function(.TRTH) {
         } else .TRTH$instrument_file <- instrument_file
     }
 
-    loadInstruments(.TRTH$instrument_file)
+     if (isTRUE(.TRTH$use.instrument)) loadInstruments(.TRTH$instrument_file)
     registerDoMC(.TRTH$no.cores)
 
     ## unzip and split (new unzip method does not require rezip; keeps original gz file)
@@ -315,32 +326,35 @@ splitCSV <- function(.TRTH) {
         # awk string says to make a file and put this row in it if the RIC or date are different than the previous row's RIC/date
         print(paste('Making headers from', filename.csv))
         system(paste('awk -v f2="" -F "," '," '",'{f1 = $1"."$2".csv";if(f1 != f2) { print >> f1; close(f2); f2=f1; } }',"' ",filename.csv, sep=""))
+        
+        tmpfiles <- list.files(.TRTH$archive_dir)
+        files.header <- tmpfiles[grep("RIC",tmpfiles)]        
+
+        big.files <- tmpfiles[grep("@", tmpfiles)] #Big zipped CSVs from Reuters have e-mail address in name
+        #big.files <- tmpfiles[grep(job.name, tmpfiles)]
+        # csv files will be everthing that is not in "ignore" below
+        # all these things we're ignoring should actually be in path.output, not here
+        ignore <- c(big.files, files.header, 'NA', "Report", 
+                    tmpfiles[grep("Tick2Sec|TRTH_config_file", tmpfiles)],
+                    tmpfiles[grep("\\.rda", tmpfiles)], 
+                    tmpfiles[grep("\\.RData", tmpfiles)],
+                    tmpfiles[grep("missing_instruments", tmpfiles)]               
+                    )
+        .TRTH$files.csv <- tmpfiles[!tmpfiles %in% ignore]
+    
+        # files.header now has several identical rows. Delete all but first by extracting first row, and overwritting file with it
+        system(paste('tail -1 "', files.header, '" > header.csv', sep="")) # extract 1st line
+        # head -1 "RIC.Date[G].csv" > header.csv
+        system(paste('mv header.csv "', files.header, '"', sep=""))        # replace files.header with only 1st line
+        # mv header.csv "RIC.Date[G].csv"
+
+        for (fl in .TRTH$files.csv) {
+            system(paste('cp "', files.header, '" ', paste(.TRTH$archive_dir, fl, sep=""), sep=""))
+            #cp "#RIC.Date[G].csv" /home/garrett/TRTH/archive/GEM1-U1.01-APR-2008.csv
+        }
+
     }
 
-    tmpfiles <- list.files(.TRTH$archive_dir)
-    files.header <- tmpfiles[grep("RIC",tmpfiles)]        
-    big.files <- tmpfiles[grep("@", tmpfiles)] #Big zipped CSVs from Reuters have e-mail address in name
-    #big.files <- tmpfiles[grep(job.name, tmpfiles)]
-    # csv files will be everthing that is not in "ignore" below
-    # all these things we're ignoring should actually be in path.output, not here
-    ignore <- c(big.files, files.header, 'NA', "Report", 
-                tmpfiles[grep("Tick2Sec|TRTH_config_file", tmpfiles)],
-                tmpfiles[grep("\\.rda", tmpfiles)], 
-                tmpfiles[grep("\\.RData", tmpfiles)],
-                tmpfiles[grep("missing_instruments", tmpfiles)]               
-                )
-
-    .TRTH$files.csv <- tmpfiles[!tmpfiles %in% ignore]
-    # files.header now has several identical rows. Delete all but first by extracting first row, and overwritting file with it
-    system(paste('head -1 "', files.header, '" > header.csv', sep="")) # extract 1st line
-    # head -1 "RIC.Date[G].csv" > header.csv
-    system(paste('mv header.csv "', files.header, '"', sep=""))        # replace files.header with only 1st line
-    # mv header.csv "RIC.Date[G].csv"
-
-    for (fl in .TRTH$files.csv) {
-        system(paste('cp "', files.header, '" ', paste(.TRTH$archive_dir, fl, sep=""), sep=""))
-        #cp "#RIC.Date[G].csv" /home/garrett/TRTH/archive/GEM1-U1.01-APR-2008.csv
-    }
 
     for (j in 1:length(.TRTH$files.gz))
     {   
@@ -404,57 +418,59 @@ splitCSV <- function(.TRTH) {
 
     .TRTH$files.xts <- files.xts
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
-    
-    missing_i <- NULL
-    instr_s <- unique(files.xts[,'name.new'])
-    alldefined <- unique(c(ls_instruments(), ls_instruments_by("X.RIC", NULL, in.slot='identifiers')))
-    #FIXME: we really need a list of X.RICs, not a list of instrument_names that have X.RICs
-    print(paste('Creating files.xts.  No more than', 
-                length(instr_s[!instr_s %in% alldefined]), 
-                'missing instruments will have to be defined'))
-    missing_list <- list() # list to hold auto-defined missing instruments
-    for(i in 1:length(instr_s)){
-        instr <- getInstrument(instr_s[i], silent=TRUE)
-        iauto <- NULL
-        if(is.instrument(instr)){ 
-            files.xts[files.xts$name.new ==instr_s[i],]$type <- paste(instr$type, collapse=";")
-        } else {
-            #NOTE: If we skip all this define-on-the-fly stuff, it would be much faster.
-            pid <- try(parse_id(instr_s[i]))
-            tmpid <- if(!inherits(pid, 'try-error') 
-                        && !"" %in% c(pid$root, pid$suffix)) {
-                paste(pid$root, pid$suffix, sep="_")
-            } else if (!inherits(pid, 'try-error')) {
-                pid$root
-            } else instr_s[i]
-            iauto <- instrument.auto(tmpid, currency=.TRTH$default_currency, 
-                                    default_type=.TRTH$default_type, identifiers=list(X.RIC=instr_s[i]), assign_i=FALSE)
-            if (!is.instrument(iauto)) {
-                warning(paste("Could NOT create ", .TRTH$default_type, " from ", 
-                            instr_s[i], ". Creating _unknown_ instrument instead.", sep=""))
-                iauto <- try(suppressWarnings(instrument.auto(instr_s[i], currency=.TRTH$default_currency,
-                                            default_type="unknown", assign_i=FALSE)))
+ 
+    if (isTRUE(.TRTH$use.instrument)) {
+        missing_i <- NULL
+        instr_s <- unique(files.xts[,'name.new'])
+        alldefined <- unique(c(ls_instruments(), ls_instruments_by("X.RIC", NULL, in.slot='identifiers')))
+        #FIXME: we really need a list of X.RICs, not a list of instrument_names that have X.RICs
+        print(paste('Creating files.xts.  No more than', 
+                    length(instr_s[!instr_s %in% alldefined]), 
+                    'missing instruments will have to be defined'))
+        missing_list <- list() # list to hold auto-defined missing instruments
+        for(i in 1:length(instr_s)){
+            instr <- getInstrument(instr_s[i], silent=TRUE)
+            iauto <- NULL
+            if(is.instrument(instr)){ 
+                files.xts[files.xts$name.new ==instr_s[i],]$type <- paste(instr$type, collapse=";")
+            } else {
+                #NOTE: If we skip all this define-on-the-fly stuff, it would be much faster.
+                pid <- try(parse_id(instr_s[i]))
+                tmpid <- if(!inherits(pid, 'try-error') 
+                            && !"" %in% c(pid$root, pid$suffix)) {
+                    paste(pid$root, pid$suffix, sep="_")
+                } else if (!inherits(pid, 'try-error')) {
+                    pid$root
+                } else instr_s[i]
+                iauto <- instrument.auto(tmpid, currency=.TRTH$default_currency, 
+                                        default_type=.TRTH$default_type, identifiers=list(X.RIC=instr_s[i]), assign_i=FALSE)
+                if (!is.instrument(iauto)) {
+                    warning(paste("Could NOT create ", .TRTH$default_type, " from ", 
+                                instr_s[i], ". Creating _unknown_ instrument instead.", sep=""))
+                    iauto <- try(suppressWarnings(instrument.auto(instr_s[i], currency=.TRTH$default_currency,
+                                                default_type="unknown", assign_i=FALSE)))
+                }
+                missing_list[[iauto$primary_id]] <- iauto
+                #assign(iauto$primary_id, iauto, pos=missing_i_envir) 
+                files.xts[files.xts$name.new==instr_s[i],]$type <- paste(iauto$type, collapse=";")
+                missing_i <- c(missing_i, instr_s[i])
             }
-            missing_list[[iauto$primary_id]] <- iauto
-            #assign(iauto$primary_id, iauto, pos=missing_i_envir) 
-            files.xts[files.xts$name.new==instr_s[i],]$type <- paste(iauto$type, collapse=";")
-            missing_i <- c(missing_i, instr_s[i])
         }
-    }
-  
-    if (length(missing_list) > 0) {
-        # Remove everything from .instrument, put back the auto-defined missing instruments and save them
-        print("saving RData file with auto-defined missing instruments.")
-        try(rm_instruments(), silent=TRUE)
-        lapply(missing_list, function(x) {
-            assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
-        })
-        saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), .TRTH$path.output)
-        # now that we've saved only the newly defined instruments, we can load back our other instruments
-        loadInstruments(.TRTH$instrument_file)
-        if (!is.null(iauto)) {
-            .TRTH$missing_i <- missing_i <- data.frame(symbol=missing_i,type=iauto$type[1]) #legacy
-            write.csv(missing_i,file=paste(.TRTH$path.output,'missing_instruments.CSV',sep='')) 
+      
+        if (length(missing_list) > 0) {
+            # Remove everything from .instrument, put back the auto-defined missing instruments and save them
+            print("saving RData file with auto-defined missing instruments.")
+            try(rm_instruments(), silent=TRUE)
+            lapply(missing_list, function(x) {
+                assign(x$primary_id, x, pos=FinancialInstrument:::.instrument)
+            })
+            saveInstruments(paste("missing_instr",  format(Sys.time(), "%Y.%m.%d_%H%M%S"), sep='_'), .TRTH$path.output)
+            # now that we've saved only the newly defined instruments, we can load back our other instruments
+            loadInstruments(.TRTH$instrument_file)
+            if (!is.null(iauto)) {
+                .TRTH$missing_i <- missing_i <- data.frame(symbol=missing_i,type=iauto$type[1]) #legacy
+                write.csv(missing_i,file=paste(.TRTH$path.output,'missing_instruments.CSV',sep='')) 
+            }
         }
     }
     .TRTH$files.xts <- files.xts
@@ -538,7 +554,12 @@ FEreut2xts <- function(.TRTH) {
             #only zipped file on disk. We'll have to unzip.
             system(paste("gzip -d -f ", CSV.name, ".gz", sep=""))
         }
-        Data <- read.csv(CSV.name, stringsAsFactors=FALSE,header=TRUE)
+        Data <- try(read.csv(CSV.name, stringsAsFactors=FALSE, header=TRUE))
+        if (inherits(Data, 'try-error')) {
+            Data <- read.csv(CSV.name, stringsAsFactors=FALSE, header=FALSE)
+            colnames(Data) <- make.names(Data[1, ])
+            Data <- Data[-1, ]
+        }
         # Now that we've read the CSV, zip it and delete original to conserve disk space
         # print(paste("zipping ", CSV.name, sep=""))
         system(paste("gzip -f ", CSV.name, sep=""))
@@ -568,18 +589,20 @@ FEreut2xts <- function(.TRTH) {
 
         Data <- xts(Data,order.by=index.new,tz="GMT")
 
-        ## Turn bids/offers that are less than zero into NA for outrights
-        type <- try(unlist(strsplit(type, ";")))
-        if (inherits(type, 'try-error')) {
-            warning('type is incorrect. Using "synthetic"')
-            type <- 'synthetic'
-        }        
-        if(!any(c("unknown", "synthetic") %in% type))
-        { #outrights
-            Data$Bid.Price[Data$Bid.Price < 0, ] <- NA
-	        Data$Ask.Price[Data$Ask.Price < 0, ] <- NA
-	        Data$Price[Data$Price < 0, ] <- NA
-        } 
+        if (isTRUE(.TRTH$use.instrument)) {
+            ## Turn bids/offers that are less than zero into NA for outrights
+            type <- try(unlist(strsplit(type, ";")))
+            if (inherits(type, 'try-error')) {
+                warning('type is incorrect. Using "synthetic"')
+                type <- 'synthetic'
+            }        
+            if(!any(c("unknown", "synthetic") %in% type))
+            { #outrights
+                Data$Bid.Price[Data$Bid.Price < 0, ] <- NA
+	            Data$Ask.Price[Data$Ask.Price < 0, ] <- NA
+	            Data$Price[Data$Price < 0, ] <- NA
+            } 
+        }
     
         ## If Bid.Price and Bid.Size are zero set both to NA
         zero.replace <- which(Data$Bid.Price == 0 & Data$Bid.Size == 0)
