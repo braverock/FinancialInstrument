@@ -37,6 +37,8 @@
 #instrument_file = [searches path.output for filename containing 'instruments'] #name of instrument envir RData file
 #job.name = ""                          # the Reuters TRTH job name (by default all files not on disk)
 #no.cores = 4                           # number of cores for foreach
+#doCleanUp = TRUE                       # should files that do not end with .csv.gz be 
+                                        # removed from archive_dir (see CleanUpArchive function)
 #overwrite = FALSE                      # will not redownload, or overwrite files unless this is TRUE
 #username = stop("")                    #TRTH user name, usually your email address
 #password = stop("")                    #TRTH password
@@ -63,6 +65,7 @@
 #    tick.image = TRUE,
 #    sec.image = TRUE,
 #    no.cores = 20,
+#    doCleanUp = TRUE
 #)
 #
 #download_reut(.TRTH)                   # Download big zipped CSV
@@ -71,6 +74,22 @@
 #############################################################################################
 
 #TODO: if user changes the value of .TRTH$path.output, do we want to change the value of .TRTH$csv_dir, xts_dir, etc?
+
+CleanUpArchive <- function(archive_dir) {
+    # If a job is killed, or it fails, there will probably be files in the
+    # archive directory that should be removed.  This will delete files
+    # that do not end with .csv.gz.
+    # This will be called from `configureTRTH` and on.exit in `splitCSV`
+    if (substr(archive_dir, nchar(archive_dir), nchar(archive_dir)) != "/") {
+        archive_dir <- paste(archive_dir, "/", sep="")
+    }    
+    archive.files <- list.files(archive_dir)
+    to.remove <- archive.files[!grepl("\\.csv\\.gz", archive.files)]
+    if (length(to.remove) > 0) warning("Cleaning up archive_dir: removing ", to.remove)
+    paste(archive_dir, to.remove, sep="")
+    unlink(to.remove, force=TRUE)
+}
+
 
 configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     ## Create environment to hold variables that more than one function needs to access    
@@ -147,6 +166,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     .TRTH$tick.image <- pickArg('tick.image', TRUE)
     .TRTH$sec.image <- pickArg('sec.image', TRUE)
     .TRTH$no.cores <- pickArg('no.cores', 4)
+    .TRTH$doCleanUp <- pickArg('doCleanUp', TRUE)
 
     .TRTH$use.instrument <- pickArg('use.instrument', FALSE) 
     # if `use.instrument` is TRUE, then the code will remove negative prices from
@@ -161,6 +181,9 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
         if (length(.TRTH$instrument_file) == 0 || is.na(.TRTH$instrument_file) || !file.exists(.TRTH$instrument_file))
             stop("Please specify a valid filepath for instrument_file or move a file with 'instruments' in its name to 'path.output'")
     }
+
+    if (isTRUE(.TRTH$doCleanUp)) CleanUpArchive(.TRTH$archive_dir)
+
     registerDoMC(.TRTH$no.cores)
     # registerDoSEQ()
 
@@ -277,11 +300,12 @@ get_files.gz <- function(archive_dir, job.name){
     Reuters.output
 }
 
-
 splitCSV <- function(.TRTH) {
     #FIXME: respect overwrite argument
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
-#    attach(.TRTH)
+    on.exit(CleanUpArchive(.TRTH$archive_dir))
+    if (isTRUE(.TRTH$doCleanUp) CleanUpArchive(.TRTH$archive_dir)
+
     if (substr(.TRTH$path.output, nchar(.TRTH$path.output), nchar(.TRTH$path.output)) != "/") {
         .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="")
     }
@@ -298,7 +322,7 @@ splitCSV <- function(.TRTH) {
         } else .TRTH$instrument_file <- instrument_file
     }
 
-     if (isTRUE(.TRTH$use.instrument)) loadInstruments(.TRTH$instrument_file)
+    if (isTRUE(.TRTH$use.instrument)) loadInstruments(.TRTH$instrument_file)
     registerDoMC(.TRTH$no.cores)
 
     ## unzip and split (new unzip method does not require rezip; keeps original gz file)
@@ -313,7 +337,7 @@ splitCSV <- function(.TRTH) {
         #system(paste("gzip -d -f ",archive_dir,filename.gz,sep=""))
         system(paste("gunzip -f < ", .TRTH$archive_dir, filename.gz, " > ", .TRTH$archive_dir, filename.csv, sep=""))
     }
-
+    ignored.csvs <- NULL #this will hold the names of CSVs that already have a header
     for (i in 1:length(.TRTH$files.gz)) 
     {
         filename.gz <- .TRTH$files.gz[i]
@@ -328,7 +352,7 @@ splitCSV <- function(.TRTH) {
         system(paste('awk -v f2="" -F "," '," '",'{f1 = $1"."$2".csv";if(f1 != f2) { print >> f1; close(f2); f2=f1; } }',"' ",filename.csv, sep=""))
         
         tmpfiles <- list.files(.TRTH$archive_dir)
-        files.header <- tmpfiles[grep("RIC",tmpfiles)]        
+        files.header <- tmpfiles[grep("RIC",tmpfiles)]
 
         big.files <- tmpfiles[grep("@", tmpfiles)] #Big zipped CSVs from Reuters have e-mail address in name
         #big.files <- tmpfiles[grep(job.name, tmpfiles)]
@@ -338,32 +362,27 @@ splitCSV <- function(.TRTH) {
                     tmpfiles[grep("Tick2Sec|TRTH_config_file", tmpfiles)],
                     tmpfiles[grep("\\.rda", tmpfiles)], 
                     tmpfiles[grep("\\.RData", tmpfiles)],
-                    tmpfiles[grep("missing_instruments", tmpfiles)]               
+                    tmpfiles[grep("missing_instruments", tmpfiles)],
+                    ignored.csvs
                     )
-        .TRTH$files.csv <- tmpfiles[!tmpfiles %in% ignore]
-    
-        # files.header now has several identical rows. Delete all but first by extracting first row, and overwritting file with it
-        system(paste('tail -1 "', files.header, '" > header.csv', sep="")) # extract 1st line
+        tmp.files.csv <- tmpfiles[!tmpfiles %in% ignore]
+        # Extract single row and overwritting file with it 
+        #(shouldn't be necessary anymore because it shouldn't have more than 1 row)
+        system(paste('tail -1 "', files.header, '" > header.csv', sep="")) # extract one line
         # head -1 "RIC.Date[G].csv" > header.csv
-        system(paste('mv header.csv "', files.header, '"', sep=""))        # replace files.header with only 1st line
+        system(paste('mv header.csv "', files.header, '"', sep="")) # replace files.header with only one line
         # mv header.csv "RIC.Date[G].csv"
 
-        for (fl in .TRTH$files.csv) {
+        for (fl in tmp.files.csv) { # make files with header that awk will later populate
             system(paste('cp "', files.header, '" ', paste(.TRTH$archive_dir, fl, sep=""), sep=""))
             #cp "#RIC.Date[G].csv" /home/garrett/TRTH/archive/GEM1-U1.01-APR-2008.csv
         }
 
-    }
-
-
-    for (j in 1:length(.TRTH$files.gz))
-    {   
-        filename.gz <- .TRTH$files.gz[j]
-        filename.csv <- substr(filename.gz,1,(nchar(filename.gz)-3))
-
+        # after we've put a header in a file, we need to ignore that file the
+        # next time through the loop so that we don't overwrite data.
+        ignored.csvs <- c(ignored.csvs, tmp.files.csv)
 	    ## Split the Files 
 	    print(paste("Splitting ",filename.csv,sep=""))
-
         # The following awk will put data in our CSV files which currently only have column headers;
         #  Improved awk w/ file close to deal with 'too many open files', thanks to Josh Ulrich
         system(paste('awk -v f2="" -F "," '," '",'{f1 = $1"."$2".csv";print >> f1; if(f1 != f2) { close(f2); f2=f1; } }',"' ",filename.csv, sep=""))
@@ -371,7 +390,6 @@ splitCSV <- function(.TRTH) {
         # awk -v f2="" -F ","  '{f1 = $1"."$2".csv"; print >> f1; if(f1 != f2) { close(f2); f2=f1; } }' sourcefile.csv
         ## NOTE: if you get errors on 'too many open files' from awk, you'll need to adjust ulimit/nolimit
 	    print(paste('Done splitting ', filename.csv, sep=""))
-
         # remove header file
         invisible(file.remove(paste(.TRTH$archive_dir, files.header, sep="")))
         # remove unzipped csv
@@ -379,10 +397,8 @@ splitCSV <- function(.TRTH) {
 	    ## Zip the File
         # print(paste("zipping ",filename.csv,sep=""))
         # system(paste("gzip -f ",archive_dir,filename.csv,sep=""))
-    }	
-
-    # Move
-    #mv -vf paste(files) csv_dir
+    }
+    .TRTH$files.csv <- unique(c(tmpfiles[!tmpfiles %in% ignore], ignored.csvs))
 
     # Move split CSVs into csv_dir
     files.xts <- NULL
@@ -554,7 +570,7 @@ FEreut2xts <- function(.TRTH) {
             #only zipped file on disk. We'll have to unzip.
             system(paste("gzip -d -f ", CSV.name, ".gz", sep=""))
         }
-        Data <- try(read.csv(CSV.name, stringsAsFactors=FALSE, header=TRUE))
+        Data <- try(read.csv(CSV.name, stringsAsFactors=FALSE, header=TRUE), silent=TRUE)
         if (inherits(Data, 'try-error')) {
             Data <- read.csv(CSV.name, stringsAsFactors=FALSE, header=FALSE)
             colnames(Data) <- make.names(Data[1, ])
