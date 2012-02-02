@@ -78,14 +78,16 @@
 CleanUpArchive <- function(archive_dir) {
     # If a job is killed, or it fails, there will probably be files in the
     # archive directory that should be removed.  This will delete files
-    # that do not end with .csv.gz.
+    # that do not end with .csv.gz and are not confirmation files.
     # This will be called from `configureTRTH` and on.exit in `splitCSV`
     if (substr(archive_dir, nchar(archive_dir), nchar(archive_dir)) != "/") {
         archive_dir <- paste(archive_dir, "/", sep="")
     }    
     archive.files <- list.files(archive_dir)
     to.remove <- archive.files[!grepl("\\.csv\\.gz", archive.files)]
-    if (length(to.remove) > 0) warning("Cleaning up archive_dir: removing ", to.remove)
+    to.remove <- to.remove[!grepl("confirmation", to.remove)]
+    if (length(to.remove) > 0) warning(paste("Cleaning up archive_dir: removing", 
+                                       cat(paste(to.remove, collapse="\n"), '\n')))
     paste(archive_dir, to.remove, sep="")
     unlink(to.remove, force=TRUE)
 }
@@ -304,7 +306,7 @@ splitCSV <- function(.TRTH) {
     #FIXME: respect overwrite argument
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
     on.exit(CleanUpArchive(.TRTH$archive_dir))
-    if (isTRUE(.TRTH$doCleanUp) CleanUpArchive(.TRTH$archive_dir)
+    if (isTRUE(.TRTH$doCleanUp)) CleanUpArchive(.TRTH$archive_dir)
 
     if (substr(.TRTH$path.output, nchar(.TRTH$path.output), nchar(.TRTH$path.output)) != "/") {
         .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="")

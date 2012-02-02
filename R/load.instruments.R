@@ -253,13 +253,12 @@ getSymbols.FI <- function(Symbols,
                             return.class="xts",
                             extension="rda",
                             split_method = c("days", "common"),
-                            use_identifier,
+                            use_identifier = NA,
                             date_format=NULL,
                             verbose=TRUE,
                             days_to_omit=c("Saturday", "Sunday")
                          ) 
 {
-    if (missing(use_identifier)) use_identifier <- NA
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
     if (is.null(days_to_omit)) days_to_omit <- 'NULL'
     importDefaults("getSymbols.FI")
