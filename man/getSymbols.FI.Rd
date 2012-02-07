@@ -5,8 +5,9 @@
   getSymbols.FI(Symbols, from = "2010-01-01",
     to = Sys.Date(), ..., dir = "", return.class = "xts",
     extension = "rda", split_method = c("days", "common"),
-    use_identifier, date_format = NULL, verbose = TRUE,
-    days_to_omit = c("Saturday", "Sunday"))
+    use_identifier = NA, date_format = NULL,
+    verbose = TRUE, days_to_omit = c("Saturday", "Sunday"),
+    indexTZ)
 }
 \arguments{
   \item{Symbols}{a character vector specifying the names of
@@ -45,6 +46,10 @@
   that should not be loaded.  Default is
   \code{c("Saturday", "Sunday")}.  Use \code{NULL} to
   attempt to load data for all days of the week.}
+
+  \item{indexTZ}{valid TZ string. (e.g.
+  \dQuote{America/Chicago} or \dQuote{America/New_York})
+  See \code{\link[xts]{indexTZ}}.}
 }
 \description{
   This function should probably get folded back into
@@ -61,6 +66,9 @@
   ISO date as changed by \code{\link{make.names}}, for
   example, 2010-12-01 would be assumed to be a file
   containing 2010.12.01
+
+  If \code{indexTZ} is provided, the data will be converted
+  to that timezone
 
   If auto.assign is FALSE, \code{Symbols} should be of
   length 1.  Otherwise, \code{\link[quantmod]{getSymbols}}

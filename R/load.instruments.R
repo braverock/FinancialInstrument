@@ -219,6 +219,8 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' If date_format is NULL (the Default), we will assume an ISO date as changed by \code{\link{make.names}}, 
 #' for example, 2010-12-01 would be assumed to be a file containing 2010.12.01
 #' 
+#' If \code{indexTZ} is provided, the data will be converted to that timezone
+#'
 #' If auto.assign is FALSE, \code{Symbols} should be of length 1.  Otherwise, \code{\link[quantmod]{getSymbols}}
 #' will give you an error that says \dQuote{must use auto.assign=TRUE for multiple Symbols requests}
 #' However, if you were to call \code{getSymbols.FI} directly (which is \emph{NOT} recommended) 
@@ -238,6 +240,8 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' @param days_to_omit character vector of names of weekdays that should not be loaded.  
 #'      Default is \code{c("Saturday", "Sunday")}.  Use \code{NULL} to attempt to load data 
 #'      for all days of the week.
+#' @param indexTZ valid TZ string. (e.g. \dQuote{America/Chicago} or \dQuote{America/New_York})
+#'      See \code{\link[xts]{indexTZ}}.
 #' @seealso 
 #' \code{\link{saveSymbols.days}}
 #' \code{\link{instrument}}
@@ -256,7 +260,8 @@ getSymbols.FI <- function(Symbols,
                             use_identifier = NA,
                             date_format=NULL,
                             verbose=TRUE,
-                            days_to_omit=c("Saturday", "Sunday")
+                            days_to_omit=c("Saturday", "Sunday"),
+                            indexTZ
                          ) 
 {
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
@@ -294,6 +299,7 @@ getSymbols.FI <- function(Symbols,
     hasArg.date_format <- hasArg(date_format)
     hasArg.verbose <- hasArg(verbose)
     hasArg.days_to_omit <- hasArg(days_to_omit)
+    hasArg.indexTZ <- hasArg(indexTZ)
 
     # Now get the values for each formal that we'll use if not provided
     # by the user and not found in the SymbolLookup table
@@ -307,6 +313,10 @@ getSymbols.FI <- function(Symbols,
     default.date_format <- date_format
     default.verbose <- verbose
     default.days_to_omit <- days_to_omit
+    default.indexTZ <- if (hasArg.indexTZ) {
+        default.indexTZ <- indexTZ 
+    } else NA
+    
     # quantmod:::getSymbols will provide auto.assign and env
     # so the next 2 if statements should always be TRUE
     auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
@@ -334,6 +344,7 @@ getSymbols.FI <- function(Symbols,
         date_format <- pickArg('date_format', Symbols[[i]])
         verbose <- pickArg('verbose', Symbols[[i]])
         days_to_omit <- pickArg('days_to_omit', Symbols[[i]])
+        indexTZ <- pickArg('indexTZ', Symbols[[i]])
         # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
         # First, find out what the instrument name is
         instr_str <- NA
@@ -394,6 +405,7 @@ getSymbols.FI <- function(Symbols,
                     } # end 'common'/default method (same as getSymbols.rda)    
                 ) # end split_method switch
             fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
+            if (!is.na(indexTZ)) indexTZ(fr) <- indexTZ
             Symbols[[i]] <-make.names(Symbols[[i]]) 
             tmp <- list()
             tmp[[Symbols[[i]]]] <- fr
