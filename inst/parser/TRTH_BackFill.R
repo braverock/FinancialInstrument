@@ -296,7 +296,6 @@ get_files.gz <- function(archive_dir, job.name){
 }
 
 splitCSV <- function(.TRTH) {
-    #FIXME: respect overwrite argument
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
     
     # make a temp dir to use for splitting so that (fingers crossed)
@@ -334,6 +333,8 @@ splitCSV <- function(.TRTH) {
 	    print(paste("unzipping ",filename.gz, sep=""))
         #system(paste("gzip -d -f ",archive_dir,filename.gz,sep=""))
         system(paste("gunzip -f < ", .TRTH$archive_dir, filename.gz, " > ", .TRTH$tmp_archive_dir, filename.csv, sep=""))
+        gc()
+        print(paste(filename.gz, " unzipped.", sep=""))
     }
     ignored.csvs <- NULL #this will hold the names of CSVs that already have a header    
     setwd(.TRTH$tmp_archive_dir) #this directory contains the big CSVs that were unzipped
@@ -505,8 +506,8 @@ splitCSV <- function(.TRTH) {
         }
     }
     .TRTH$files.xts <- files.xts
+    gc()
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
-    #detach(.TRTH)
     .TRTH
 }
 
@@ -705,8 +706,10 @@ FEreut2xts <- function(.TRTH) {
             save(list=RIC, file=file.name.sec)
         }
         if (isTRUE(.TRTH$sec.image) && datarange.dif > 3600) makeImages(Data, .TRTH$sec_dir, RIC, date)
+        gc()
     } # End foreach loop
     #rm(list = 'RIC')
+    gc()
     Sys.setenv(TZ=oldTZ)
     save(.TRTH, file=paste(.TRTH$path.output, 'config.env.RData', sep=""))
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
