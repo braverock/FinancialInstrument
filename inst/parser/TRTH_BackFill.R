@@ -182,6 +182,13 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     registerDoMC(.TRTH$no.cores)
     # registerDoSEQ()
 
+    # create a text file that contains the job.name so that if a job is running,
+    # someone other than the user that started the job can find out which job 
+    # is running.
+    system(paste('echo "', Sys.time(), ' configureTRTH job.name: ', .TRTH$job.name, '" > ', 
+                 paste(.TRTH$path.output, "current.job.txt", sep=""), 
+                 sep=""))
+
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
     .TRTH
 }
@@ -192,6 +199,11 @@ download_reut <- function(.TRTH) {
         .TRTH <- try(get('.TRTH', pos=.GlobalEnv))
         if (inherits(.TRTH, 'try-error')) stop("Run configureTRTH function first")
     }
+
+    # edit text file so others can see what job we're working on
+    system(paste('echo "', Sys.time(), ' download_reut job.name: ', .TRTH$job.name, '" > ', 
+                 paste(.TRTH$path.output, "current.job.txt", sep=""), 
+                 sep=""))
 
     Sys.umask("0002")
 
@@ -298,6 +310,11 @@ get_files.gz <- function(archive_dir, job.name){
 splitCSV <- function(.TRTH) {
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
     
+    # edit text file so others can see what job we're working on
+    system(paste('echo "', Sys.time(), ' splitCSV job.name: ', .TRTH$job.name, '" > ', 
+                 paste(.TRTH$path.output, "current.job.txt", sep=""), 
+                 sep=""))
+
     # make a temp dir to use for splitting so that (fingers crossed)
     # more than one instance can be run at a time in separate R sessions.
     dir.create(.TRTH$tmp_archive_dir <- addslash(tempdir()), showWarnings=FALSE, mode='0775')
@@ -518,6 +535,11 @@ FEreut2xts <- function(.TRTH) {
     # Make sure csv_dir exists since it is where we read the data from
     if (!file.exists(.TRTH$csv_dir)) stop("There is no directory", paste(.TRTH$csv_dir))
     if (is.null(.TRTH$files.xts)) stop("Cannot find 'files.xts' -- Run splitCSV first")
+
+    # edit text file so others can see what job we're working on
+    system(paste('echo "', Sys.time(), ' FEreut2xts job.name: ', .TRTH$job.name, '" > ', 
+                 paste(.TRTH$path.output, "current.job.txt", sep=""), 
+                 sep=""))
 
     files.xts <- .TRTH$files.xts
 
