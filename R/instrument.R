@@ -32,6 +32,7 @@ is.instrument <- function( x ) {
 #' @param x object
 #' @export
 is.instrument.name <- function(x) {
+  if (!is.character(x)) return(FALSE)
   x <- suppressWarnings(getInstrument(x, silent=TRUE))
   inherits(x, 'instrument')
 }
@@ -50,6 +51,7 @@ is.currency <- function( x ) {
 #' @param x character string to test.
 #' @export
 is.currency.name <- function( x ) {
+  if (!is.character(x)) return(FALSE)
   x <- suppressWarnings(getInstrument(x, type='currency', silent=TRUE))
   inherits( x, "currency" )
 }
