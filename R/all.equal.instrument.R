@@ -30,6 +30,37 @@
 all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) {
     if (char.n < 0) char.n <- Inf
     msg <- NULL
+    if (mode(target) != mode(current)) {
+        msg <- paste("Modes: ", mode(target), ", ", mode(current), sep="")
+    }       
+    if (length(target) != length(current)) {
+        msg <- c(msg, paste("Lengths: ", length(target), ", ", length(current), 
+                            sep=""))
+    }
+    nt <- names(target)
+    nc <- names(current)
+    if (is.null(nt) && !is.null(nc)) {
+        msg <- c(msg, "names for current but not for target")
+        #shouldn't happen because instruments are named lists
+    } else if (is.null(nc) && !is.null(nt)) {
+        msg <- c(msg, "names for target but not for current")    
+    } else {
+        if (!all(nt %in% nc)) {
+            msg <- c(msg, paste("Names in target that are not in current: <",
+                                paste(nt[!nt %in% nc], collapse=", "), ">"))
+        }
+        if (!all(nc %in% nt)) {
+            msg <- c(msg, paste("Names in current that are not in target: <",
+                                paste(nc[!nc %in% nt], collapse=", "), ">"))
+        }
+    }
+    if (!is.instrument(current)) {
+        msg <- c(msg, paste("target is ", class(target)[1L],
+                            ", current is ", class(current)[1L], sep="")) 
+        return(msg)
+        #TODO: maybe more comparisons can be done depending on what 
+        #      class(current) is
+    }
     # Same class?
     tc <- class(target)
     cc <- class(current)
@@ -39,26 +70,20 @@ all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) 
     if (!isTRUE(all.equal(tc, cc))) {
         if (is.null(collapse)) {
             out <- NULL
-            if (!all(tc %in% cc)) 
+            if (!all(tc %in% cc)) { 
                 out <- paste("Classes of target that are not classes of current: <",
                              paste(tc[!tc %in% cc], collapse=", "), ">")
-            if (!all(cc %in% tc))
+            }
+            if (!all(cc %in% tc)) {
                 out <- c(out, paste("Classes of current that are not classes of target: <",
                                     paste(cc[!cc %in% tc], collapse=", "), ">"))
+            }
             msg <- c(msg, out)
         } else {
-            msg <- paste("Classes: ", paste(paste(tc, collapse=collapse), 
-                  paste(cc, collapse=collapse), sep=", "), sep="")
+            msg <- c(msg, paste("Classes: ", paste(paste(tc, collapse=collapse), 
+                          paste(cc, collapse=collapse), sep=", "), sep=""))
         } 
     }
-    nx <- names(target)
-    ny <- names(current)    
-    if (!all(nx %in% ny)) 
-        msg <- c(msg, paste("Names in target that are not in current: <",
-                            paste(nx[!nx %in% ny], collapse=", "), ">"))
-    if (!all(ny %in% nx)) 
-        msg <- c(msg, paste("Names in current that are not in target: <",
-                            paste(ny[!ny %in% nx], collapse=", "), ">"))
     uniqueNames <- function(target, current) {  
         unique(c(names(target), names(current)))
     }
@@ -107,10 +132,10 @@ all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) 
             return(out)
         } 
     }
-    nxy <- uniqueNames(target, current)
+    ntc <- uniqueNames(target, current)
     msg <- c(msg, 
-             do.call(c, lapply(nxy, function(x) do.compare(target, current, x))))
-    if (is.null(msg)) 
+             do.call(c, lapply(ntc, function(x) do.compare(target, current, x))))
+    if (is.null(msg)) {
         TRUE
-    else msg
+    } else msg
 }
