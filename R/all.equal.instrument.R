@@ -1,7 +1,8 @@
 #' instrument all.equal method
 #'
 #' @param char.n If length of a character vector is \code{char.n} or less it 
-#' will be treated as a single element.
+#' will be treated as a single element. A negative value for \code{char.n} will
+#' be treated as if it were positive \code{Inf}.
 #' @param collapse Only used if a character vector is of length less than 
 #' \code{char.n}.  Unless \code{collapse} is \code{NULL}, it will be used in a 
 #' call to \code{\link{paste}}.  If \code{collapse} is \code{NULL}, each element 
@@ -9,6 +10,8 @@
 #' @method all.equal instrument
 #' @S3method all.equal instrument
 #' @author Garrett See
+#' @seealso \code{\link{getInstrument}}, \code{\link{instrument.table}},
+#' \code{\link{buildHierarchy}}
 #' @note ALPHA code. Subject to change
 #' @keywords internal utilities
 #' @examples
@@ -16,7 +19,7 @@
 #' currency("USD")
 #' stock("SPY", "USD", validExchanges=c("SMART", "ARCA", "BATS", "BEX"))
 #' stock("DIA", "USD", validExchanges=c("SMART", "ARCA", "ISLAND"), 
-#'   ExtraField="something")
+#'      ExtraField="something")
 #' 
 #' all.equal(getInstrument("SPY"), getInstrument("DIA"))
 #' all.equal(getInstrument("SPY"), getInstrument("DIA"), char.n=5)
@@ -25,16 +28,28 @@
 #' all.equal(getInstrument("DIA"), getInstrument("USD"))
 #' }
 all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) {
-    # loosely based on code from base all.equal.R
+    if (char.n < 0) char.n <- Inf
     msg <- NULL
-    # Same type?
-    if (!isTRUE(all.equal(class(target), class(current)))) {
-        msg <- paste("Classes: ", 
-                     class(target)[!class(target) %in% "instrument"], ", ", 
-                     class(current)[!class(current) %in% "instrument"], sep="")
-        # since all instruments inherit "instrument" class, don't include 
-        # "instrument in comparison. (Maybe we shouldn't include any that are
-        # the same?)
+    # Same class?
+    tc <- class(target)
+    cc <- class(current)
+    # all instruments have the instrument class, so don't need to compare it
+    tc <- tc[!tc %in% "instrument"]
+    cc <- cc[!cc %in% "instrument"]
+    if (!isTRUE(all.equal(tc, cc))) {
+        if (is.null(collapse)) {
+            out <- NULL
+            if (!all(tc %in% cc)) 
+                out <- paste("Classes of target that are not classes of current: <",
+                             paste(tc[!tc %in% cc], collapse=", "), ">")
+            if (!all(cc %in% tc))
+                out <- c(out, paste("Classes of current that are not classes of target: <",
+                                    paste(cc[!cc %in% tc], collapse=", "), ">"))
+            msg <- c(msg, out)
+        } else {
+            msg <- paste("Classes: ", paste(paste(tc, collapse=collapse), 
+                  paste(cc, collapse=collapse), sep=", "), sep="")
+        } 
     }
     nx <- names(target)
     ny <- names(current)    
@@ -44,6 +59,9 @@ all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) 
     if (!all(ny %in% nx)) 
         msg <- c(msg, paste("Names in current that are not in target: <",
                             paste(ny[!ny %in% nx], collapse=", "), ">"))
+    uniqueNames <- function(target, current) {  
+        unique(c(names(target), names(current)))
+    }
     do.compare <- function(target, current, i) {
         if (!isTRUE(all.equal(target[[i]], current[[i]]))) {
             ti <- target[[i]]
@@ -52,11 +70,20 @@ all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) 
             if (is.null(ci)) ci <- "NULL"
             if (is.list(ti)) {
                 unames <- uniqueNames(ti, ci)
-                out <- do.call(c, 
-                               lapply(unames, function(x) do.compare(ti, ci, x)))
+                out <- do.call(c, lapply(unames, function(x) {
+                    if (length(ti) == 1 && ti == "NULL") {
+                        paste("NULL, <", names(ci), ">")
+                    } else if (length(ci) == 1 && ci == "NULL") {
+                        paste("<", names(ti), ">, NULL")
+                    } else do.compare(ti, ci, x)
+                }))
                 return(paste(i, out, sep="$"))
             }
-            if (length(ti) > char.n && is.character(ti)) {
+            if (is.xts(ti)) {
+                ae <- all.equal(ti, ci)
+                if (!isTRUE(ae)) return(paste(i, ae, sep=": "))
+            }
+            if (max(length(ti), length(ci)) > char.n && is.character(ti)) {
                 out <- NULL
                 if (!all(ti %in% ci)) 
                     out <- paste(i, "in target but not in current: <",
@@ -65,33 +92,24 @@ all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) 
                     out <- c(out, paste(i, "in current but not in target: <",
                                 paste(ci[!ci %in% ti], collapse=", "), ">"))
                 return(out)
-            } else if (is.character(ti)) {
-                if (!is.null(collapse)) {
-                    out <- paste(paste(ti, collapse=collapse), 
-                                 paste(ci, collapse=collapse), sep=", ")
-                    out <- paste(i, ": ", out, sep="")
-                    return(out)
+            }
+            if (!is.null(collapse)) {
+                out <- if (isTRUE(all.equal(ti, ci, check.attributes=FALSE))) {
+                    all.equal(ti, ci)
+                } else {
+                    paste(paste(ti, collapse=collapse), 
+                          paste(ci, collapse=collapse), sep=", ")
                 }
+                return(paste(i, ": ", out, sep=""))
             }
-            if (is.xts(ti)) {
-                ae <- all.equal(ti, ci)
-                if (!isTRUE(ae)) return(paste(i, ae, sep=": "))
-            }
-            
             out <- paste(ti, ci, sep=", ")
             out <- paste(i, ": ", out, sep="")
-            
             return(out)
         } 
     }
-    uniqueNames <- function(target, current) {  
-        unique(c(names(target), names(current)))
-    }
     nxy <- uniqueNames(target, current)
-
     msg <- c(msg, 
              do.call(c, lapply(nxy, function(x) do.compare(target, current, x))))
-    
     if (is.null(msg)) 
         TRUE
     else msg

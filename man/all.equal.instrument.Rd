@@ -8,7 +8,8 @@
 \arguments{
   \item{char.n}{If length of a character vector is
   \code{char.n} or less it will be treated as a single
-  element.}
+  element. A negative value for \code{char.n} will be
+  treated as if it were positive \code{Inf}.}
 
   \item{collapse}{Only used if a character vector is of
   length less than \code{char.n}.  Unless \code{collapse}
@@ -28,7 +29,7 @@
 currency("USD")
 stock("SPY", "USD", validExchanges=c("SMART", "ARCA", "BATS", "BEX"))
 stock("DIA", "USD", validExchanges=c("SMART", "ARCA", "ISLAND"),
-  ExtraField="something")
+     ExtraField="something")
 
 all.equal(getInstrument("SPY"), getInstrument("DIA"))
 all.equal(getInstrument("SPY"), getInstrument("DIA"), char.n=5)
@@ -39,6 +40,11 @@ all.equal(getInstrument("DIA"), getInstrument("USD"))
 }
 \author{
   Garrett See
+}
+\seealso{
+  \code{\link{getInstrument}},
+  \code{\link{instrument.table}},
+  \code{\link{buildHierarchy}}
 }
 \keyword{internal}
 \keyword{utilities}

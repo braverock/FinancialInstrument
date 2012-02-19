@@ -577,9 +577,10 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
 #' @rdname instrument
 currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
     if (length(primary_id) > 1) return(unname(sapply(primary_id, currency, identifiers=identifiers, ...=...)))
+    if (is.null(identifiers)) identifiers <- list()
     ccy <- try(getInstrument(primary_id,type='currency',silent=TRUE))
     if (is.instrument(ccy)) {
-        if (!is.null(identifiers)) {
+        if (length(identifiers) > 0) {
             if (!is.list(identifiers)) identifiers <- list(identifiers)
             for (nm in names(ccy$identifiers)[names(ccy$identifiers) %in% names(identifiers)]) {
                 ccy$identifiers[[nm]] <- identifiers[[nm]]

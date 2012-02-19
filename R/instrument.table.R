@@ -43,8 +43,8 @@
 #' @export
 instrument.table <- function(symbols=NULL, exclude = NULL, attrs.of = NULL) {
 #TODO check for numeric/character
-    if (is.null(symbols)) symbols <- ls(pos=.instrument, all.names=TRUE) #ls_instruments()
-    if (is.null(attrs.of)) attrs.of <- ls(pos=.instrument, all.names=TRUE) #ls_instruments()
+    if (is.null(symbols)) symbols <- ls_instruments()
+    if (is.null(attrs.of)) attrs.of <- symbols
    
     attr.names <- NULL
     for (symbol in attrs.of) {
