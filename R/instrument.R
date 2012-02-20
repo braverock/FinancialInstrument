@@ -28,13 +28,14 @@ is.instrument <- function( x ) {
 }
 
 
-#' test to see if a string is the name of a \code{\link{instrument}}
-#' @param x object
+#' check each element of a character vector to see if it is either the 
+#' primary_id or an identifier of an \code{\link{instrument}}
+#' @param x character vector
+#' @return logical vector
 #' @export
 is.instrument.name <- function(x) {
   if (!is.character(x)) return(FALSE)
-  x <- suppressWarnings(getInstrument(x, silent=TRUE))
-  inherits(x, 'instrument')
+  sapply(lapply(x, getInstrument, silent=TRUE), inherits, "instrument")
 }
 
 
@@ -47,13 +48,14 @@ is.currency <- function( x ) {
 }
 
 
-#' test to see if a string is the name of a \code{\link{currency}}
-#' @param x character string to test.
+#' check each element of a character vector to see if it is either the 
+#' primary_id or an identifier of a \code{\link{currency}}
+#' @param x character vector
 #' @export
 is.currency.name <- function( x ) {
   if (!is.character(x)) return(FALSE)
-  x <- suppressWarnings(getInstrument(x, type='currency', silent=TRUE))
-  inherits( x, "currency" )
+  sapply(lapply(x, getInstrument, type='currency', silent=TRUE), inherits, 
+         "currency")
 }
 
 

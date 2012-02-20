@@ -1,14 +1,19 @@
 \name{is.instrument.name}
 \alias{is.instrument.name}
-\title{test to see if a string is the name of a \code{\link{instrument}}}
+\title{check each element of a character vector to see if it is either the
+primary_id or an identifier of an \code{\link{instrument}}}
 \usage{
   is.instrument.name(x)
 }
 \arguments{
-  \item{x}{object}
+  \item{x}{character vector}
+}
+\value{
+  logical vector
 }
 \description{
-  test to see if a string is the name of a
+  check each element of a character vector to see if it is
+  either the primary_id or an identifier of an
   \code{\link{instrument}}
 }
 

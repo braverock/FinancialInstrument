@@ -55,6 +55,7 @@
   gummy-stuff.org \url{www.gummy-stuff.org/Yahoo-data.htm}
 }
 \seealso{
+  \code{\link{update_instruments.instrument}},
   \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 }
 

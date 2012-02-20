@@ -1,14 +1,16 @@
 \name{is.currency.name}
 \alias{is.currency.name}
-\title{test to see if a string is the name of a \code{\link{currency}}}
+\title{check each element of a character vector to see if it is either the
+primary_id or an identifier of a \code{\link{currency}}}
 \usage{
   is.currency.name(x)
 }
 \arguments{
-  \item{x}{character string to test.}
+  \item{x}{character vector}
 }
 \description{
-  test to see if a string is the name of a
+  check each element of a character vector to see if it is
+  either the primary_id or an identifier of a
   \code{\link{currency}}
 }
 

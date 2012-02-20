@@ -32,7 +32,8 @@
 #' @param verbose be verbose?
 #' @return called for side-effect
 #' @author Garrett See
-#' @seealso \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
+#' @seealso \code{\link{update_instruments.instrument}}, 
+#' \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 #' @references Yahoo! Finance \url{finance.yahoo.com} YahooQuote
 #' \url{http://dirk.eddelbuettel.com/code/yahooquote.html} 
 #' gummy-stuff.org \url{www.gummy-stuff.org/Yahoo-data.htm} 
@@ -168,4 +169,101 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
 }
 
 
+#' Update instruments with metadata from another instrument.
+#'
+#' Update instruments with metadata from another instrument.
+#' 
+#' By default, only attributes that have a value of \code{""} will be given a 
+#' new value.
+#'
+#' If \code{create.new} is \code{TRUE}, then if there are attributes in
+#' \code{source_id} that are not in the \code{Symbols}' instrument, those 
+#' attributes will be copied to the updated instruments unless they are in 
+#' \code{ignore}.
+#' 
+#' @param Symbols charcter vector of primary_ids or other instrument identifiers.
+#' of instruments to be updated.
+#' @param source_id The primary_id (or other identifier) of an instrument, or
+#' an instrument.  The \code{source_id} instrument will be used to update the
+#' metadata of \code{Symbols}' instruments.
+#' @param create.new If FALSE (Default), only attributes that exist but have 
+#' empty values will be updated.  If TRUE, new attributes will be created if
+#' \code{source_id} has them, but the \code{Symbols} do not.
+#' @param ignore vector of names of instrument attributes that should not be
+#' copied to the updated instruments.
+#' @param assign_i TRUE/FALSE. If TRUE, the updated instruments will be assigned
+#' back into the instrument environment.  If FALSE, a list of updated 
+#' instruments will be returned
+#' @return if \code{isTRUE(assign_i)} a vector of primary_ids of the instruments
+#' that were upated.  Otherwise, a list of updated instrument objects.
+#' @author Garrett See
+#' @seealso \code{\link{update_instruments.yahoo}}, 
+#' \code{\link{all.equal.instrument}}
+#' @note one way to overwrite attributes of one instrument with those of another
+#' is to first set equal to \code{""} those attributes that you want to 
+#' overwrite, then use \code{update_instruments.instrument} to copy the 
+#' attributes.
+#' @examples
+#' \dontrun{
+#' #rm_instruments()
+#' currency("USD")
+#' synthetic("SPX", "USD", identifiers=list(yahoo="GSPC"),
+#'           tick_size=0.01,
+#'          liquidHours="T08:30:00/T15:00:00", 
+#'          extraField='something else', 
+#'          assign_i=TRUE)
+#' stock("SPY", "USD", liquidHours="", assign_i=TRUE)
+#' all.equal(getInstrument("SPX"), getInstrument("SPY"))
+#' getInstrument("SPY")
+#' ## update SPY metadata based on the metadata of SPX
+#' ## Only attributes that == "" are updated by default
+#' update_instruments.instrument("SPY", "SPX", assign_i=FALSE) #liquidHours
+#' update_instruments.instrument("SPY", "SPX", create.new=TRUE,
+#'                               ignore=c("identifiers", "type"), 
+#'                               assign_i=FALSE)
+#' # Although you probably do NOT want to, this will
+#' # copy everything new -- including identifiers and type!
+#' update_instruments.instrument("SPY", "SPX", create.new=TRUE, ignore=NULL, 
+#'                               assign_i=FALSE) 
+#' }
+#' @export
+update_instruments.instrument <- function(Symbols, source_id, create.new=FALSE,
+                                          ignore="identifiers", assign_i=TRUE) {
+    r <- if (is.instrument(source_id)) { source_id } else getInstrument(source_id)
+    if (!is.instrument(r)) {
+        stop('source_id is neither an instrument nor the name of an instrument')
+    }
+    
+    out <- lapply(Symbols, function(s) {
+        si <- getInstrument(s)
+        if (!is.instrument(si)) {
+            warning(paste('could not find instrument"', s, '"Skipping...')) 
+            next
+        }
+        all.empty <- do.call(c, lapply(si, function(x) all(x == "")))
+        all.empty <- all.empty[!names(all.empty) %in% ignore]
+        
+        names.empty <- names(all.empty[all.empty])
+        for (n in names.empty) {
+            if (!is.null(r[[n]])) {
+                si[[n]] <- r[[n]]
+            }
+        }
+        if (isTRUE(create.new)) {
+            nr <- names(r)
+            nr <- nr[!nr %in% ignore]
+            nsi <- names(si)
+            new.attr <- nr[!nr %in% nsi]
+            for (n in new.attr) {
+                si[[n]] <- r[[n]]
+            }
+        }
+        si
+    })
+    if (isTRUE(assign_i)) {
+        invisible(lapply(out, function(x) assign(x$primary_id, x, 
+                                        pos=FinancialInstrument:::.instrument)))
+    } else return(out)
+    sapply(out, "[[", "primary_id")
+}
 
