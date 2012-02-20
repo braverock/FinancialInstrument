@@ -229,16 +229,18 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
 #' @export
 update_instruments.instrument <- function(Symbols, source_id, create.new=FALSE,
                                           ignore="identifiers", assign_i=TRUE) {
-    r <- if (is.instrument(source_id)) { source_id } else getInstrument(source_id)
+    r <- if (is.instrument(source_id)) { 
+        source_id 
+    } else getInstrument(source_id)
     if (!is.instrument(r)) {
         stop('source_id is neither an instrument nor the name of an instrument')
     }
     
     out <- lapply(Symbols, function(s) {
-        si <- getInstrument(s)
+        si <- getInstrument(s, silent=TRUE)
         if (!is.instrument(si)) {
             warning(paste('could not find instrument"', s, '"Skipping...')) 
-            next
+            return(NULL)
         }
         all.empty <- do.call(c, lapply(si, function(x) all(x == "")))
         all.empty <- all.empty[!names(all.empty) %in% ignore]
@@ -261,9 +263,11 @@ update_instruments.instrument <- function(Symbols, source_id, create.new=FALSE,
         si
     })
     if (isTRUE(assign_i)) {
-        invisible(lapply(out, function(x) assign(x$primary_id, x, 
-                                        pos=FinancialInstrument:::.instrument)))
+        invisible(lapply(out, function(x) {
+            if (!is.null(x)) assign(x$primary_id, x, 
+                                    pos=FinancialInstrument:::.instrument)
+        }))
     } else return(out)
-    sapply(out, "[[", "primary_id")
+    do.call(c, lapply(out, "[[", "primary_id"))
 }
 
