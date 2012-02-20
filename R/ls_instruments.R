@@ -210,25 +210,30 @@ ls_future_series <- function(pattern=NULL,match=TRUE) {
 
 #' @export
 #' @rdname ls_instruments
-ls_currencies <- function(pattern=NULL, match=TRUE) {
-    symbols <- ls_instruments(pattern,match)
-    tmp_symbols <- NULL            
+ls_currencies <- function(pattern=NULL, match=TRUE, includeFX=FALSE) {
+    symbols <- ls_instruments(pattern=pattern, match=match)
+    tmp_symbols <- NULL
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
-        if (inherits(tmp_instr, 'currency') && inherits(tmp_instr, 'instrument')) {
-            tmp_symbols <- c(tmp_symbols,instr)
-        }    
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),
+                         silent=TRUE)
+        if (inherits(tmp_instr, 'currency') 
+            && inherits(tmp_instr, 'instrument')) {
+            if (!inherits(tmp_instr, 'exchange_rate') || isTRUE(includeFX)) {
+                tmp_symbols <- c(tmp_symbols,instr)
+            }
+        }
     }
     tmp_symbols
 }
 
 #' @export
 #' @rdname ls_instruments
-ls_non_currencies <- function(pattern=NULL, includeFX=TRUE, match=TRUE) {
+ls_non_currencies <- function(pattern=NULL, match=TRUE, includeFX=TRUE) {
     symbols <- ls_instruments(pattern, match)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),
+                         silent=TRUE)
         if (!inherits(tmp_instr, 'currency') || 
                 (inherits(tmp_instr, 'exchange_rate') && includeFX) ) {
             tmp_symbols <- c(tmp_symbols,instr)
@@ -239,14 +244,14 @@ ls_non_currencies <- function(pattern=NULL, includeFX=TRUE, match=TRUE) {
 
 #' @export
 #' @rdname ls_instruments
-ls_exchange_rates <- function(pattern=NULL,match=TRUE) {
-    #This could use ls_currencies instead of ls_instruments, but currency class may be
-    #subject to change
-    symbols <- ls_instruments(pattern=pattern,match=match)    
+ls_exchange_rates <- function(pattern=NULL, match=TRUE) {
+    symbols <- ls_currencies(pattern=pattern, match=match, includeFX=TRUE)
     tmp_symbols <- NULL            
     for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
-        if (inherits(tmp_instr, 'exchange_rate') && inherits(tmp_instr, 'instrument')) {
+        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),
+                         silent=TRUE)
+        if (inherits(tmp_instr, 'exchange_rate') 
+            && inherits(tmp_instr, 'instrument')) {
             tmp_symbols <- c(tmp_symbols,instr)
         }    
     }

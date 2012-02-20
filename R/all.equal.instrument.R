@@ -1,3 +1,18 @@
+###############################################################################
+# R (http://r-project.org/) Instrument Class Model
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, 
+# Joshua Ulrich, Brian G. Peterson, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id: update_instruments.yahoo.R 899 2012-01-01 19:00:09Z gsee $
+#
+###############################################################################
+
+
 #' instrument all.equal method
 #'
 #' @param char.n If length of a character vector is \code{char.n} or less it 
@@ -28,6 +43,7 @@
 #' all.equal(getInstrument("DIA"), getInstrument("USD"))
 #' }
 all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) {
+    stopifnot(is.instrument(target))
     if (char.n < 0) char.n <- Inf
     msg <- NULL
     if (mode(target) != mode(current)) {

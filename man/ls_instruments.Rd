@@ -52,10 +52,11 @@
 
   ls_future_series(pattern = NULL, match = TRUE)
 
-  ls_currencies(pattern = NULL, match = TRUE)
+  ls_currencies(pattern = NULL, match = TRUE,
+    includeFX = FALSE)
 
-  ls_non_currencies(pattern = NULL, includeFX = TRUE,
-    match = TRUE)
+  ls_non_currencies(pattern = NULL, match = TRUE,
+    includeFX = TRUE)
 
   ls_exchange_rates(pattern = NULL, match = TRUE)
 
