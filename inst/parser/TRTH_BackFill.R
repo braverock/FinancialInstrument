@@ -192,10 +192,11 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
 
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
 
+    .TRTH$tmp <- path.expand(paste(addslash(.TRTH$path.output), "tmp", sep=""))
+    makeDir(.TRTH$tmp)
+
     if (Sys.getenv("TMPDIR") == "") {
         # Set the TMPDIR environment variable (requires restarting R)
-        .TRTH$tmp <- path.expand(paste(addslash(.TRTH$path.output), "tmp", sep=""))
-        makeDir(.TRTH$tmp)
         wd <- getwd()
         system(paste('cd ', .TRTH$path.output, sep=""))
         setwd(.TRTH$path.output)
