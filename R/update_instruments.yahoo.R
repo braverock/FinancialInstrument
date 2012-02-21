@@ -182,7 +182,8 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
 #' \code{ignore}.
 #' 
 #' @param Symbols charcter vector of primary_ids or other instrument identifiers.
-#' of instruments to be updated.
+#' of instruments to be updated.  Alternatively, \code{Symbols} can be an
+#' \code{instrument} or list of \code{instrument}s.
 #' @param source_id The primary_id (or other identifier) of an instrument, or
 #' an instrument.  The \code{source_id} instrument will be used to update the
 #' metadata of \code{Symbols}' instruments.
@@ -235,9 +236,13 @@ update_instruments.instrument <- function(Symbols, source_id, create.new=FALSE,
     if (!is.instrument(r)) {
         stop('source_id is neither an instrument nor the name of an instrument')
     }
-    
+    if (is.instrument(Symbols)) {
+        Symbols <- list(Symbols)
+    }
     out <- lapply(Symbols, function(s) {
-        si <- getInstrument(s, silent=TRUE)
+        si <- if (!is.instrument(s)) {
+            getInstrument(s, silent=TRUE)
+        } else s
         if (!is.instrument(si)) {
             warning(paste('could not find instrument"', s, '"Skipping...')) 
             return(NULL)
