@@ -134,6 +134,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
 
     # Make sure the directories we need exist.
     makeDir(.TRTH$path.output)
+    makeDir(paste(.TRTH$path.output, "tmp", sep=""))
     makeDir(.TRTH$archive_dir)
     makeDir(.TRTH$csv_dir)
     makeDir(.TRTH$tick_dir)
@@ -190,6 +191,26 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
                  sep=""))
 
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
+
+    if (Sys.getenv("TMPDIR") == "") {
+        # Set the TMPDIR environment variable (requires restarting R)
+        .TRTH$tmp <- path.expand(paste(addslash(.TRTH$path.output), "tmp", sep=""))
+        makeDir(.TRTH$tmp)
+        wd <- getwd()
+        system(paste('cd ', .TRTH$path.output, sep=""))
+        setwd(.TRTH$path.output)
+        save.image()
+        makeActiveBinding("refresh", function() { 
+            system(paste('TMPDIR=', .TRTH$tmp, ' R --no-site-file --no-init-file', sep=""))
+            q("no") 
+        }, .GlobalEnv)
+        refresh()
+        file.remove(".RData")
+        setwd(wd)
+        .TRTH
+        # All that just to change where the tempdir is created!!!!!!!
+    }
+
     .TRTH
 }
 
@@ -318,7 +339,7 @@ splitCSV <- function(.TRTH) {
     # make a temp dir to use for splitting so that (fingers crossed)
     # more than one instance can be run at a time in separate R sessions.
     dir.create(.TRTH$tmp_archive_dir <- addslash(tempdir()), showWarnings=FALSE, mode='0775')
-    on.exit(unlink(.TRTH$tmp_archive_dir, recursive=TRUE))
+    on.exit(unlink(.TRTH$tmp_archive_dir, recursive=TRUE, force=TRUE))
         
     if (substr(.TRTH$path.output, nchar(.TRTH$path.output), nchar(.TRTH$path.output)) != "/") {
         .TRTH$path.output <- paste(.TRTH$path.output, "/", sep="")
