@@ -190,10 +190,10 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
                  paste(.TRTH$path.output, "current.job.txt", sep=""), 
                  sep=""))
 
-    assign('.TRTH', .TRTH, pos=.GlobalEnv)
-
     .TRTH$tmp <- path.expand(paste(addslash(.TRTH$path.output), "tmp", sep=""))
     makeDir(.TRTH$tmp)
+
+    assign('.TRTH', .TRTH, pos=.GlobalEnv)
 
     if (Sys.getenv("TMPDIR") == "") {
         # Set the TMPDIR environment variable (requires restarting R)
@@ -210,6 +210,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
         setwd(wd)
         require("FinancialInstrument")
         require("doMC")
+        registerDoMC(.TRTH$no.cores)
         .TRTH
         # All that just to change where the tempdir is created!!!!!!!
     }
