@@ -6,8 +6,10 @@
 # Peter Carl
 
 # Load needed packages:
-require(zoo)
+require(xts)
 require(gdata)
+require(FinancialInstrument)
+require(quantmod)
 
 # Set the working directory, where there's a .incoming folder that contains
 # the downloaded spreadsheet.
