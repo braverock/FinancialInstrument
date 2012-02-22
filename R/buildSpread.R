@@ -214,6 +214,17 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
         stop("Please install quantmod before using this function.")
     }
+    
+    dargs <- list(...)
+    # dots may have args for getSymbols or for make_spread_id.
+    # extract args that should be passed to make_spread_id
+    msi.args <- list() #make_spread_id args
+    for (arg in c("root", "format", "sep")) {
+        if (!is.null(dargs[[arg]])) {
+            msi.args[[arg]] <- dargs[[arg]]
+            dargs[[arg]] <- NULL
+        }
+    }
 
     if (length(prod1) == 2 && missing(prod2)) {
         prod2 <- prod1[2]
@@ -252,8 +263,18 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     if (is.null(Data.1)) Data.1 <- try(get(as.character(prod1),envir=.GlobalEnv),silent=TRUE) 
     if (is.null(Data.2)) Data.2 <- try(get(as.character(prod2),envir=.GlobalEnv),silent=TRUE) 
 
-    if (inherits(Data.1, "try-error")) Data.1 <- getSymbols(prod1,auto.assign=FALSE,...) #the dots are for from and to    
-    if (inherits(Data.2, "try-error")) Data.2 <- getSymbols(prod2,auto.assign=FALSE,...)
+    if (inherits(Data.1, "try-error") || (inherits(Data.2, "try-error"))) {
+        gS.args <- list()
+        if (!is.null(from)) gS.args$from <- from
+        if (!is.null(to)) gS.args$to <- to
+        gS.args$auto.assign=FALSE
+        if (inherits(Data.1, 'try-error')) {
+            Data.1 <- do.call("getSymbols", c(Symbols=prod1, gS.args, dargs))
+        }
+        if (inherits(Data.2, 'try-error')) {
+            Data.2 <- do.call("getSymbols", c(Symbols=prod2, gS.args, dargs))
+        }
+    }
     
     if ( (all(has.Op(Data.1), has.Cl(Data.2)) && !(all(has.Op(Data.2), has.Cl(Data.2)))) || 
 	(is.BBO(Data.1) && !is.BBO(Data.2)) ||
@@ -378,10 +399,10 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
             }
     )
     if (auto.assign) { #store the data in 
-        members <- c(prod1,prod2)
-        id <- make_spread_id(members, ...) #can pass 'root' or 'format' through dots
+        msi.args$x <- c(prod1,prod2)
+        id <- do.call("make_spread_id", msi.args) #can pass 'root' or 'format' through dots
         memberratio <- if(length(ratio) > 1) {list(1,-as.numeric(ratio))} else c(1,-ratio)
-        spread(id, currency=currency, members=members, memberratio=memberratio, defined.by='fn_SpreadBuilder')
+        spread(id, currency=currency, members=msi.args$x, memberratio=memberratio, defined.by='fn_SpreadBuilder')
         assign(id, Spread, pos=env)
         id
     } else Spread  
