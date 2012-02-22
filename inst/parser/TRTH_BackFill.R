@@ -208,6 +208,8 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
         refresh()
         file.remove(".RData")
         setwd(wd)
+        require("FinancialInstrument")
+        require("doMC")
         .TRTH
         # All that just to change where the tempdir is created!!!!!!!
     }
@@ -331,7 +333,10 @@ get_files.gz <- function(archive_dir, job.name){
 
 splitCSV <- function(.TRTH) {
     if (missing(.TRTH) && !exists(".TRTH")) stop("Run configureTRTH function first")
-    
+    if (Sys.getenv("TMPDIR") == "") {
+        stop(paste("TMPDIR environment variable must be set",  
+                   "either manually or by running configureTRTH"))
+    }
     # edit text file so others can see what job we're working on
     system(paste('echo "', Sys.time(), ' splitCSV job.name: ', .TRTH$job.name, '" > ', 
                  paste(.TRTH$path.output, "current.job.txt", sep=""), 
