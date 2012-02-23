@@ -196,25 +196,31 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
     assign('.TRTH', .TRTH, pos=.GlobalEnv)
 
     if (Sys.getenv("TMPDIR") == "") {
-        # Set the TMPDIR environment variable (requires restarting R)
+        # if the TMPDIR environment variable was not set before R was started, 
+        # we need to set it.  That requries restarting R.
         wd <- getwd()
-        system(paste('cd ', .TRTH$path.output, sep=""))
         setwd(.TRTH$path.output)
-        save.image()
-        makeActiveBinding("refresh", function() { 
-            system(paste('TMPDIR=', .TRTH$tmp, ' R --no-site-file --no-init-file', sep=""))
-            q("no") 
-        }, .GlobalEnv)
-        refresh()
-        file.remove(".RData")
-        setwd(wd)
-        require("FinancialInstrument")
-        require("doMC")
-        registerDoMC(.TRTH$no.cores)
-        .TRTH
-        # All that just to change where the tempdir is created!!!!!!!
+        save.image() # so we can load it back when R restarts
+        #TODO: make copy of .RData if it already exists instead of clobbering.
+        assign(".First", function() {
+            #Maybe this could just recursively call configureTRTH..
+            require(FinancialInstrument)
+            require(doMC)
+            registerDoMC(.TRTH$no.cores)
+            file.remove(".RData") # already been loaded
+            rm(".Last") #otherwise, won't be able to quit R without it restarting
+            setwd(wd)
+            .TRTH
+        }, pos=.GlobalEnv)
+        assign(".Last", function() {
+            system(paste('TMPDIR=', .TRTH$tmp, 
+                         ' R --no-site-file --no-init-file --quiet', sep=""))
+        }, pos=.GlobalEnv)
+        q("no")
     }
-
+    # If the previous if-block executed, the rest of this function will be 
+    # ignored. If more code needs to be run after the restart, it should be 
+    # added to the .First function above.
     .TRTH
 }
 
