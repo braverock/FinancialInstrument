@@ -200,8 +200,6 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
         # we need to set it.  That requries restarting R.
         wd <- getwd()
         setwd(.TRTH$path.output)
-        save.image() # so we can load it back when R restarts
-        #TODO: make copy of .RData if it already exists instead of clobbering.
         assign(".First", function() {
             #Maybe this could just recursively call configureTRTH..
             require(FinancialInstrument)
@@ -216,6 +214,8 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
             system(paste('TMPDIR=', .TRTH$tmp, 
                          ' R --no-site-file --no-init-file --quiet', sep=""))
         }, pos=.GlobalEnv)
+        save.image() # so we can load it back when R restarts
+        #TODO: make copy of .RData if it already exists instead of clobbering.
         q("no")
     }
     # If the previous if-block executed, the rest of this function will be 
