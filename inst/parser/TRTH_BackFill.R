@@ -206,7 +206,7 @@ configureTRTH <- function(config.file, path.output='~/TRTH/', ...) {
             require(doMC)
             registerDoMC(.TRTH$no.cores)
             file.remove(".RData") # already been loaded
-            rm(".Last") #otherwise, won't be able to quit R without it restarting
+            rm(".Last", pos=.GlobalEnv) #otherwise, won't be able to quit R without it restarting
             setwd(wd)
             .TRTH
         }, pos=.GlobalEnv)
