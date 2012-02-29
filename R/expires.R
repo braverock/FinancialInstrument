@@ -103,3 +103,44 @@ expires.character <- function(x, Date, expired=TRUE, ...) {
         paste(pid$year, mth, sep="-")
     }
 }
+
+
+#' spread expires extraction method
+#' 
+#' \code{x$expires} will be returned if it is not \code{NULL}.  Otherwise, the 
+#' (character representation of the) exiration date of the first-to-expire of 
+#' the \code{members} will be returned.
+#' 
+#' @param Date Can be a Date or character string.  When \code{expires} is a 
+#'   vector, the retuned value will be one of the two values of \code{expires} 
+#'   that are closest to \code{Date}. (which one will be determined by the value 
+    #'   of \code{expired}).  
+#' @param expired TRUE/FALSE. This determines which date will be used when
+#'   \code{expires} is a vector.  If \code{expired} is \code{TRUE} the date 
+#'   returned will be the last one before \code{Date}.  If \code{expired} is 
+#'   \code{FALSE} the first one after \code{Date} will be returned.
+#' @method expires character
+#' @S3method expires character
+#' @seealso \code{\link{expires.instrument}}
+#' @author Garrett See
+#' @keywords internal
+expires.spread <- function(x, Date, expired=TRUE, ...) {
+    if (inherits(x, "spread")) {
+        if (!is.null(x$expires)) return(x$expires)
+        members <- if (!is.null(x$memberlist$members)) {
+            x$memberlist$members
+        } else if (!is.null(x$members)) {
+            x$members
+        } else {
+            warning(paste("Cannot determine members of x$primary_id"))
+            return(NextMethod("expires"))
+        }
+        return(expires(sort_ids(members)[1]))        
+    } else NextMethod("expires")
+}
+
+
+
+
+
+
