@@ -5,13 +5,14 @@
   buildHierarchy(primary_ids, levels, ...)
 }
 \arguments{
-  \item{primary_ids}{A list of assets to be included in the
+  \item{primary_ids}{A character vector of
+  \code{instrument} primary_ids to be included in the
   hierarchy list}
 
-  \item{levels}{A list of instrument attributes in top-down
-  order}
+  \item{levels}{A character vector of instrument attributes
+  in top-down order}
 
-  \item{...}{any other passthru parameters}
+  \item{...}{not in use}
 }
 \value{
   Constructs a data.frame that contains the list of assets
@@ -24,9 +25,13 @@
 }
 \details{
   In \dots you may pass any other arbitrary instrument
-  fields that will be used to create 'custom' fields.
+  fields that will be used to create 'custom' fields. (This
+  is not yet implemented)
 }
 \author{
-  Peter Carl
+  Peter Carl, Alexis Petit, Garrett See
+}
+\seealso{
+  \code{\link{instrument.table}}
 }
 
