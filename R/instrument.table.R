@@ -51,7 +51,7 @@ instrument.table <- function(symbols=NULL, exclude = NULL, attrs.of = NULL) {
         instr <- try(getInstrument(symbol,silent=TRUE),silent=TRUE)            
         if (!inherits(instr,'try-error') 
                 && inherits(instr, 'instrument') ) {
-            attr.names <- unique(c(attr.names, names(unlist(instr))))               
+            attr.names <- unique(c(attr.names, names(instr)))               
         }
     }
     if (length(exclude) > 1) 
