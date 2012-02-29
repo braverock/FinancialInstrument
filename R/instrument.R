@@ -327,7 +327,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL,
   ## and find the existing series from prior periods (probably years or months)
   ## and then add the first_traded and expires to the time series bu splicing
   #temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
-  if (!overwrite) {
+  if (!isTRUE(overwrite)) {
       temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
       if(inherits(temp_series,"future_series")) {
           message("updating existing first_traded and expires for ",primary_id)
@@ -401,8 +401,10 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL, identifi
 
 #' @export
 #' @rdname series_instrument
-option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_traded=NULL, 
-                            expires=NULL, callput=c("call","put"), strike=NULL, identifiers = NULL, assign_i=TRUE, ...){
+option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, 
+                          first_traded=NULL, expires=NULL, 
+                          callput=c("call","put"), strike=NULL, 
+                          identifiers=NULL, assign_i=TRUE, overwrite=TRUE, ...){
     if (missing(primary_id) ) {
         if (all(is.null(c(root_id,suffix_id)))) 
             stop('must provide either a primary_id or both a root_id and a suffix_id')
@@ -444,7 +446,10 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
         strike <- pid$strike
     }
     if (is.null(expires)) {
-        expires <- paste(pid$year, sprintf("%02d",match(pid$month, toupper(month.abb))),sep='-') 
+        #TODO: option_series ids contain the entire date.  Don't have to settle for YYYY-MM
+        expires <- paste(pid$year, 
+                         sprintf("%02d",match(pid$month, 
+                                              toupper(month.abb))),sep='-') 
         if (!identical(integer(0), grep("NA",expires))) 
             stop("must provide 'expires' formatted '%Y-%m-%d', or a 'suffix_id' from which to infer 'expires'")
     }
@@ -454,13 +459,15 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL, first_t
     ## and then add the first_traded and expires to the time series
     if(length(callput)==2) callput <- switch(pid$right, C='call', P='put')
     if (is.null(callput)) stop("value of callput must be specified as 'call' or 'put'")
-    temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
-    if(inherits(temp_series,"option_series")) {
-        message("updating existing first_traded and expires for ", primary_id)
-        temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
-        temp_series$expires<-unique(c(temp_series$expires,expires))
-        assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
-        primary_id
+    if (!isTRUE(overwrite)) {
+        temp_series<-try(getInstrument(primary_id, silent=TRUE),silent=TRUE)
+        if(inherits(temp_series,"option_series")) {
+            message("updating existing first_traded and expires for ", primary_id)
+            temp_series$first_traded<-unique(c(temp_series$first_traded,first_traded))
+            temp_series$expires<-unique(c(temp_series$expires,expires))
+            assign(primary_id, temp_series, envir=as.environment(FinancialInstrument:::.instrument))
+            return(primary_id)
+        } else warning("No contract found to update.  A new one will be created.")
     } else {
         dargs <- list(...)
         if (is.null(dargs$src) && !is.null(contract$src)) {
