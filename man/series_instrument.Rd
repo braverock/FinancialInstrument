@@ -12,7 +12,8 @@
   option_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
     callput = c("call", "put"), strike = NULL,
-    identifiers = NULL, assign_i = TRUE, ...)
+    identifiers = NULL, assign_i = TRUE, overwrite = TRUE,
+    ...)
 
   bond_series(primary_id, suffix_id, ...,
     first_traded = NULL, maturity = NULL,
