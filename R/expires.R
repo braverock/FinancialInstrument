@@ -199,7 +199,7 @@ expires.spread <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
 #' of the xts object to \code{\link{expires.character}}
 #'
 #' @param src either \dQuote{data} or \dQuote{instrument}. 
-#' @return If \code{src} is \dQuote{"data"}, the returned value will be the 
+#' @return If \code{src} is \dQuote{data}, the returned value will be the 
 #'   index of the last price that is not \code{NA} (price is determined by 
 #'   \code{quantmod:::getPrice}.  \code{getPrice} arguments \code{symbol} and 
 #'   \code{prefer} can be passed through dots.)
