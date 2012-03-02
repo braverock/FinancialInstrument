@@ -69,6 +69,7 @@ expires <- function(x, ...) {
 #' @param silent silence warnings?
 #' @method expires instrument
 #' @S3method expires instrument
+#' @seealso \code{\link{expires}}
 #' @author Garrett See
 #' @keywords internal
 expires.instrument <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
@@ -191,7 +192,33 @@ expires.spread <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
 }
 
 
-
-
-
-
+#' xts expires extraction method
+#' 
+#' determines (or estimates) the expiration from an xts object by either
+#' finding the last row that is not \code{NA} or by passing the name/symbol
+#' of the xts object to \code{\link{expires.character}}
+#'
+#' @param src either \dQuote{data} or \dQuote{instrument}. 
+#' @return If \code{src} is \dQuote{"data"}, the returned value will be the 
+#'   index of the last price that is not \code{NA} (price is determined by 
+#'   \code{quantmod:::getPrice}.  \code{getPrice} arguments \code{symbol} and 
+#'   \code{prefer} can be passed through dots.)
+#'   
+#'   If \code{src} is \dQuote{instrument} the symbol of the xts object will
+#'   be passed to \code{\link{expires.character}}
+#' @method expires xts
+#' @S3method expires xts
+#' @seealso \code{\link{expires.instrument}}, \code{\link{expires}}
+#' @author Garrett See
+#' @keywords internal
+expires.xts <- function(x, Date, expired=TRUE, silent=FALSE, 
+                        src=c("data", "instrument"), ...) {
+    src <- c("data", "instrument")[pmatch(src, c("data", "instrument"))[[1L]]]
+    if (src == "data") {
+        end(na.omit(getPrice(x, ...)))
+    } else if (src == "instrument") {
+        Symbol <- deparse(substitute(x))
+        expires.character(Symbol, Date=Date, expired=expired, silent=silent, 
+                          ...=...)
+    } else NextMethod("expires")
+}

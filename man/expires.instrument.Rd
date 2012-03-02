@@ -30,5 +30,8 @@
 \author{
   Garrett See
 }
+\seealso{
+  \code{\link{expires}}
+}
 \keyword{internal}
 
