@@ -1,15 +1,31 @@
 #' extract the correct expires value from an \code{instrument}
 #'
-#' Currently, there are methods for \code{instrument} and \code{character}
+#' Currently, there are methods for \code{instrument}, \code{spread}, and
+#'  \code{character}
 #'
-#' Will return either the last expiration date before a given Date, or the 
-#' first expiration date after a given Date (if \code{expired==FALSE}).
+#' Will return either the last expiration date before a given \code{Date}, or 
+#' the first expiration date after a given \code{Date} 
+#' (if \code{expired==FALSE}).
+#' 
+#' If an \code{\link{instrument}} contains a value for expires that does not
+#' include a day (e.g. "2012-03"), or if the expires value is estimated from
+#' a \code{future_series} primary_id, it will be assumed that the 
+#' \code{instrument} expires on the first of the month (i.e. if the expires
+#' value of an instrument were "2012-03", or if there were no expires value
+#' but the suffix_id were "H12", the value returned would be "2012-03-01").
+#' Note that most non-energy future_series expire after the first of the month 
+#' indicated by their suffix_id and most energy products expire in the month
+#' prior to their suffix_id month.
+#' 
 #' @param x instrument or name of instrument
-#' @param ... not in use
-#' @return character string representation of an expiration date
+#' @param ... arguments to be passed to methods
+#' @return an expiration \code{Date}
 #' @author Garrett See
 #' @seealso \code{\link{expires.instrument}}, \code{\link{expires.character}}, 
-#'   \code{\link{getInstrument}}
+#'   \code{\link{sort_ids}}
+#'   
+#' \code{\link{getInstrument}} and \code{\link{buildHierarchy}} to see actual 
+#'   values stored in \code{instrument}
 #' @examples
 #' \dontrun{
 #' instr <- instrument("FOO_U1", currency=currency("USD"), multiplier=1,
@@ -50,22 +66,46 @@ expires <- function(x, ...) {
 #'   returned will be the last one before \code{Date}.  If \code{expired} is 
 #'   \code{FALSE} the first one after \code{Date} will be returned. Note that
 #'   if \code{expires} is a single value, \code{expired} will be ignored.
+#' @param silent silence warnings?
 #' @method expires instrument
 #' @S3method expires instrument
 #' @author Garrett See
 #' @keywords internal
-expires.instrument <- function(x, Date, expired=TRUE, ...) {
+expires.instrument <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     if (is.instrument(x)) {
         if (missing(Date)) Date <- Sys.Date()
         if (!inherits(Date, "Date")) Date <- as.Date(Date)
         xp <- x[["expires"]]
         if (length(xp) == 0) return(NULL)
-        dxp <- try(as.Date(xp), silent=TRUE) #Date(s) of expiration
-        if (inherits(dxp, 'try-error')) return(paste(xp))
-        if (length(dxp) == 1) return(paste(xp))
+        chars <- nchar(as.character(xp))
+        if (any(chars %in% c(0:5, 9)) || any(chars > 10)) {
+            warning(paste("The following values of 'expires' in instrument", 
+                x$primary_id, 
+                "could not be converted to Date and will be ignored:", 
+                xp[chars %in% c(0:5, 9) | chars > 10]))
+            xp <- xp[chars %in% c(6:8, 10)]
+        }
+        if (any(chars < 8) && !isTRUE(silent)) {
+            warning(paste("only Year and Month found", "...", 
+                          "assuming expiration occurs on the 1st of the month"))
+        }
+        dxp <- do.call(c, lapply(xp, function(xx) {
+            if (inherits(xx, "Date")) {
+                xx
+            } else if (nchar(xx) == 10) {
+                as.Date(xx)
+            } else if (nchar(xx) == 8) {
+                as.Date(xx, format="%Y%m%d")
+            } else if (nchar(xx) == 7) {
+                as.Date(paste(xx, "01", sep="-"))
+            } else if (nchar(xx) == 6) {
+                as.Date(paste(xx, "01", sep=""), format="%Y%m%d")
+            }
+        }))
+        if (length(dxp) == 1) return(dxp)
         if (isTRUE(expired)) {
-            return(paste(last(dxp[dxp <= Date])))
-        } else return(paste(first(dxp[dxp >= Date])))
+            return(last(dxp[dxp <= Date]))
+        } else return(first(dxp[dxp >= Date]))
     } else NextMethod("expires")
 }
 
@@ -86,21 +126,26 @@ expires.instrument <- function(x, Date, expired=TRUE, ...) {
 #'   \code{expires} is a vector.  If \code{expired} is \code{TRUE} the date 
 #'   returned will be the last one before \code{Date}.  If \code{expired} is 
 #'   \code{FALSE} the first one after \code{Date} will be returned.
+#' @param silent silence warnings?
 #' @method expires character
 #' @S3method expires character
 #' @seealso \code{\link{expires.instrument}}
 #' @author Garrett See
 #' @keywords internal
-expires.character <- function(x, Date, expired=TRUE, ...) {
+expires.character <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     xi <- getInstrument(x, silent=TRUE)
     if (is.instrument(xi)) {
-        expires.instrument(xi)
+        expires.instrument(xi, Date=Date, expired=expired, silent=silent, 
+                           ...=...)
     } else {
-        warning(paste(x, "is not defined. Inferring only Month and Year"))
+        if (!isTRUE(silent)) {
+            warning(paste(x, "is not defined ... assuming expiration occurs on",
+                          "the 1st of the month implied by suffix_id"))
+        }
         pid <- parse_id(x)
         mth <- grep(pid$month, month.abb, ignore.case=TRUE)
         mth <- sprintf("%02d", mth, sep="-")
-        paste(pid$year, mth, sep="-")
+        as.Date(paste(pid$year, mth, "01", sep="-"))
     }
 }
 
@@ -114,7 +159,7 @@ expires.character <- function(x, Date, expired=TRUE, ...) {
 #' @param Date Can be a Date or character string.  When \code{expires} is a 
 #'   vector, the retuned value will be one of the two values of \code{expires} 
 #'   that are closest to \code{Date}. (which one will be determined by the value 
-    #'   of \code{expired}).  
+#'   of \code{expired}).  
 #' @param expired TRUE/FALSE. This determines which date will be used when
 #'   \code{expires} is a vector.  If \code{expired} is \code{TRUE} the date 
 #'   returned will be the last one before \code{Date}.  If \code{expired} is 
@@ -124,18 +169,24 @@ expires.character <- function(x, Date, expired=TRUE, ...) {
 #' @seealso \code{\link{expires.instrument}}
 #' @author Garrett See
 #' @keywords internal
-expires.spread <- function(x, Date, expired=TRUE, ...) {
+expires.spread <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     if (inherits(x, "spread")) {
-        if (!is.null(x$expires)) return(x$expires)
+        if (!is.null(x$expires)) {
+            return(expires.instrument(x, Date=Date, expired=expired, 
+                                      silent=silent, ...=...))
+        }
         members <- if (!is.null(x$memberlist$members)) {
             x$memberlist$members
         } else if (!is.null(x$members)) {
             x$members
         } else {
-            warning(paste("Cannot determine members of x$primary_id"))
+            if (!isTRUE(silent)) {
+                warning(paste("Cannot determine members of x$primary_id"))
+            }
             return(NextMethod("expires"))
         }
-        return(expires(sort_ids(members)[1]))        
+        return(expires.character(sort_ids(members)[1]), Date=Date, 
+               expired=expired, silent=silent, ...=...)
     } else NextMethod("expires")
 }
 

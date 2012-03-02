@@ -3,7 +3,7 @@
 \title{spread expires extraction method}
 \usage{
   \method{expires}{character} (x, Date, expired = TRUE,
-    ...)
+    silent = FALSE, ...)
 }
 \arguments{
   \item{Date}{Can be a Date or character string.  When

@@ -3,7 +3,7 @@
 \title{character expires extraction method}
 \usage{
   \method{expires}{character} (x, Date, expired = TRUE,
-    ...)
+    silent = FALSE, ...)
 }
 \arguments{
   \item{Date}{Can be a Date or character string.  When
@@ -18,6 +18,8 @@
   the last one before \code{Date}.  If \code{expired} is
   \code{FALSE} the first one after \code{Date} will be
   returned.}
+
+  \item{silent}{silence warnings?}
 }
 \description{
   if no \code{instrument} can be found by the id of

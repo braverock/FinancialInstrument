@@ -7,19 +7,32 @@
 \arguments{
   \item{x}{instrument or name of instrument}
 
-  \item{...}{not in use}
+  \item{...}{arguments to be passed to methods}
 }
 \value{
-  character string representation of an expiration date
+  an expiration \code{Date}
 }
 \description{
-  Currently, there are methods for \code{instrument} and
-  \code{character}
+  Currently, there are methods for \code{instrument},
+  \code{spread}, and \code{character}
 }
 \details{
   Will return either the last expiration date before a
-  given Date, or the first expiration date after a given
-  Date (if \code{expired==FALSE}).
+  given \code{Date}, or the first expiration date after a
+  given \code{Date} (if \code{expired==FALSE}).
+
+  If an \code{\link{instrument}} contains a value for
+  expires that does not include a day (e.g. "2012-03"), or
+  if the expires value is estimated from a
+  \code{future_series} primary_id, it will be assumed that
+  the \code{instrument} expires on the first of the month
+  (i.e. if the expires value of an instrument were
+  "2012-03", or if there were no expires value but the
+  suffix_id were "H12", the value returned would be
+  "2012-03-01"). Note that most non-energy future_series
+  expire after the first of the month indicated by their
+  suffix_id and most energy products expire in the month
+  prior to their suffix_id month.
 }
 \examples{
 \dontrun{
@@ -48,7 +61,10 @@ expires("FOO_U1")
 }
 \seealso{
   \code{\link{expires.instrument}},
-  \code{\link{expires.character}},
-  \code{\link{getInstrument}}
+  \code{\link{expires.character}}, \code{\link{sort_ids}}
+
+  \code{\link{getInstrument}} and
+  \code{\link{buildHierarchy}} to see actual values stored
+  in \code{instrument}
 }
 

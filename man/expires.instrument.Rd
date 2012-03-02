@@ -3,7 +3,7 @@
 \title{instrument expires extraction method}
 \usage{
   \method{expires}{instrument} (x, Date, expired = TRUE,
-    ...)
+    silent = FALSE, ...)
 }
 \arguments{
   \item{Date}{Can be a Date or character string.  When
@@ -19,6 +19,8 @@
   \code{FALSE} the first one after \code{Date} will be
   returned. Note that if \code{expires} is a single value,
   \code{expired} will be ignored.}
+
+  \item{silent}{silence warnings?}
 }
 \description{
   Returns either the last expiration date before

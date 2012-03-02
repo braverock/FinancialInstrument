@@ -265,6 +265,14 @@ update_instruments.instrument <- function(Symbols, source_id, create.new=FALSE,
                 si[[n]] <- r[[n]]
             }
         }
+        db <- si$defined.by
+        if (!is.null(db)) {
+            db <- unlist(strsplit(db,";"))
+            db <- rev(unique(c(r$primary_id, rev(db))))
+            db <- paste(db,collapse=";") 
+        } else db <- r$primary_id
+        si$defined.by <- db 
+        si$updated <- Sys.time()
         si
     })
     if (isTRUE(assign_i)) {
