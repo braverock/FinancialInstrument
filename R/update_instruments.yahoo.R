@@ -153,12 +153,17 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
                           "A new instrument", primary_id ,"will be created"))
         } else if (is.instrument(instr)) {
             db <- instr$defined.by
-		    if (!is.null(db)) {
-		        db <- unlist(strsplit(db,";"))
-		        db <- rev(unique(c("TTR", rev(db))))
-		        db <- paste(db,collapse=";") 
-		    } else db <- "TTR"
-			arg$defined.by=db 
+            if (!is.null(db)) {
+                db <- unlist(strsplit(db,";"))
+                db <- rev(unique(c("TTR", rev(db))))
+                db <- paste(db,collapse=";") 
+            } else db <- "TTR"
+            arg$defined.by <- db
+            for (j in 1:length(arg)) {
+                instrument_attr(instr$primary_id, names(arg[j]), arg[[j]])
+            }
+            symout <- c(symout, instr$primary_id)
+            next
         }
         arg$primary_id <- primary_id
         arg$currency <- "USD"
