@@ -8,9 +8,10 @@
   loadInstruments(file_name = "MyInstruments", dir = "")
 }
 \arguments{
-  \item{file_name}{What to name the file (name of file that
-  holds a .instrument enviroment) Does not include file
-  extension.}
+  \item{file_name}{name of file. e.g.
+  \dQuote{MyInstruments.RData}. As an experimental feature,
+  a \code{list} or \code{environment} can be passed to
+  \code{file_name}.}
 
   \item{dir}{Directory of file (defaults to current working
   directory. ie. "")}
