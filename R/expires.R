@@ -1,7 +1,7 @@
 #' extract the correct expires value from an \code{instrument}
 #'
-#' Currently, there are methods for \code{instrument}, \code{spread}, and
-#'  \code{character}
+#' Currently, there are methods for \code{instrument}, \code{spread},
+#'  \code{character}, and \code{xts}
 #'
 #' Will return either the last expiration date before a given \code{Date}, or 
 #' the first expiration date after a given \code{Date} 

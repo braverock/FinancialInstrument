@@ -126,10 +126,10 @@ update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) 
 update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AMEX","NASDAQ","NYSE")) {
     if (!suppressWarnings(is.currency.name("USD"))) currency("USD")
     df <- stockSymbols(exchange=exchange)    
-    if (!is.null(Symbols) && !(any(Symbols == c("stocks","all")))) {
-        cols <- try( match(Symbols,df$Symbol) )
-        if (!inherits(cols, 'try-error')) {
-            df <- df[cols,]
+    if (!is.null(Symbols) && !(any(c("stocks", "all") %in% Symbols))) {
+        rows <- try( match(Symbols,df$Symbol) )
+        if (!inherits(rows, 'try-error')) {
+            df <- df[rows,]
         } else {
             warning(paste(paste(Symbols,collapse=","), "not found among those listed on", paste(exchange,collapse=", ")))
             return(invisible(NULL))        
