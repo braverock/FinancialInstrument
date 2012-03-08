@@ -28,6 +28,8 @@
 #' @param ignore.case passed to \code{\link{grep}}; if \code{FALSE}, the pattern
 #' matching is case sensitive and if \code{TRUE}, case is ignored during 
 #' matching.
+#' @param exclude character vector of names of levels/attributes that should not
+#' be searched.
 #' @param ... other arguments to pass throught to \code{\link{grep}}
 #' @return character vector of primary_ids of instruments that contain the 
 #' sought after \code{text}.
@@ -56,10 +58,10 @@
 #' }
 #' @export
 find.instrument <- function(text, where='anywhere', Symbols = ls_instruments(),
-                            ignore.case=TRUE, ...) {
+                            ignore.case=TRUE, exclude=NULL, ...) {
     tbl <- if (where == "anywhere") {
-        instrument.table(Symbols)
-    } else buildHierarchy(Symbols, where)
+        instrument.table(Symbols, exclude=exclude)
+    } else buildHierarchy(Symbols, where[!where %in% exclude])
     tbl[unique(unname(unlist(apply(tbl, 2, function(x) 
         grep(pattern=text, x=x, ignore.case=ignore.case, ...))))), 1]
 }
