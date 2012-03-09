@@ -59,7 +59,7 @@
 #' @export
 find.instrument <- function(text, where='anywhere', Symbols = ls_instruments(),
                             ignore.case=TRUE, exclude=NULL, ...) {
-    tbl <- if (where == "anywhere") {
+    tbl <- if (length(where) == 1 && where == "anywhere") {
         instrument.table(Symbols, exclude=exclude)
     } else buildHierarchy(Symbols, where[!where %in% exclude])
     unique(tbl[unique(unname(unlist(apply(tbl, 2, function(x) 
