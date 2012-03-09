@@ -384,7 +384,9 @@ getSymbols.FI <- function(Symbols,
                             } else {
                                 if (verbose) cat(' done.\n')
                                 local.name <- load(fp)
-                                get(local.name)
+                                dat <- get(local.name)
+                                if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
+                                dat
                             }
                         })
                         if (verbose) cat('rbinding data ... ')
@@ -398,14 +400,15 @@ getSymbols.FI <- function(Symbols,
                         } else {
                             #fr <- read.csv(sym.file)
                             local.name <- load(sym.file)
-                            assign('fr',get(local.name))
+                            dat <- get(local.name)
+                            if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
+                            assign('fr', dat)
                             if(verbose) cat("done.\n")
                             #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
                         }
                     } # end 'common'/default method (same as getSymbols.rda)    
                 ) # end split_method switch
             fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
-            if (!is.na(indexTZ)) indexTZ(fr) <- indexTZ
             Symbols[[i]] <-make.names(Symbols[[i]]) 
             tmp <- list()
             tmp[[Symbols[[i]]]] <- fr
@@ -419,11 +422,20 @@ getSymbols.FI <- function(Symbols,
         return(NULL) 
     }
 
+    datl.names <- do.call(c, lapply(datl, names))
+    missing <- Symbols[!Symbols %in% datl.names]
+    if (length(missing) > 0) warning('No data found for ', paste(missing, collapse=" "))
     if(auto.assign) {
-        invisible(lapply(datl, function(x) assign(names(x), x[[1]], pos=env)))        
-        return(Symbols)
+        #invisible(lapply(datl, function(x) if (length(x) > 0) assign(names(x), x[[1]], pos=env)))
+        out <- Filter(function(x) length(x) > 0, datl)
+        invisible(lapply(out, function(x) assign(names(x), x[[1]], pos=env)))
+        return(datl.names)
     } else {
-        out <- lapply(datl, "[[", 1)
+        #NOTE: Currently, NULLs aren't filtered out.  If there are data for any Symbol,
+        # the returned list will have an element for each symbol requested even if some don't contain data.
+        out <- lapply(datl, function(x) {
+            if (length(x) > 0) x[[1]]
+        })
         if (length(out) == 1)
             return(out[[1]])
         else {
