@@ -334,6 +334,10 @@ getSymbols.FI <- function(Symbols,
     SymbolLookup <- getSymbolLookup()
     fr <- NULL
     datl <- lapply(1:length(Symbols), function(i) {
+        #FIXME? Should nothing be saved if there are errors with any of 
+        # the Symbols (current behavior)?  Or, if auto.assign == TRUE, should
+        # we assign the data as we get it instead of making a list of data and 
+        # assigning at the end.
         from <- pickArg("from", Symbols[[i]])
         to <- pickArg("to", Symbols[[i]])
         dir <- pickArg("dir", Symbols[[i]])

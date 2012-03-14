@@ -55,14 +55,15 @@ function (Symbols, env, return.class = "xts", ...)
     tmp <- tempfile()
     download.file("http://www.tradingblox.com/Data/DataOnly.zip",tmp)
     unzip(tmp,exdir=tblox.tmp)
-    def <- read.csv('http://www.tradingblox.com/tradingblox/CSIUA/FuturesInfo.txt',skip=1,header=FALSE)
+    def <- read.csv('http://www.tradingblox.com/tradingblox/CSIUA/FuturesInfo.txt',
+                    skip=1, header=FALSE, stringsAsFactors=FALSE)
     if (is.null(Symbols) || is.na(Symbols) || Symbols == "all" || Symbols == "")
         Symbols <- def
     sym.out <- NULL
     for (i in match(Symbols, paste(def[,1])) ){
         if (file.exists(paste(tblox.tmp,'Futures',def[i,4],sep='/'))) {
             if (verbose) 
-                cat("loading ", Symbols[[i]], ".....")
+                cat("loading ", def[i, 1], ".....")
             return.class <- getSymbolLookup()[[paste(def[i,1])]]$return.class
             return.class <- ifelse(is.null(return.class), default.return.class, 
                 return.class)
