@@ -3,8 +3,8 @@
 \title{constructor for spot exchange rate instruments}
 \usage{
   exchange_rate(primary_id = NULL, currency = NULL,
-    counter_currency = NULL, identifiers = NULL,
-    assign_i = TRUE, ...)
+    counter_currency = NULL, tick_size = 0.01,
+    identifiers = NULL, assign_i = TRUE, ...)
 }
 \arguments{
   \item{primary_id}{string identifier, usually expressed as
@@ -15,6 +15,8 @@
 
   \item{counter_currency}{string identifying the currency
   which the rate uses as the base 'per 1' multiplier}
+
+  \item{tick_size}{minimum price change}
 
   \item{identifiers}{named list of any other identifiers
   that should also be stored for this instrument}

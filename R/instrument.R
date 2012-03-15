@@ -635,12 +635,15 @@ currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
 #' @param primary_id string identifier, usually expressed as a currency pair 'USDYEN' or 'EURGBP'
 #' @param currency string identifying the currency the exchange rate ticks in
 #' @param counter_currency string identifying the currency which the rate uses as the base 'per 1' multiplier
+#' @param tick_size minimum price change
 #' @param identifiers named list of any other identifiers that should also be stored for this instrument
 #' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment? (Default TRUE)
 #' @param ... any other passthru parameters
 #' @references http://financial-dictionary.thefreedictionary.com/Base+Currency
 #' @export
-exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency = NULL, identifiers = NULL, assign_i=TRUE, ...){
+exchange_rate <- function (primary_id = NULL, currency = NULL, 
+                           counter_currency = NULL, tick_size=0.01, 
+                           identifiers = NULL, assign_i=TRUE, ...){
   # exchange_rate_temp = instrument(primary_id , currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., type="exchange_rate")
   if (is.null(primary_id) && !is.null(currency) && !is.null(counter_currency)) {
     primary_id <- c(outer(counter_currency,currency,paste,sep=""))
@@ -656,7 +659,10 @@ exchange_rate <- function (primary_id = NULL, currency = NULL, counter_currency 
   if(!exists(counter_currency, where=FinancialInstrument:::.instrument,inherits=TRUE)) warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
 
   ## now structure and return
-  instrument(primary_id=primary_id , currency=currency , multiplier=1 , tick_size=.01, identifiers = identifiers, ..., counter_currency=counter_currency, type=c("exchange_rate","currency"), assign_i=assign_i)
+  instrument(primary_id=primary_id , currency=currency , multiplier=1, 
+             tick_size=tick_size, identifiers = identifiers, ..., 
+             counter_currency=counter_currency, 
+             type=c("exchange_rate","currency"), assign_i=assign_i)
 }
 
 #TODO  auction dates, coupons, etc for govmt. bonds
