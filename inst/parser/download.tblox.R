@@ -136,7 +136,7 @@ define_futures.tblox <- function(verbose=TRUE){
         if(instr$defined.by != 'tblox') 
             instr$defined.by <- paste(c(instr$defined.by, "tblox"), collapse = ";")
         instr$updated <- Sys.time()
-        assign(primary_id, instr, pos=.instrument)
+        assign(primary_id, instr, pos=FinancialInstrument:::.instrument)
     }
     paste(def[,1])
 }
