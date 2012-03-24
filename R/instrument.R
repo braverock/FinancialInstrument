@@ -1083,12 +1083,13 @@ instrument_attr <- function(primary_id, attr, value) {
     assign(instr$primary_id, instr, pos=FinancialInstrument:::.instrument)
 }
 
-                       
+
 #' add an identifier to an \code{instrument}
+#' 
+#' Add an identifier to an \code{\link{instrument}} unless the instrument 
+#' already has that identifier.
 #' @param primary_id primary_id of an \code{\link{instrument}}
-#' @param identifier the identifier to add.  Either a list, or a string that
-#'   will be coerced to a list.
-#' @param ... parameters to pass through to \code{\link{getInstrument}}
+#' @param ... identifiers passed as regular named arguments.
 #' @return called for side-effect
 #' @author Garrett See
 #' @seealso \code{\link{instrument_attr}}
@@ -1101,13 +1102,21 @@ instrument_attr <- function(primary_id, attr, value) {
 #' all.equal(getInstrument("x3"), getInstrument("XXX")) #TRUE
 #' }
 #' @export
-add.identifier <- function(primary_id, identifier, ...) {
-   ident <- getInstrument(primary_id, ...)[["identifiers"]]
-   if (!is.list(identifier)) identifier <- as.list(identifier)
-   instrument_attr(primary_id, "identifiers",  c(ident, identifier))
+add.identifier <- function(primary_id, ...) {
+    udots <- unlist(...)
+    new.ids <- list(udots)
+    names(new.ids) <- names(udots)
+    instr <- getInstrument(primary_id)
+    if (!inherits(instr, "instrument")) {
+        stop(paste(primary_id, "is not a defined instrument"))
+    }
+    ids <- c(instr[["identifiers"]], new.ids)
+    if (all(is.null(names(ids)))) {
+        instrument_attr(primary_id, "identifiers", unique(ids))
+    } else instrument_attr(primary_id, "identifiers", 
+                ids[!(duplicated(unlist(ids)) & duplicated(names(ids)))])
 }
-   
-                       
+
 
 #' instrument class print method
 #' 

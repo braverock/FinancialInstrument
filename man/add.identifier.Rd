@@ -2,23 +2,21 @@
 \alias{add.identifier}
 \title{add an identifier to an \code{instrument}}
 \usage{
-  add.identifier(primary_id, identifier, ...)
+  add.identifier(primary_id, ...)
 }
 \arguments{
   \item{primary_id}{primary_id of an
   \code{\link{instrument}}}
 
-  \item{identifier}{the identifier to add.  Either a list,
-  or a string that will be coerced to a list.}
-
-  \item{...}{parameters to pass through to
-  \code{\link{getInstrument}}}
+  \item{...}{identifiers passed as regular named
+  arguments.}
 }
 \value{
   called for side-effect
 }
 \description{
-  add an identifier to an \code{instrument}
+  Add an identifier to an \code{\link{instrument}} unless
+  the instrument already has that identifier.
 }
 \examples{
 \dontrun{
