@@ -809,17 +809,23 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         }
     }
     if (any(pid$type == 'future') || any(pid$type == 'SSF')) {
-        currency <- if (!is.null(currency)) { 
-            currency 
-        } else { if (!silent) warning('using USD as the currency'); currency("USD") } 
         root <- getInstrument(pid$root,silent=TRUE,type='future')
         if (is.instrument(root) && !inherits(root, 'future_series')) {
-            return(future_series(primary_id, currency=currency, defined.by='auto', assign_i=assign_i,...))
+            if (is.null(currency) && is.null(root[['currency']])) {
+                if (!isTRUE(silent)) warning('using USD as the currency')
+                currency <- currency("USD")
+            }
+            return(future_series(primary_id, currency=currency, 
+                                 defined.by='auto', assign_i=assign_i,...))
         } else {
-            if (!silent) {
+            if (!isTRUE(silent)) {
                 warning(paste(primary_id," appears to be a future_series, ", 
                         "but its root cannot be found. ", 
                         "Creating _", default_type, "_ instrument instead.", sep=""))
+                if (is.null(currency)){
+                    warning('using USD as the currency')
+                    currency <- currency("USD")
+                }
                 warned <- TRUE
             }
             dargs$root_id <- pid$root
@@ -828,17 +834,23 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
         }
     }
     if (any(pid$type == 'option')) {
-        currency <- if (!is.null(currency)) { 
-            currency 
-        } else { if (!silent) warning('using USD as the currency'); currency("USD") } 
         root <- getInstrument(pid$root,silent=TRUE,type='option')
         if (is.instrument(root) && !inherits(root, 'option_series')) {
-            return(option_series(primary_id, currency=currency, defined.by='auto', assign_i=assign_i, ...))
+            if (is.null(currency) && is.null(root[['currency']])) {
+                if (!isTRUE(silent)) warning('using USD as the currency')
+                currency <- currency("USD")
+            }
+            return(option_series(primary_id, currency=currency, 
+                                 defined.by='auto', assign_i=assign_i, ...))
         } else {
-            if (!silent) {
+            if (!isTRUE(silent)) {
                 warning(paste(primary_id," appears to be an option_series, ", 
                     "but its root cannot be found. ", 
                     "Creating _", default_type, "_ instrument instead.", sep=""))
+                if (is.null(currency)){
+                    warning('using USD as the currency')
+                    currency <- currency("USD")
+                }
                 warned <- TRUE
             }
             dargs$root_id <- pid$root
