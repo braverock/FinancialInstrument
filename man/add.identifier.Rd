@@ -21,7 +21,7 @@
 \examples{
 \dontrun{
 stock("XXX", currency("USD"))
-add.identifier("XXX", list(yahoo="^XXX"))
+add.identifier("XXX", yahoo="^XXX")
 getInstrument("^XXX")
 add.identifier("^XXX", "x3")
 all.equal(getInstrument("x3"), getInstrument("XXX")) #TRUE

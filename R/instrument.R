@@ -1096,16 +1096,14 @@ instrument_attr <- function(primary_id, attr, value) {
 #' @examples
 #' \dontrun{
 #' stock("XXX", currency("USD"))
-#' add.identifier("XXX", list(yahoo="^XXX")) 
+#' add.identifier("XXX", yahoo="^XXX") 
 #' getInstrument("^XXX")
 #' add.identifier("^XXX", "x3")
 #' all.equal(getInstrument("x3"), getInstrument("XXX")) #TRUE
 #' }
 #' @export
 add.identifier <- function(primary_id, ...) {
-    udots <- unlist(...)
-    new.ids <- list(udots)
-    names(new.ids) <- names(udots)
+    new.ids <- as.list(unlist(list(...)))
     instr <- getInstrument(primary_id)
     if (!inherits(instr, "instrument")) {
         stop(paste(primary_id, "is not a defined instrument"))
