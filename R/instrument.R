@@ -961,8 +961,9 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
         ul.instr <- unlist(as.list(FinancialInstrument:::.instrument, all.names=TRUE))
         # subset by names that include "identifiers"
         ul.ident <- ul.instr[grep('identifiers', names(ul.instr))]
-        # if x is in the identifiers subset, extract the primary_id from the name
-        tmpname <- ul.ident[match(xx, ul.ident, 0)]
+        # if x (or make.names(x)) is in the identifiers subset, extract the 
+        # primary_id from the name
+        tmpname <- ul.ident[ul.ident %in% unique(c(x, xx))]
         # if x was not in ul.ident, tmpname will == named character(0)
         if (length(tmpname) > 0) {
             #primary_id is everything before .identifiers
