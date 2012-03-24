@@ -34,6 +34,14 @@
   \code{\link{currency}} object and that
   \dQuote{multiplier} and \dQuote{tick_size} can only be
   changed to reasonable values.
+
+  If \code{attr} is \dQuote{identifiers} and \code{value}
+  is \code{NULL}, \code{identifiers} will be set to
+  \code{list()}.  If \code{value} is not a list,
+  \code{\link{add.identifier}} will be called with
+  \code{value}. \code{add.identifier} will convert
+  \code{value} to a list and append it to the current
+  \code{identifiers}
 }
 \note{
   you can remove an attribute/slot from an instrument by

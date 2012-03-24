@@ -1006,6 +1006,12 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' If \code{attr} is \dQuote{src}, \code{value} will be used in a call to \code{setSymbolLookup}.  
 #' Other checks are in place to make sure that \dQuote{currency} remains a \code{\link{currency}} object and that
 #' \dQuote{multiplier} and \dQuote{tick_size} can only be changed to reasonable values.
+#' 
+#' If \code{attr} is \dQuote{identifiers} and \code{value} is \code{NULL}, 
+#' \code{identifiers} will be set to \code{list()}.  If \code{value} is not a 
+#' list, \code{\link{add.identifier}} will be called with \code{value}.
+#' \code{add.identifier} will convert \code{value} to a list and append it to
+#' the current \code{identifiers}
 #' @param primary_id primary_id of the instrument that will be updated
 #' @param attr name of the slot that will be added or changed
 #' @param value what to assign to the \code{attr} slot of the \code{primary_id} instrument
@@ -1035,33 +1041,73 @@ instrument_attr <- function(primary_id, attr, value) {
     instr <- try(getInstrument(primary_id, silent=TRUE))
     if (inherits(instr, 'try-error') || !is.instrument(instr))
         stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
-    instr[[attr]] <- value
-    if (attr == 'primary_id') rm(list = primary_id, pos = FinancialInstrument:::.instrument)
-    if (attr == 'currency' && !is.instrument(getInstrument(value,type='currency',silent=TRUE)))
-        stop("currency ", value, " must be an object of type 'currency'")
-    if (attr == 'multiplier' && (!is.numeric(value) || length(value) > 1))
-        stop("multiplier must be a single number")
-    if (attr == 'tick_size' && (!is.null(value) && (!is.numeric(value) || length(value) > 1)))
-        stop("tick_size must be NULL or a single number")
-    if (attr == 'type') {
+    if (attr == 'primary_id') {
+        rm(list = primary_id, pos = FinancialInstrument:::.instrument)
+    } else if (attr == 'currency') {
+        if (!is.currency.name(value)) {
+            stop("currency ", value, " must be an object of type 'currency'")
+        }
+    } else if (attr == 'multiplier') {
+        if (!is.numeric(value) || length(value) > 1) {
+            stop("multiplier must be a single number")
+        }
+    } else if (attr == 'tick_size') {
+        if (!is.null(value) && (!is.numeric(value) || length(value) > 1)) {
+            stop("tick_size must be NULL or a single number")
+        }
+    } else if (attr == 'type') {
         tclass <- unique(c(value, "instrument"))
         class(instr) <- tclass
-    }
-    if (attr == 'IB') {
+    } else if (attr == 'IB') {
         if (inherits(value, 'twsContract')) {
-            class(instr) <- unique(c(class(instr)[1], 'twsInstrument', class(instr)[-1]))
+            class(instr) <- unique(c(class(instr)[1], 'twsInstrument', 
+                                     class(instr)[-1]))
         } else {
             warning('non-twsContract assigned to $IB')
             class(instr) <- class(instr)[!class(instr) %in% 'twsInstrument']
         }
-    }
-    if (attr == 'src') {
+    } else if (attr == 'src') {
         sarg <- list()
         sarg[[instr$primary_id]] <- value
         setSymbolLookup(sarg)
+    } else if (attr == 'identifiers') {
+        if (length(value) == 0) {
+            value <- list()
+        } else if (!is.list(value)) {
+            #warning("identifiers must be a list. Appending current identifiers.")
+            # add.identifier will convert to list
+            return(add.identifier(primary_id, value))
+        }
     }
+    instr[[attr]] <- value
     assign(instr$primary_id, instr, pos=FinancialInstrument:::.instrument)
 }
+
+                       
+#' add an identifier to an \code{instrument}
+#' @param primary_id primary_id of an \code{\link{instrument}}
+#' @param identifier the identifier to add.  Either a list, or a string that
+#'   will be coerced to a list.
+#' @param ... parameters to pass through to \code{\link{getInstrument}}
+#' @return called for side-effect
+#' @author Garrett See
+#' @seealso \code{\link{instrument_attr}}
+#' @examples
+#' \dontrun{
+#' stock("XXX", currency("USD"))
+#' add.identifier("XXX", list(yahoo="^XXX")) 
+#' getInstrument("^XXX")
+#' add.identifier("^XXX", "x3")
+#' all.equal(getInstrument("x3"), getInstrument("XXX")) #TRUE
+#' }
+#' @export
+add.identifier <- function(primary_id, identifier, ...) {
+   ident <- getInstrument(primary_id, ...)[["identifiers"]]
+   if (!is.list(identifier)) identifier <- as.list(identifier)
+   instrument_attr(primary_id, "identifiers",  c(ident, identifier))
+}
+   
+                       
 
 #' instrument class print method
 #' 
