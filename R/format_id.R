@@ -259,13 +259,19 @@ sort_ids <- function(ids, ...) {
     f <- function(x, ...) {
         tmpi <- getInstrument(x, silent=TRUE)
         if (is.instrument(tmpi)) {
-            if (is.timeBased(suppressWarnings(try(as.Date(tmpi$expires), silent=TRUE)))) {
-                out <- as.Date(tmpi$expires)
-                if (!is.na(out)) return(out)
-            } 
-            if (is.timeBased(suppressWarnings(try(as.Date(tmpi$expires, format='%Y%m%d'), silent=TRUE)))) {
-                out <- as.Date(tmpi$expires, format = "%Y%m%d")
-                if (!is.na(out)) return(out)
+            if (!is.null(tmpexp <- tmpi[["expires"]])) {
+                if (length(tmpexp) > 1) {
+                    warning(paste(x, "has more than 1 value for expires.",
+                                  "Only the first will be used."))
+                    tmpexp <- tmpexp[[1L]]
+                }
+                dtmpexp <- suppressWarnings(try(as.Date(tmpexp), silent=TRUE))
+                if (inherits(dtmpexp, "try-error") || is.na(dtmpexp) || !is.timeBased(dtmpexp)) {
+                    dtmpexp <- suppressWarnings(try(as.Date(tmpexp, format='%Y%m%d'), silent=TRUE))
+                }
+                if (!inherits(dtmpexp, "try-error") && !is.na(dtmpexp) && is.timeBased(dtmpexp)) {
+                    return(dtmpexp)
+                }
             }
         }
         pid <- parse_id(x, ...)
