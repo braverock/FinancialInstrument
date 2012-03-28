@@ -526,7 +526,7 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100, fir
         stop("Please install quantmod before using this function.")
     }    
 
-    opts <- getOptionChain(Symbol=symbol,Exp=Exp, src="yahoo")
+    opts <- getOptionChain(Symbols=symbol,Exp=Exp, src="yahoo")
 	
 	locals <- function(x) c(rownames(x$calls),rownames(x$puts))
 	if (is.null(opts$calls)) { #if is.null(Exp) we'll get back all chains
