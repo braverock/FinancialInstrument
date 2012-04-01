@@ -335,11 +335,13 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     idxx <- index(x)
     #Now figure out the exchange rate
     #First assume that both bases are currencies, and look for an exchange rate
-    rate <- try(.get_rate(new_base,old_base,env),silent=TRUE) #try with formats like EURUSD, EUR.USD, EUR/USD, and their inverses
-    if (inherits(rate,'try-error')) {
-        rate <- buildRatio(c(old_base, new_base), env=env) #maybe it's not FX
-    }
-
+    if (!identical(new_base, old_base)) {
+        rate <- try(.get_rate(new_base,old_base,env),silent=TRUE) #try with formats like EURUSD, EUR.USD, EUR/USD, and their inverses
+        if (inherits(rate,'try-error')) {
+            rate <- buildRatio(c(old_base, new_base), env=env) #maybe it's not FX
+        }
+    } else rate <- xts(rep(1L, nrow(x)), index(x))
+    
     #!#---#!# Define function we'll need
     has.Mid <- quantmod:::has.Mid
     Mid <- #This should be exported from quantmod
