@@ -266,7 +266,6 @@ getSymbols.FI <- function(Symbols,
 {
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
     if (is.null(days_to_omit)) days_to_omit <- 'NULL'
-    importDefaults("getSymbols.FI")
     this.env <- environment()
     for(var in names(list(...))) {
         assign(var,list(...)[[var]], this.env)
@@ -300,6 +299,8 @@ getSymbols.FI <- function(Symbols,
     hasArg.verbose <- hasArg(verbose)
     hasArg.days_to_omit <- hasArg(days_to_omit)
     hasArg.indexTZ <- hasArg(indexTZ)
+
+    importDefaults("getSymbols.FI")
 
     # Now get the values for each formal that we'll use if not provided
     # by the user and not found in the SymbolLookup table
