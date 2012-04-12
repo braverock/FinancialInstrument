@@ -7,7 +7,7 @@
     extension = "rda", split_method = c("days", "common"),
     use_identifier = NA, date_format = NULL,
     verbose = TRUE, days_to_omit = c("Saturday", "Sunday"),
-    indexTZ)
+    indexTZ = NA)
 }
 \arguments{
   \item{Symbols}{a character vector specifying the names of
@@ -63,9 +63,7 @@
   \code{\link{setSymbolLookup.FI}}
 
   If date_format is NULL (the Default), we will assume an
-  ISO date as changed by \code{\link{make.names}}, for
-  example, 2010-12-01 would be assumed to be a file
-  containing 2010.12.01
+  ISO date as changed file containing 2010.12.01
 
   If \code{indexTZ} is provided, the data will be converted
   to that timezone
@@ -77,6 +75,18 @@
   if you were to call \code{getSymbols.FI} directly (which
   is \emph{NOT} recommended) with \code{auto.assign=FALSE}
   and more than one Symbol, a list would be returned.
+
+  Argument matching for this function is as follows.  If
+  the user provides a value for an argument, that value
+  will be used.  If the user did not provide a value for an
+  argument, but there is a value for that argument for the
+  given \code{Symbol} in the Symbol Lookup Table (see
+  \code{\link{setSymbolLookup.FI}}), that value will be
+  used.  Otherwise, if \code{\link[quantmod]{setDefaults}}
+  has been applied to this function (\code{getSymbols.FI})
+  for the argument, the value that was set with
+  \code{setDefaults} will be used.  Finally, if none of the
+  above are true, the formal defaults will be used.
 }
 \seealso{
   \code{\link{saveSymbols.days}} \code{\link{instrument}}

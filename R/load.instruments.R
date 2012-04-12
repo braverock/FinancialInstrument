@@ -210,38 +210,59 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 
 #' getSymbols method for loading data from split files
 #' 
-#' This function should probably get folded back into getSymbols.rda in quantmod.
+#' This function should probably get folded back into getSymbols.rda in 
+#' quantmod.
 #' 
 #' Meant to be called internally by \code{\link[quantmod]{getSymbols}} .
 #' 
-#' The symbol lookup table will most likely be loaded by \code{\link{setSymbolLookup.FI}}
+#' The symbol lookup table will most likely be loaded by 
+#' \code{\link{setSymbolLookup.FI}}
 #' 
-#' If date_format is NULL (the Default), we will assume an ISO date as changed by \code{\link{make.names}}, 
-#' for example, 2010-12-01 would be assumed to be a file containing 2010.12.01
+#' If date_format is NULL (the Default), we will assume an ISO date as changed 
+#  by \code{\link{make.names}}, for example, 2010-12-01 would be assumed to be a 
+#' file containing 2010.12.01
 #' 
 #' If \code{indexTZ} is provided, the data will be converted to that timezone
 #'
-#' If auto.assign is FALSE, \code{Symbols} should be of length 1.  Otherwise, \code{\link[quantmod]{getSymbols}}
-#' will give you an error that says \dQuote{must use auto.assign=TRUE for multiple Symbols requests}
-#' However, if you were to call \code{getSymbols.FI} directly (which is \emph{NOT} recommended) 
-#' with \code{auto.assign=FALSE} and more than one Symbol, a list would be returned.
+#' If auto.assign is FALSE, \code{Symbols} should be of length 1.  Otherwise, 
+#' \code{\link[quantmod]{getSymbols}} will give you an error that says 
+#' \dQuote{must use auto.assign=TRUE for multiple Symbols requests}
+#' However, if you were to call \code{getSymbols.FI} directly (which is 
+#' \emph{NOT} recommended) with \code{auto.assign=FALSE} and more than one 
+#' Symbol, a list would be returned.
 #' 
-#' @param Symbols a character vector specifying the names of each symbol to be loaded
+#' Argument matching for this function is as follows.  If the user provides a 
+#' value for an argument, that value will be used.  If the user did not provide
+#' a value for an argument, but there is a value for that argument for the 
+#' given \code{Symbol} in the Symbol Lookup Table (see 
+#' \code{\link{setSymbolLookup.FI}}), that value will be used.  Otherwise,
+#' if \code{\link[quantmod]{setDefaults}} has been applied to this function 
+#' (\code{getSymbols.FI}) for the argument, the value that was set with 
+#' \code{setDefaults} will be used.  Finally, if none of the above are true,
+#' the formal defaults will be used.
+#'
+#' @param Symbols a character vector specifying the names of each symbol to be 
+#'   loaded
 #' @param from Retrieve data no earlier than this date. Default '2010-01-01'.
 #' @param to Retrieve data through this date. Default Sys.Date().
 #' @param ... any other passthru parameters
-#' @param dir if not specified in getSymbolLookup, directory string to use.  default ""
+#' @param dir if not specified in getSymbolLookup, directory string to use.  
+#'   default ""
 #' @param return.class only "xts" is currently supported
 #' @param extension file extension, default "rda"
-#' @param split_method string specifying the method used to split the files, currently \sQuote{days} or \sQuote{common}, see \code{\link{setSymbolLookup.FI}}
-#' @param use_identifier optional. identifier used to construct the \code{primary_id} of the instrument. If you use this, you must have previously defined the \code{\link{instrument}} 
+#' @param split_method string specifying the method used to split the files, 
+#'   currently \sQuote{days} or \sQuote{common}, see 
+#'   \code{\link{setSymbolLookup.FI}}
+#' @param use_identifier optional. identifier used to construct the 
+#'   \code{primary_id} of the instrument. If you use this, you must have 
+#'   previously defined the \code{\link{instrument}} 
 #' @param date_format format as per the \code{\link{strptime}}, see Details
 #' @param verbose TRUE/FALSE
-#' @param days_to_omit character vector of names of weekdays that should not be loaded.  
-#'      Default is \code{c("Saturday", "Sunday")}.  Use \code{NULL} to attempt to load data 
-#'      for all days of the week.
-#' @param indexTZ valid TZ string. (e.g. \dQuote{America/Chicago} or \dQuote{America/New_York})
-#'      See \code{\link[xts]{indexTZ}}.
+#' @param days_to_omit character vector of names of weekdays that should not be 
+#'   loaded.  Default is \code{c("Saturday", "Sunday")}.  Use \code{NULL} to 
+#'   attempt to load data for all days of the week.
+#' @param indexTZ valid TZ string. (e.g. \dQuote{America/Chicago} or 
+#'   \dQuote{America/New_York}) See \code{\link[xts]{indexTZ}}.
 #' @seealso 
 #' \code{\link{saveSymbols.days}}
 #' \code{\link{instrument}}
@@ -261,7 +282,7 @@ getSymbols.FI <- function(Symbols,
                             date_format=NULL,
                             verbose=TRUE,
                             days_to_omit=c("Saturday", "Sunday"),
-                            indexTZ
+                            indexTZ=NA
                          ) 
 {
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
@@ -288,17 +309,21 @@ getSymbols.FI <- function(Symbols,
     }
 
     # Find out if user provided a value for each formal
-    hasArg.from <- hasArg(from)
-    hasArg.to <- hasArg(to)
-    hasArg.dir <- hasArg(dir)
-    hasArg.return.class <- hasArg(return.class)
-    hasArg.extension <- hasArg(extension)
-    hasArg.split_method <- hasArg(split_method)
-    hasArg.use_identifier <- hasArg(use_identifier)
-    hasArg.date_format <- hasArg(date_format)
-    hasArg.verbose <- hasArg(verbose)
-    hasArg.days_to_omit <- hasArg(days_to_omit)
-    hasArg.indexTZ <- hasArg(indexTZ)
+    if (hasArg.from <- hasArg(from)) .from <- from
+    if (hasArg.to <- hasArg(to)) .to <- to
+    if (hasArg.dir <- hasArg(dir)) .dir <- dir
+    if (hasArg.return.class <- hasArg(return.class)) 
+        .return.class <- return.class
+    if (hasArg.extension <- hasArg(extension)) .extension <- extension
+    if (hasArg.split_method <- hasArg(split_method)) 
+        .split_method <- split_method
+    if (hasArg.use_identifier <- hasArg(use_identifier)) 
+        .use_identifier <- use_identifier
+    if (hasArg.date_format <- hasArg(date_format)) .date_format <- date_format
+    if (hasArg.verbose <- hasArg(verbose)) .verbose <- verbose
+    if (hasArg.days_to_omit <- hasArg(days_to_omit)) 
+        .days_to_omit <- days_to_omit
+    if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
 
     importDefaults("getSymbols.FI")
 
@@ -314,9 +339,7 @@ getSymbols.FI <- function(Symbols,
     default.date_format <- date_format
     default.verbose <- verbose
     default.days_to_omit <- days_to_omit
-    default.indexTZ <- if (hasArg.indexTZ) {
-        default.indexTZ <- indexTZ 
-    } else NA
+    default.indexTZ <- indexTZ
     
     # quantmod:::getSymbols will provide auto.assign and env
     # so the next 2 if statements should always be TRUE
@@ -326,7 +349,7 @@ getSymbols.FI <- function(Symbols,
     # make an argument matching function to sort out which values to use for each arg
     pickArg <- function(x, Symbol) {
         if(get(paste('hasArg', x, sep="."))) {
-            get(x)
+            get(paste(".", x, sep=""))
         } else if(!is.null(SymbolLookup[[Symbol]][[x]])) {
             SymbolLookup[[Symbol]][[x]]
         } else get(paste("default", x, sep="."))
