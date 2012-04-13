@@ -219,7 +219,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' \code{\link{setSymbolLookup.FI}}
 #' 
 #' If date_format is NULL (the Default), we will assume an ISO date as changed 
-#  by \code{\link{make.names}}, for example, 2010-12-01 would be assumed to be a 
+#' by \code{\link{make.names}}, for example, 2010-12-01 would be assumed to be a 
 #' file containing 2010.12.01
 #' 
 #' If \code{indexTZ} is provided, the data will be converted to that timezone
