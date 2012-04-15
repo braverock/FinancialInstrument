@@ -84,7 +84,7 @@
   argument, but there is a value for that argument for the
   given \code{Symbol} in the Symbol Lookup Table (see
   \code{\link{setSymbolLookup.FI}}), that value will be
-  used.  Otherwise, if \code{\link[quantmod]{setDefaults}}
+  used.  Otherwise, if \code{\link[Defaults]{setDefaults}}
   has been applied to this function (\code{getSymbols.FI})
   for the argument, the value that was set with
   \code{setDefaults} will be used.  Finally, if none of the
