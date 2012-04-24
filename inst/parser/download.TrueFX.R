@@ -107,7 +107,7 @@ foreach(ym = yyyymm) %:% foreach(Symbol = Symbols) %dopar% {
   id <- sub("/", "", fr[1, 1])
   cat("making index for ", id, "\n")
   idx <- as.POSIXct(fr[, 2], format="%Y%m%d %H:%M:%OS", tz="GMT")
-  obj <- xts(fr[, 3:4], idx)
+  obj <- xts(fr[, 3:4], idx, tzone="GMT")
   #colnames(obj) <- paste(id, c("Bid.Price", "Ask.Price"), sep=".")
   colnames(obj) <- c("Bid.Price", "Ask.Price")
   tmpenv <- new.env()
