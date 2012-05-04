@@ -4,7 +4,7 @@
 \usage{
   fn_SpreadBuilder(prod1, prod2, ratio = 1,
     currency = "USD", from = NULL, to = NULL,
-    session_times = NULL,
+    session_times = NULL, notional = TRUE,
     unique_method = c("make.index.unique", "duplicated", "least.liq", "price.change"),
     silent = FALSE, auto.assign = TRUE, env = .GlobalEnv,
     ...)
@@ -32,6 +32,10 @@
 
   \item{session_times}{ISO-8601 time subset for the session
   time, in GMT, in the format 'T08:00/T14:59'}
+
+  \item{notional}{TRUE/FALSE. Should the prices be
+  multiplied by contract multipliers before calculating the
+  spread?}
 
   \item{unique_method}{method for making the time series
   unique}

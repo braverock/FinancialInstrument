@@ -169,6 +169,8 @@ buildBasket <- buildSpread
 #' @param from from Date to pass through to getSymbols if needed.
 #' @param to to Date to pass through to getSymbols if needed.
 #' @param session_times ISO-8601 time subset for the session time, in GMT, in the format 'T08:00/T14:59'
+#' @param notional TRUE/FALSE. Should the prices be multiplied by contract 
+#'   multipliers before calculating the spread?
 #' @param unique_method method for making the time series unique
 #' @param auto.assign if \code{TRUE} (the default) the constructed spread will be stored in symbol created with \code{\link{make_spread_id}}. instrument metadata will also be created and stored with the same primary_id.
 #' @param env if \code{auto.assign} is \code{TRUE} this is the environment in which to store the data (.GlobalEnv by default) 
@@ -206,9 +208,10 @@ buildBasket <- buildSpread
 #' chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")),auto.assign=FALSE)))
 #' }
 #' @export
-fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, to=NULL, session_times=NULL, 
-    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), silent=FALSE, 
-    auto.assign=TRUE, env=.GlobalEnv, ...)
+fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, 
+    to=NULL, session_times=NULL, notional=TRUE,
+    unique_method=c('make.index.unique','duplicated','least.liq','price.change'), 
+    silent=FALSE, auto.assign=TRUE, env=.GlobalEnv, ...)
 {
 ##TODO: allow for different methods for calculating Bid and Ask 
     if (!("package:quantmod" %in% search() || require("quantmod",quietly=TRUE))) {
@@ -246,18 +249,24 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, t
     }
 
     prod1.instr <- try(getInstrument(prod1, silent=TRUE))
-    if (!is.instrument(prod1.instr) || inherits(prod1.instr,'try-error') ) { 
-        if (!silent) warning(paste('could not find instrument ', 
-                                    prod1, '. Using multiplier of 1 and currency of ', 
-                                    currency, sep=''))
-        prod1.instr <- list(multiplier=1,currency=currency)
+    if (!is.instrument(prod1.instr) || inherits(prod1.instr,'try-error') 
+        || !isTRUE(notional)) { 
+        if (!silent && isTRUE(notional)) {
+            warning(paste('could not find instrument ', prod1, 
+                          '. Using multiplier of 1 and currency of ', 
+                          currency, sep=''))
+        }
+        prod1.instr <- list(multiplier=1, currency=currency)
     }
 
     prod2.instr <- try(getInstrument(prod2, silent=TRUE))
-    if (!is.instrument(prod2.instr) || inherits(prod2.instr, 'try-error') ) {
-        if (!silent) warning(paste('could not find instrument ', 
-                                    prod2, '. Using multiplier of 1 and currency of ', 
-                                    currency, sep=''))
+    if (!is.instrument(prod2.instr) || inherits(prod2.instr, 'try-error') 
+        || !isTRUE(notional)) {
+        if (!silent && isTRUE(notional)) {
+            warning(paste('could not find instrument ', prod2, 
+                          '. Using multiplier of 1 and currency of ', 
+                           currency, sep=''))
+        }
         prod2.instr <- list(multiplier=1,currency=currency)
     }
     if (is.null(Data.1)) Data.1 <- try(get(as.character(prod1),envir=.GlobalEnv),silent=TRUE) 
