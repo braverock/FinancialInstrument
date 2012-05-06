@@ -125,15 +125,10 @@ ls_instruments <- function(pattern=NULL, match=TRUE, verbose=TRUE) {
     } else if (is.null(pattern)) {  #no pattern
         symbols <- ls(FinancialInstrument:::.instrument, all.names=TRUE)
     } # else pattern length > 1 & don't match
-        
-    tmp_symbols <- NULL            
-    for (instr in symbols) {
-        tmp_instr <- try(get(instr, pos = FinancialInstrument:::.instrument),silent=TRUE)
-        if (is.instrument(tmp_instr))  {    
-            tmp_symbols <- c(tmp_symbols,instr)
-        }    
-    }
-    tmp_symbols
+    
+    is.iname <- is.instrument.name(symbols)
+    if (!any(is.iname)) return(NULL)
+    symbols[is.iname]
 }
 
 #' @export
