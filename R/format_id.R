@@ -207,7 +207,7 @@ prev.future_id <- function(id, month_cycle=seq(3,12,3), root=NULL, format=NULL) 
     out <- NULL    
     month_cycle <- month_cycle2numeric(month_cycle)
     for (ID in id) {
-        pid <- parse_id(id, silent=TRUE, root=root)
+        pid <- parse_id(ID, silent=TRUE, root=root)
         y <- pid$year
         curr.m <- match(pid$month, toupper(month.abb))    
 
@@ -224,7 +224,7 @@ prev.future_id <- function(id, month_cycle=seq(3,12,3), root=NULL, format=NULL) 
 
         suffout <- paste(M2C()[prev.m], substr(y,3,4), sep="")
         #if there is no underscore in id and format==NULL sep="", else sep="_"    
-        if (identical(integer(0),grep("_",id))) {sep <- ""} else sep="_"
+        if (identical(integer(0),grep("_", ID))) {sep <- ""} else sep="_"
         if (is.null(format)) format <- pid$format
         suffout <- format_id(suffout, format, parse='suffix')
         out <- c(out, paste(pid$root, suffout, sep=sep))
