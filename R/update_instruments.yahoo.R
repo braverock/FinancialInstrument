@@ -174,6 +174,88 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
 }
 
 
+#' Update instrument metadata for ETFs
+#'
+#' Uses the masterDATA.com list of ETFs and ETNs to update previously defined
+#' instruments.
+#' 
+#' \code{update_instruments.md} is an alias.
+#' 
+#' MasterDATA classifies each ETF into one of six Fund.Types.  From their
+#' website:
+#' 
+#' US Equity ETF: All constituents trade on a US exchange. Both ProShares and 
+#' Rydex sponsor ETFs with the objective of achieving the performance (or a 
+#' multiple of the performance) of several major US stock indexes. These ETFs 
+#' currently are included in this category despite the fact that their 
+#' constituent lists are generally not limited to US stocks.
+#' 
+#' Global Equity ETF: One or more of the constituents do not trade on a US 
+#' Exchange.
+#' 
+#' Fixed Income ETF:  The constituent list contains government and / or 
+#' corporate debt instruments. ETFs with this classification will not be 
+#' considered for inclusion in MasterDATA's index / ETF compilation list.
+#' 
+#' Commodity Based ETF:  This classification of ETF has no constituents but is 
+#' structured to reflect the valuation of a commodity such as gold, silver, oil 
+#' or interest rates. ETFs with this classification will not be considered for 
+#' inclusion in MasterDATA's index / ETF compilation list.
+#' 
+#' Exchange Traded Notes: A type of unsecured, unsubordinated debt security that 
+#' was first issued by Barclays Bank PLC. The purpose of ETNs is to create a 
+#' type of security that combines both the aspects of bonds and exchange traded 
+#' funds (ETF). Similar to ETFs, ETNs are traded on a major exchange.
+#' 
+#' @param Symbols character vector of Symbols of ETFs
+#' @param silent silence warnings?
+#' @return called for side-effect. Each ETF that is updated will be given 
+#'   instrument attributes of \dQuote{Name} and \dQuote{Fund.Type}
+#' @author Garrett See
+#' @references \url{http://masterDATA.com} 
+#' (\url{http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv})
+#' @examples
+#' \dontrun{
+#' stock(s <- c("SPY", "DIA"), currency("USD"))
+#' update_instruments.masterDATA(s)
+#' buildHierarchy(s, "Name", "Fund.Type", "defined.by")
+#' }
+#' @export
+update_instruments.masterDATA <- function(Symbols, silent=FALSE) {
+    x <- read.csv("http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv", 
+                  stringsAsFactors=FALSE)
+    if (missing(Symbols)) Symbols <- unique(ls_funds(), ls_stocks())
+    s <- Symbols[Symbols %in% x[["Symbol"]]]
+    if (length(s) > 0) {
+        s <- s[is.instrument.name(s)]
+    }
+    if (length(s) == 0) {
+        if (!isTRUE(silent)) {
+            warning("instruments must be defined before this can update them.")
+        }
+        return(invisible())
+    }
+    x <- x[!duplicated(x[["Symbol"]]), ]  
+    x <- x[x[["Symbol"]] %in% s, ]
+    for (i in seq_len(NROW(x))) {
+        instrument_attr(x[["Symbol"]][i], "Name", x[["Name"]][i])
+        instrument_attr(x[["Symbol"]][i], "Fund.Type", x[["Fund.Type"]][i])
+        db <- getInstrument(x[["Symbol"]][i])[["defined.by"]]
+        db <- if (is.null(db)) {
+            "masterDATA"
+        } else paste(unique(c(strsplit(db, ";")[[1]], "masterDATA")), 
+                 collapse = ";")
+        instrument_attr(x[["Symbol"]][i], "defined.by", db)
+        instrument_attr(x[["Symbol"]][i], "updated", Sys.time())
+    }
+    return(s)
+}
+
+#' @export
+#' @rdname update_instruments.masterDATA
+update_instruments.md <- update_instruments.masterDATA
+
+
 #' Update instruments with metadata from another instrument.
 #'
 #' Update instruments with metadata from another instrument.
