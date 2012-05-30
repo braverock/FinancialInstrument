@@ -224,10 +224,12 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AME
 update_instruments.masterDATA <- function(Symbols, silent=FALSE) {
     x <- read.csv("http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv", 
                   stringsAsFactors=FALSE)
-    if (missing(Symbols)) Symbols <- unique(ls_funds(), ls_stocks())
+    if (missing(Symbols)) Symbols <- unique(c(ls_funds(), ls_stocks()))
     s <- Symbols[Symbols %in% x[["Symbol"]]]
     if (length(s) > 0) {
-        s <- s[is.instrument.name(s)]
+        # only those that inherit stock or fund
+        s <- s[sapply(lapply(s, getInstrument, type=c("stock", "fund"), 
+                             silent = TRUE), is.instrument)]
     }
     if (length(s) == 0) {
         if (!isTRUE(silent)) {
