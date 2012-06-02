@@ -133,10 +133,12 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"),
         Symbols <- ls_stocks()
     }
     df <- df[df[["Symbol"]] %in% Symbols, ]
-    if (nrow(df) == 0 && !isTRUE(silent)) {
-        warning(paste(paste(Symbols,collapse=","), 
-                      "not found among those listed on", 
-                      paste(exchange,collapse=", ")))
+    if (nrow(df) == 0) {
+        if (!isTRUE(silent)) {
+            warning(paste(paste(Symbols,collapse=","), 
+                          "not found among those listed on", 
+                          paste(exchange,collapse=", ")))
+        }
         return(invisible(NULL))
     }
     if (!isTRUE(silent)) {
