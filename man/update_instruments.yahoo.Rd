@@ -7,7 +7,7 @@
     verbose = FALSE)
 
   update_instruments.TTR(Symbols = c("stocks", "all"),
-    exchange = c("AMEX", "NASDAQ", "NYSE"))
+    exchange = c("AMEX", "NASDAQ", "NYSE"), silent = FALSE)
 }
 \arguments{
   \item{Symbols}{can be a vector of instrument names, or,
@@ -20,6 +20,8 @@
   \dQuote{NASDAQ}, or \dQuote{NYSE}}
 
   \item{verbose}{be verbose?}
+
+  \item{silent}{silence warnings?}
 }
 \value{
   called for side-effect

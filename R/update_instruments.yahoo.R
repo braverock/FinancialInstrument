@@ -30,6 +30,7 @@
 #' @param exchange character vector of names of exchanges. Used in \sQuote{TTR}
 #' method. Can be \dQuote{AMEX}, \dQuote{NASDAQ}, or \dQuote{NYSE}
 #' @param verbose be verbose?
+#' @param silent silence warnings?
 #' @return called for side-effect
 #' @author Garrett See
 #' @seealso \code{\link{update_instruments.instrument}}, 
@@ -123,19 +124,24 @@ update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) 
 
 #' @export
 #' @rdname update_instruments.yahoo
-update_instruments.TTR <- function(Symbols = c("stocks", "all"), exchange=c("AMEX","NASDAQ","NYSE")) {
+update_instruments.TTR <- function(Symbols = c("stocks", "all"), 
+                                   exchange=c("AMEX","NASDAQ","NYSE"), 
+                                   silent=FALSE) {
     if (!suppressWarnings(is.currency.name("USD"))) currency("USD")
-    df <- stockSymbols(exchange=exchange)    
-    if (!is.null(Symbols) && !(any(c("stocks", "all") %in% Symbols))) {
-        rows <- try( match(Symbols,df$Symbol) )
-        if (!inherits(rows, 'try-error')) {
-            df <- df[rows,]
-        } else {
-            warning(paste(paste(Symbols,collapse=","), "not found among those listed on", paste(exchange,collapse=", ")))
-            return(invisible(NULL))        
-        }
-    } else if (!is.null(Symbols)) df <- df[match(ls_stocks(),df$Symbol),]
-    cat('defining stocks...\n')
+    df <- stockSymbols(exchange=exchange)
+    if (any(c("stocks", "all") %in% Symbols)) {
+        Symbols <- ls_stocks()
+    }
+    df <- df[df[["Symbol"]] %in% Symbols, ]
+    if (nrow(df) == 0 && !isTRUE(silent)) {
+        warning(paste(paste(Symbols,collapse=","), 
+                      "not found among those listed on", 
+                      paste(exchange,collapse=", ")))
+        return(invisible(NULL))
+    }
+    if (!isTRUE(silent)) {
+        cat('defining stocks...\n')
+    }
     symout <- NULL    
     for (i in 1:nrow(df)) {
         primary_id <- as.character(df$Symbol[i])
