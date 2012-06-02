@@ -90,7 +90,7 @@ loadInstruments <-function(file_name="MyInstruments", dir="") {
     require("utils")
     if (is.environment(file_name) || is.list(file_name)) {
         ilist <- as.list(file_name)
-        for (i in 1:length(ilist)) {
+        for (i in seq_along(ilist)) {
             assign(names(ilist)[i], ilist[[i]],
                     pos=FinancialInstrument:::.instrument)
         }
