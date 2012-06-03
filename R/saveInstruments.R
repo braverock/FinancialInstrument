@@ -21,7 +21,9 @@
 #' to save the entire .instrument environment to disk.
 #'
 #' \code{loadInstruments} will read a file that contains instruments and add 
-#' those instrument definitions to your .instrument environment
+#' those instrument definitions to your .instrument environment.  
+#' \code{reloadInstruments} will remove all instruments in the current 
+#' .instrument environment before loading instruments from disk.
 #' 
 #' The \code{file_name} should have a file extension of \dQuote{RData}, 
 #' \dQuote{rda}, \dQuote{R}, or \dQuote{txt}.  If the \code{file_name} does not
@@ -121,3 +123,9 @@ loadInstruments <-function(file_name="MyInstruments", dir="") {
 }
 
 
+#' @export
+#' @rdname saveInstruments
+reloadInstruments <- function(file_name="MyInstruments", dir="") {
+    rm_instruments(keep.currencies=FALSE)
+    loadInstruments(file_name=file_name, dir=dir)
+}

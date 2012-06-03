@@ -1,11 +1,14 @@
 \name{saveInstruments}
 \alias{loadInstruments}
+\alias{reloadInstruments}
 \alias{saveInstruments}
 \title{Save and Load all instrument definitions}
 \usage{
   saveInstruments(file_name = "MyInstruments", dir = "")
 
   loadInstruments(file_name = "MyInstruments", dir = "")
+
+  reloadInstruments(file_name = "MyInstruments", dir = "")
 }
 \arguments{
   \item{file_name}{name of file. e.g.
@@ -29,7 +32,9 @@
 
   \code{loadInstruments} will read a file that contains
   instruments and add those instrument definitions to your
-  .instrument environment
+  .instrument environment. \code{reloadInstruments} will
+  remove all instruments in the current .instrument
+  environment before loading instruments from disk.
 
   The \code{file_name} should have a file extension of
   \dQuote{RData}, \dQuote{rda}, \dQuote{R}, or
