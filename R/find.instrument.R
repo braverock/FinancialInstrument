@@ -63,5 +63,6 @@ find.instrument <- function(text, where='anywhere', Symbols = ls_instruments(),
         instrument.table(Symbols, exclude=exclude)
     } else buildHierarchy(Symbols, where[!where %in% exclude])
     unique(tbl[unique(unname(unlist(apply(tbl, 2, function(x) 
-        grep(pattern=text, x=x, ignore.case=ignore.case, ...))))), 1])
+        grep(pattern=text, x=x, ignore.case=ignore.case, 
+             useBytes=TRUE, ...))))), 1])
 }
