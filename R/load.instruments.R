@@ -39,9 +39,10 @@
 #' @param id_col numeric column containing id if primary_id isn't defined, default 1
 #' @param default_type character string to use as instrument type fallback, see Details
 #' @seealso 
-#' \code{\link{instrument}} 
-#' \code{\link{setSymbolLookup.FI}} 
-#' \code{\link[quantmod]{getSymbols}} 
+#' \code{\link{loadInstruments}},
+#' \code{\link{instrument}}, 
+#' \code{\link{setSymbolLookup.FI}}, 
+#' \code{\link[quantmod]{getSymbols}}, 
 #' \code{\link{getSymbols.FI}}
 #' @examples
 #' \dontrun{
@@ -156,9 +157,10 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
 #' @param use_identifier string identifying which column should be use to construct the \code{primary_id} of the instrument, default 'primary_id'
 #' @param extension file extension, default "rda"
 #' @param src which \code{\link[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'
-#' @seealso \code{\link{load.instruments}} 
-#' \code{\link{getSymbols.FI}}
-#' \code{\link{load.instruments}}
+#' @seealso 
+#' \code{\link{getSymbols.FI}},
+#' \code{\link{instrument_attr}},
+#' \code{\link{load.instruments}}, \code{\link{loadInstruments}},
 #' \code{\link[quantmod]{setSymbolLookup}}
 #' @importFrom zoo as.Date
 #' @export
@@ -267,7 +269,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' \code{\link{saveSymbols.days}}
 #' \code{\link{instrument}}
 #' \code{\link{setSymbolLookup.FI}}
-#' \code{\link{load.instruments}}
+#' \code{\link{loadInstruments}}
 #' \code{\link[quantmod]{getSymbols}}
 #' @export
 getSymbols.FI <- function(Symbols,

@@ -62,8 +62,9 @@ load.instruments(system.file('data/future_series.csv',package='FinancialInstrume
 }
 }
 \seealso{
-  \code{\link{instrument}} \code{\link{setSymbolLookup.FI}}
-  \code{\link[quantmod]{getSymbols}}
+  \code{\link{loadInstruments}}, \code{\link{instrument}},
+  \code{\link{setSymbolLookup.FI}},
+  \code{\link[quantmod]{getSymbols}},
   \code{\link{getSymbols.FI}}
 }
 

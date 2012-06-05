@@ -93,7 +93,7 @@
 \seealso{
   \code{\link{saveSymbols.days}} \code{\link{instrument}}
   \code{\link{setSymbolLookup.FI}}
-  \code{\link{load.instruments}}
+  \code{\link{loadInstruments}}
   \code{\link[quantmod]{getSymbols}}
 }
 

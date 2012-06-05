@@ -222,6 +222,8 @@ update_instruments.TTR <- function(Symbols = c("stocks", "all"),
 #' @author Garrett See
 #' @references \url{http://masterDATA.com} 
 #' (\url{http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv})
+#' @seealso \code{\link{update_instruments.yahoo}}, 
+#'   \code{\link{update_instruments.instrument}}
 #' @examples
 #' \dontrun{
 #' stock(s <- c("SPY", "DIA"), currency("USD"))

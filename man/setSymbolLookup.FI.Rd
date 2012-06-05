@@ -56,9 +56,10 @@
   data by days, which is why that option is the default.
 }
 \seealso{
-  \code{\link{load.instruments}}
-  \code{\link{getSymbols.FI}}
-  \code{\link{load.instruments}}
+  \code{\link{getSymbols.FI}},
+  \code{\link{instrument_attr}},
+  \code{\link{load.instruments}},
+  \code{\link{loadInstruments}},
   \code{\link[quantmod]{setSymbolLookup}}
 }
 

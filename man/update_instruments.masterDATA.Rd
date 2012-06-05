@@ -71,4 +71,8 @@ buildHierarchy(s, "Name", "Fund.Type", "defined.by")
   \url{http://masterDATA.com}
   (\url{http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv})
 }
+\seealso{
+  \code{\link{update_instruments.yahoo}},
+  \code{\link{update_instruments.instrument}}
+}
 
