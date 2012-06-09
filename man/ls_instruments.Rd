@@ -5,8 +5,8 @@
 \alias{ls_derivatives}
 \alias{ls_exchange_rates}
 \alias{ls_funds}
-\alias{ls_future_series}
 \alias{ls_futures}
+\alias{ls_future_series}
 \alias{ls_FX}
 \alias{ls_guaranteed_spreads}
 \alias{ls_ICS}
@@ -14,8 +14,8 @@
 \alias{ls_instruments}
 \alias{ls_non_currencies}
 \alias{ls_non_derivatives}
-\alias{ls_option_series}
 \alias{ls_options}
+\alias{ls_option_series}
 \alias{ls_puts}
 \alias{ls_spreads}
 \alias{ls_stocks}
@@ -25,13 +25,13 @@
 \alias{rm_derivatives}
 \alias{rm_exchange_rates}
 \alias{rm_funds}
-\alias{rm_future_series}
 \alias{rm_futures}
+\alias{rm_future_series}
 \alias{rm_FX}
 \alias{rm_instruments}
 \alias{rm_non_derivatives}
-\alias{rm_option_series}
 \alias{rm_options}
+\alias{rm_option_series}
 \alias{rm_spreads}
 \alias{rm_stocks}
 \alias{rm_synthetics}

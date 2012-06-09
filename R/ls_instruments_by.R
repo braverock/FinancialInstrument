@@ -19,10 +19,11 @@
 #' 
 #' list instruments that have a given attribute level with a given value.
 #' 
-#' @param what what attribute (e.g. currency, type, strike, etc.)
-#' @param value what value must the attribute have (e.g. \sQuote{EUR},
-#' \sQuote{option}, 100, etc.).  If \code{NULL} then the names of all
-#' instruments that have a \code{what} slot will be returned
+#' @param what What attribute? (e.g. \dQuote{currency}, \dQuote{type}, 
+#'   \dQuote{strike}, etc.)
+#' @param value What value must the attribute have? (e.g. \dQuote{EUR},
+#' \dQuote{option}, 100, etc.).  If missing or \code{NULL}, the names of all
+#'   instruments that have a \code{what} slot will be returned
 #' @param pattern only return instruments with \code{pattern} in the name
 #' @param match should pattern match names exactly?
 #' @param in.slot If the attribute you are looking for is stored inside another
@@ -53,7 +54,7 @@ ls_instruments_by <- function (what, value, in.slot=NULL, pattern=NULL, match=TR
     } else if (is.null(pattern)) {  #no pattern
         symbols <- ls_instruments()
     } # else pattern length > 1 & don't match
-        
+    if (missing(value)) value <- NULL
     tmp_symbols <- NULL 
     for (symbol in symbols) {
         tmp_instr <- try(get(symbol, pos = FinancialInstrument:::.instrument),silent=TRUE)
