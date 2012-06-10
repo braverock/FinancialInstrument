@@ -45,9 +45,10 @@
   \code{\link{make_spread_id}}. instrument metadata will
   also be created and stored with the same primary_id.}
 
-  \item{env}{if \code{auto.assign} is \code{TRUE} this is
-  the environment in which to store the data (.GlobalEnv by
-  default)}
+  \item{env}{if \code{prod1} and \code{prod1} are
+  character, this where to \code{get} the data.  Also, if
+  \code{auto.assign} is \code{TRUE} this is the environment
+  in which to store the data (.GlobalEnv by default)}
 
   \item{silent}{silence warnings? (FALSE by default)}
 

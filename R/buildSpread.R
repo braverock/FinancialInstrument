@@ -173,7 +173,9 @@ buildBasket <- buildSpread
 #'   multipliers before calculating the spread?
 #' @param unique_method method for making the time series unique
 #' @param auto.assign if \code{TRUE} (the default) the constructed spread will be stored in symbol created with \code{\link{make_spread_id}}. instrument metadata will also be created and stored with the same primary_id.
-#' @param env if \code{auto.assign} is \code{TRUE} this is the environment in which to store the data (.GlobalEnv by default) 
+#' @param env if \code{prod1} and \code{prod1} are character, this where to 
+#'   \code{get} the data.  Also, if \code{auto.assign} is \code{TRUE} this is 
+#'   the environment in which to store the data (.GlobalEnv by default) 
 #' @param silent silence warnings? (FALSE by default)
 #' @param \dots other arguments to pass to \code{getSymbols} and/or \code{\link{make_spread_id}}
 #' @return 
@@ -269,8 +271,8 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL,
         }
         prod2.instr <- list(multiplier=1,currency=currency)
     }
-    if (is.null(Data.1)) Data.1 <- try(get(as.character(prod1),envir=.GlobalEnv),silent=TRUE) 
-    if (is.null(Data.2)) Data.2 <- try(get(as.character(prod2),envir=.GlobalEnv),silent=TRUE) 
+    if (is.null(Data.1)) Data.1 <- try(get(as.character(prod1), pos=env),silent=TRUE) 
+    if (is.null(Data.2)) Data.2 <- try(get(as.character(prod2), pos=env),silent=TRUE) 
 
     if (inherits(Data.1, "try-error") || (inherits(Data.2, "try-error"))) {
         gS.args <- list()
