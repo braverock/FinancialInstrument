@@ -173,7 +173,7 @@ buildBasket <- buildSpread
 #'   multipliers before calculating the spread?
 #' @param unique_method method for making the time series unique
 #' @param auto.assign if \code{TRUE} (the default) the constructed spread will be stored in symbol created with \code{\link{make_spread_id}}. instrument metadata will also be created and stored with the same primary_id.
-#' @param env if \code{prod1} and \code{prod1} are character, this where to 
+#' @param env if \code{prod1} and \code{prod1} are character, this is where to 
 #'   \code{get} the data.  Also, if \code{auto.assign} is \code{TRUE} this is 
 #'   the environment in which to store the data (.GlobalEnv by default) 
 #' @param silent silence warnings? (FALSE by default)
