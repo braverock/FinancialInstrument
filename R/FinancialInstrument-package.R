@@ -1,33 +1,112 @@
 #' Construct, manage and store contract specifications for trading
 #'
-#' Transaction-oriented infrastructure for defining tradable instruments based on their contract specifications.  Construct and manage the definition of any asset class, including derivatives, exotics and currencies.  Potentially useful for portfolio accounting, backtesting, pre-trade pricing and other financial research.  Still in active development.
+#' Transaction-oriented infrastructure for defining tradable instruments based 
+#' on their contract specifications.  Construct and manage the definition of any 
+#' asset class, including derivatives, exotics and currencies.  Potentially 
+#' useful for portfolio accounting, backtesting, pre-trade pricing and other 
+#' financial research.  Still in active development.
 #'
-#' The FinancialInstrument package provides a construct for defining and storing meta-data for tradable contracts (referred to as instruments, e.g., stocks, futures, options, etc.).  It can be used to create any asset class and derivatives, across multiple currencies.  
+#' The FinancialInstrument package provides a construct for defining and storing 
+#' meta-data for tradable contracts (referred to as instruments, e.g., stocks, 
+#' futures, options, etc.).  It can be used to create any asset class and 
+#' derivatives, across multiple currencies.  
 #'
-#' FinancialInstrument was originally part of a companion package, blotter, that provides portfolio accounting functionality.  Blotter accumulates transactions into positions, then into portfolios and an account.  FinancialInstrument is used to contain the meta-data about an instrument, which blotter uses to calculate the notional value of positions and the resulting P&L.  FinancialInstrument, however, has plenty of utility beyond portfolio accounting, and was carved out so that others might take advantage of its functionality.
+#' FinancialInstrument was originally part of a companion package, blotter, that 
+#' provides portfolio accounting functionality.  Blotter accumulates 
+#' transactions into positions, then into portfolios and an account.  
+#' FinancialInstrument is used to contain the meta-data about an instrument, 
+#' which blotter uses to calculate the notional value of positions and the 
+#' resulting P&L.  FinancialInstrument, however, has plenty of utility beyond 
+#' portfolio accounting, and was carved out so that others might take advantage 
+#' of its functionality.
 #' 
-#' As used here, 'instruments' are S3 objects of type 'instrument' or a subclass thereof that define contract specifications for price series for a tradable contract, such as corn futures or IBM common stock.  When defined as instruments, these objects are extended to include descriptive information and contract specifications that help identify and value the contract.
+#' As used here, 'instruments' are S3 objects of type 'instrument' or a subclass 
+#' thereof that define contract specifications for price series for a tradable 
+#' contract, such as corn futures or IBM common stock.  When defined as 
+#' instruments, these objects are extended to include descriptive information 
+#' and contract specifications that help identify and value the contract.
 #' 
-#' The simplest example of an instrument is a common stock.  A tradable instrument can be defined in brief terms with an identifier (e.g., "IBM").  Beyond the primary identifier, additional identifiers may be added as well and will work as 'aliases'.  Any identifier will do -- Bloomberg, Reuters-RIC, CUSIP, etc. -- as long as it's unique to the workspace. In addition, a stock price will be denominated in a currency (e.g., "USD") and will have a specific tick size which is the minimum amount that the price can be quoted and transacted in (e.g., $0.01).  We also define a 'multiplier' that is used when calculating the notional value of a position or transaction using a quantity and price (sometimes called a contract multiplier).  For a stock it's usually '1'.  
+#' A simple example of an instrument is a common stock.  An instrument can be 
+#' defined in brief terms with an identifier (e.g., "IBM").  Beyond the primary 
+#' identifier, additional identifiers may be added as well and will work as 
+#' 'aliases'.  Any identifier will do -- Bloomberg, Reuters-RIC, CUSIP, etc. -- 
+#' as long as it's unique to the workspace. In addition, a stock price will be 
+#' denominated in a currency (e.g., "USD") and will have a specific tick size 
+#' which is the minimum amount that the price can be quoted and transacted in 
+#' (e.g., $0.01).  We also define a 'multiplier' that is used when calculating 
+#' the notional value of a position or transaction using a quantity and price 
+#' (sometimes called a contract multiplier).  For a stock it's usually '1'.  
 #' 
-#' More care is needed when dealing with complex instruments, like futures.  First, we have to define a future as a root contract.  This root is not tradable unto itself, but is used to generate a series of futures which are tradable and expire through time.  The root contract will provide an identifier (e.g., 'C' for the CME's corn contract), a denomination currency, a multiplier (one futures contract will cover multiple items) and a minimum tick size.  From that definition, a series of expiring contracts can be generated ("CH08", "CZ08", etc.) by specifying a suffix to be associated with the series, usually something like 'Z9' or 'Mar10' denoting expiration and year.  As you might expect, options are treated similarly.  The package also includes constructors for certain synthetic instruments, such as ratio spreads.
+#' More care is needed when dealing with complex instruments, like futures.  
+#' First, we have to define a future as a root contract.  This root is not 
+#' tradable unto itself, but is used to generate a series of futures which are 
+#' tradable and expire through time.  The root contract will provide an 
+#' identifier (e.g., 'C' for the CME's corn contract), a denomination currency, 
+#' a multiplier (one futures contract will cover multiple items) and a minimum 
+#' tick size.  From that definition, a series of expiring contracts can be 
+#' generated ("C_H08", "C_Z08", etc.) by specifying a suffix to be associated 
+#' with the series, usually something like 'Z9' or 'Mar10' denoting expiration 
+#' and year.  As you might expect, options are treated similarly.  The package 
+#' also includes constructors for certain synthetic instruments, such as 
+#' spreads.
 #' 
-#' FinancialInstrument doesn't try to exhaust the possibilities of attributes, so it instead allows for flexibility.  If you wanted to add an attribute to tag the exchange the instrument is listed on, just add it when defining the instrument (e.g., \code{future('CL', multiplier=1000, currency="USD", tick_size=.01, exchange="CME", description="Crude Light futures")}).  Or, as you can see, we've found it useful to add a field with more slightly more detail, such as \code{description='IBM Common Stock'}.  
+#' FinancialInstrument doesn't try to exhaust the possibilities of attributes, 
+#' so it instead allows for flexibility.  If you wanted to add an attribute to 
+#' tag the exchange the instrument is listed on, just add it when defining the 
+#' instrument (e.g., \code{future('CL', multiplier=1000, currency="USD", 
+#' tick_size=.01, exchange="CME", description="Crude Light futures")}).  Or, as 
+#' you can see, we've found it useful to add a field with more slightly more 
+#' detail, such as \code{description='IBM Common Stock'}.  You can also add
+#' attribute after the instrument has been created using 
+#' \code{\link{instrument_attr}} as shown in the examples section below.
 #'
-#' Defining instruments can be tedious, so we've also included a CSV loader in in the package too. See \code{\link{load.instruments}} for detail.  
+#' Defining instruments can be tedious, so we've also included a CSV loader in 
+#' the package (See \code{\link{load.instruments}}, as well as some functions
+#' that will update instruments with data downloaded from the internet.
+#' See, e.g. \code{\link{update_instruments.yahoo}}, 
+#' \code{\link{update_instruments.TTR}}, 
+#' \code{\link{update_instruments.morningstar}},
+#' \code{\link{update_instruments.iShares}}. You can also update an instrument
+#' using the details of another one with 
+#' \code{\link{update_instruments.instrument}} which can be useful for creating
+#' a new future_series from an expiring one.
 #' 
-#' Once you've defined all these instruments (we keep hundreds or thousands of them in our environments), and you keep a local store of all your historical market data, you may want to use \code{\link{setSymbolLookup.FI}} to define where and how they are stored so that \code{\link[quantmod]{getSymbols}} will work for you. 
+#' Once you've defined all these instruments (we keep hundreds or thousands of 
+#' them in our environments), you can save the instrument environment using
+#' \code{\link{saveInstruments}}.  When you start a fresh R session, you 
+#' can load your instrument definitions using \code{loadInstruments}.  We 
+#' maintain an instrument.RData file that contains definitions for all 
+#' instruments for which we have market data on disk.  
 #' 
-#' FinancialInstrument's functions build and manipulate objects that are stored in an environment named ".instrument" at the top level of the package (i.e. "FinancialInstrument:::.instrument") rather than the global environment, \code{.GlobalEnv}.  Objects may be listed using \code{ls_instruments()}.
-#' We do that for two reasons.  First, it keeps the user's workspace less cluttered and lowers the probability of clobbering something.  Second, it allows the user to save and re-use the \code{.instrument} environment in other workspaces.  Objects created with FinancialInstrument may be directly manipulated as any other object, but in our use so far we've found that it's relatively rare to do so.  Use the \code{\link{getInstrument}} function to query the contract specs of a particular instrument from the environment.
+#' You may want to use \code{\link{setSymbolLookup.FI}} to define 
+#' where and how your market data are stored so that 
+#' \code{\link[quantmod]{getSymbols}} will work for you. 
+#' 
+#' FinancialInstrument's functions build and manipulate objects that are stored 
+#' in an environment named ".instrument" at the top level of the package 
+#' (i.e. "FinancialInstrument:::.instrument") rather than the global 
+#' environment, \code{.GlobalEnv}.  Objects may be listed using 
+#' \code{ls_instruments()} (or many other ls_* functions).
+#'
+#' We store instruments in their own environment for two reasons.  First, it 
+#' keeps the user's workspace less cluttered and lowers the probability of 
+#' clobbering something.  Second, it allows the user to save and re-use the 
+#' \code{.instrument} environment in other workspaces.  Objects created with 
+#' FinancialInstrument may be directly manipulated as any other object, but in 
+#' our use so far we've found that it's relatively rare to do so.  Use the 
+#' \code{\link{getInstrument}} function to query the contract specs of a 
+#' particular instrument from the environment.
 #' 
 #' @name FinancialInstrument-package
 #' @aliases FinancialInstrument-package FinancialInstrument
 #' @docType package
 #' @author
 #' Peter Carl,
-#' Brian Peterson,
-#' Garrett See
+#' Dirk Eddelbuettel, 
+#' Brian G. Peterson,
+#' Jeffrey Ryan, 
+#' Garrett See,
+#' Joshua Ulrich 
 #'
 #' Maintainer: Garrett See \email{gsee000@@gmail.com}
 #' @keywords package
@@ -57,6 +136,11 @@
 #' update_instruments.masterDATA(ls_stocks()) # only updates ETFs
 #' getInstrument("SPY")
 #' 
+#' ## Compare instruments with all.equal.instrument method
+#' all.equal(getInstrument("USD"), getInstrument("USD"))
+#' all.equal(getInstrument("USD"), getInstrument("EUR"))
+#' all.equal(getInstrument("SPY"), getInstrument("LQD"))
+#'
 #' ## Search for the tickers of instruments that contain words
 #' find.instrument("computer") #IBM
 #' find.instrument("bond")  #LQD
@@ -99,6 +183,15 @@
 #' # could also find ".GS" by looking for "GS", but specifiying type
 #' getInstrument("GS", type='option')
 #' 
+#' # if you do not know what type of instrument you need to define, try
+#' instrument.auto("ESM3")
+#' getInstrument("ESM3")
+#' instrument.auto("USDJPY")
+#' getInstrument("USDJPY")
+#' 
+#' instrument.auto("QQQ") #doesn't work as well on ambigous tickers 
+#' getInstrument("QQQ")
+#'
 #' # Some functions that make it easier to work with futures
 #' M2C() # Month To Code
 #' M2C()[5]

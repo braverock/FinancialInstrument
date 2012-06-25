@@ -52,7 +52,6 @@ Collate:
     'find.instrument.R'
     'FinancialInstrument-package.R'
     'FindCommonInstrumentAttributes.R'
-    'getSymbols.FIpar.R'
     'Notionalize.R'
     'update_instruments.iShares.R'
     'update_instruments.morningstar.R'
