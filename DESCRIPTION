@@ -11,7 +11,7 @@ Description: Infrastructure for defining instruments
     meta-data and relationships. Provides support for
     multi-asset class and multi-currency portfolios. Still
     in heavy development.
-Version: 0.14.8
+Version: 0.15.0
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
@@ -19,7 +19,8 @@ Depends:
     quantmod(>= 0.3-17),
     zoo(>= 1.7-5)
 Suggests:
-    foreach
+    foreach,
+    XML
 Collate:
     'buildHierarchy.R'
     'buildSpread.R'
@@ -50,3 +51,8 @@ Collate:
     'expires.R'
     'find.instrument.R'
     'FinancialInstrument-package.R'
+    'FindCommonInstrumentAttributes.R'
+    'getSymbols.FIpar.R'
+    'Notionalize.R'
+    'update_instruments.iShares.R'
+    'update_instruments.morningstar.R'
