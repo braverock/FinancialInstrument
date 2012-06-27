@@ -1,4 +1,4 @@
-download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
+download.DJUBS <- function (filesroot = "~/Data/DJUBS", download=TRUE) {
   # Script for parsing DJUBS index daily price data series from the
   # DJ website.
   
@@ -13,9 +13,11 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
   # Remove the footer at the bottom
   # Load needed packages:
   require(xts)
+  require(PerformanceAnalytics)
   require(gdata)
   require(FinancialInstrument)
   require(quantmod)
+  currency("USD")
   # filesroot: Set the working directory, where there's a .incoming folder that 
   # contains the downloaded spreadsheet.
   
@@ -30,11 +32,13 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
   
   # Remove the old file from .incoming
   if(file.exists("DJUBS_full_hist.xls"))
-    system("rm DJUBS_full_hist.xls")
+    if(download){
+      system("rm DJUBS_full_hist.xls")
   
-  # Download the xls workbook directly from the web site:
-  print("Downloading excel spreadsheet from DJUBS web site...")
-  system("wget http://www.djindexes.com/mdsidx/downloads/xlspages/ubsci_public/DJUBS_full_hist.xls")
+      # Download the xls workbook directly from the web site:
+      print("Downloading excel spreadsheet from DJUBS web site...")
+      system("wget http://www.djindexes.com/mdsidx/downloads/xlspages/ubsci_public/DJUBS_full_hist.xls")
+    }
   
   if(!file.exists("DJUBS_full_hist.xls"))
     stop(paste("No spreadsheet exists.  Download the spreadsheet to be processed from www.djindexes.com into ", filesroot, "/.incoming", sep=""))
@@ -55,7 +59,7 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
     x=x[,-which(apply(x,2,function(x)all(is.na(x))))]
     
     # Get attributes and labels
-    categoryNames = x.attr[,!is.na(x.attr)]
+    categoryNames = x.attr[!is.na(x.attr)]
     symbolNames = paste(make.names(colnames(x[,])), ".IDX", sep="")
     symbolNamesMonthly = paste(make.names(colnames(x[,])), ".M.IDX", sep="")
     ISOdates = as.Date(x[,1], "%m/%d/%Y")
@@ -76,13 +80,13 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
       R.xts = Return.calculate(x.xts)
       x.xts = cbind(x.xts, R.xts)
       colnames(x.xts)=c("Close", "Returns")
-      xtsAttributes(x.xts) <- list(Description = paste(categoryNames[,i], sheet, "Index"))
+      xtsAttributes(x.xts) <- list(Description = paste(categoryNames[i], sheet, "Index"))
   
       save(x.xts, file=paste(filesroot, symbolNames[i], paste(symbolNames[i], ".rda", sep=""), sep="/"))
-      print(paste(symbolNames[i],", ",categoryNames[,i], ", ", sheet, sep=""))
+      print(paste(symbolNames[i],", ",categoryNames[i], ", ", sheet, sep=""))
       
       # Describe the metadata for each index
-      instrument(symbolNames[i], currency="USD", multiplier=1, tick_size=.01, start_date=head(index(x.xts),1), description=paste(categoryNames[,i], "Index"), data="CR", source="DJUBS", frequency="Daily", assign_i=TRUE)
+      instrument(symbolNames[i], currency="USD", multiplier=1, tick_size=.01, start_date=head(index(x.xts),1), description=paste(categoryNames[i], "Index"), data="CR", source="DJUBS", frequency="Daily", assign_i=TRUE)
       
       # Construct a monthly series from the daily series
       x.m.xts = to.monthly(Cl(x.xts))
@@ -100,12 +104,12 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
       # Reset index to last day of the month to make alignment easier with other monthly series.  
       index(x.m.xts)=as.Date(index(x.m.xts), frac=1)
         
-      xtsAttributes(x.m.xts) <- list(Description = paste(categoryNames[,i], sheet, "Index"))
+      xtsAttributes(x.m.xts) <- list(Description = paste(categoryNames[i], sheet, "Index"))
   
       save(x.m.xts, file=paste(filesroot, symbolNamesMonthly[i], paste(symbolNamesMonthly[i], ".rda", sep=""), sep="/"))
-      print(paste(symbolNamesMonthly[i],", ",categoryNames[,i], ", ", sheet, sep=""))
+      print(paste(symbolNamesMonthly[i],", ",categoryNames[i], ", ", sheet, sep=""))
       # Describe the metadata for each index
-      instrument(symbolNamesMonthly[i], currency="USD", multiplier=1, tick_size=.01, start_date=head(index(x.xts),1), description=paste(categoryNames[,i], "Index"), data="CR", source="DJUBS", frequency="Monthly", assign_i=TRUE)
+      instrument(symbolNamesMonthly[i], currency="USD", multiplier=1, tick_size=.01, start_date=head(index(x.xts),1), description=paste(categoryNames[i], "Index"), data="CR", source="DJUBS", frequency="Monthly", assign_i=TRUE)
     }
   }
   
