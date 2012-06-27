@@ -12,7 +12,7 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS") {
   # Several series, all index values
   # Remove the footer at the bottom
   # Load needed packages:
-  require(zoo)
+  require(xts)
   require(gdata)
   require(FinancialInstrument)
   require(quantmod)
