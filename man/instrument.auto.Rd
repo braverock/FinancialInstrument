@@ -41,7 +41,7 @@
 }
 \details{
   If \code{currency} is not already defined, it will be
-  defined (unless it is not 3 uppercase characters). The
+  defined (unless it is not 3 uppercase characters).  The
   default value for \code{currency} is \dQuote{USD}.  If
   you do not provide a value for \code{currency},
   \dQuote{USD} will be defined and used to create the
@@ -62,9 +62,9 @@
   If it is not clear from the \code{primary_id} what type
   of instrument to create, an instrument of type
   \code{default_type} will be created (which is 'NULL' by
-  default). This will happen when \code{primary_id} is that
-  of a \code{\link{stock}} \code{\link{future}}
-  \code{\link{option}} or \code{\link{bond}}.  This may
+  default).  This will happen when \code{primary_id} is
+  that of a \code{\link{stock}}, \code{\link{future}},
+  \code{\link{option}}, or \code{\link{bond}}.  This may
   also happen if \code{primary_id} is that of a
   \code{\link{future_series}} or
   \code{\link{option_series}} but the corresponding

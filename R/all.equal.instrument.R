@@ -15,6 +15,9 @@
 
 #' instrument all.equal method
 #'
+#' This is most useful for seeing the difference between two \code{instrument} 
+#' objects.
+#'
 #' @param char.n If length of a character vector is \code{char.n} or less it 
 #' will be treated as a single element. A negative value for \code{char.n} will
 #' be treated as if it were positive \code{Inf}.

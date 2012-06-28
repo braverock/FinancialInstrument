@@ -32,11 +32,12 @@
 }
 \description{
   Defines a chain or several chains of options by looking
-  up necessary info from yahoo If \code{Exp} is missing it
-  will define only the nearby options. If \code{Exp} is
-  NULL it will define all options
+  up necessary info from yahoo.
 }
 \details{
+  If \code{Exp} is missing it will define only the nearby
+  options. If \code{Exp} is NULL it will define all options
+
   If \code{first_traded} and/or \code{tick_size} should not
   be the same for all options being defined, they should be
   left NULL and defined outside of this function.
@@ -59,7 +60,8 @@ ls_instruments()
   Yahoo \url{http://finance.yahoo.com}
 }
 \seealso{
-  \code{\link{option_series}}, \code{\link{instrument}},
-  quantmod:::getOptionChain
+  \code{\link{option_series}}, \code{\link{option}},
+  \code{\link{instrument}},
+  \code{\link[quantmod]{getOptionChain}}
 }
 

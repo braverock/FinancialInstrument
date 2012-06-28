@@ -18,7 +18,7 @@
   leg of a 2 leg spread (Can also be xts data for second
   product)}
 
-  \item{ratio}{hedge ratio. Can be a single number, or a
+  \item{ratio}{Hedge ratio. Can be a single number, or a
   vector of same length as data.}
 
   \item{currency}{chr name of currency denomination of the
@@ -40,12 +40,12 @@
   \item{unique_method}{method for making the time series
   unique}
 
-  \item{auto.assign}{if \code{TRUE} (the default) the
+  \item{auto.assign}{If \code{TRUE} (the default) the
   constructed spread will be stored in symbol created with
   \code{\link{make_spread_id}}. instrument metadata will
   also be created and stored with the same primary_id.}
 
-  \item{env}{if \code{prod1} and \code{prod1} are
+  \item{env}{If \code{prod1} and \code{prod1} are
   character, this is where to \code{get} the data.  Also,
   if \code{auto.assign} is \code{TRUE} this is the
   environment in which to store the data (.GlobalEnv by
@@ -63,7 +63,7 @@
 }
 \description{
   Given 2 products, calculate spread values for as many
-  columns as practicable
+  columns as practicable.
 }
 \details{
   \code{prod1} and \code{prod2} can be the names of
@@ -78,8 +78,8 @@
   it cannot find the data, it will get it with a call to
   getSymbols. Prices are multiplied by multipliers and
   exchange rates to get notional values in the currency
-  specified. The second leg's notional values are
-  multiplied by \code{ratio}. Then the difference is taken
+  specified.  The second leg's notional values are
+  multiplied by \code{ratio}.  Then the difference is taken
   between the notionals of leg1 and the new values for
   leg2.
 

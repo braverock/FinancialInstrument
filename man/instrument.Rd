@@ -35,28 +35,27 @@
     identifiers = NULL, assign_i = TRUE, ...)
 }
 \arguments{
-  \item{primary_id}{string describing the unique ID for the
+  \item{primary_id}{String describing the unique ID for the
   instrument. Most of the wrappers allow this to be a
   vector.}
 
-  \item{...}{any other passthru parameters, including}
+  \item{...}{Any other passthru parameters, including}
 
-  \item{underlying_id}{for derivatives, the identifier of
-  the instrument that this one is derived from, may be NULL
-  for cash settled instruments}
+  \item{underlying_id}{For derivatives, the identifier of
+  the instrument that this one is derived from, may be
+  \code{NULL} for cash settled instruments}
 
-  \item{currency}{string describing the currency ID of an
+  \item{currency}{String describing the currency ID of an
   object of type \code{\link{currency}}}
 
-  \item{multiplier}{numeric multiplier to apply to the
-  price in the instrument currency to get to notional
-  value}
+  \item{multiplier}{Numeric multiplier to apply to the
+  price in the instrument to get to notional value.}
 
-  \item{tick_size}{the tick increment of the instrument
+  \item{tick_size}{The tick increment of the instrument
   price in it's trading venue, as numeric quantity (e.g.
   1/8 is .125)}
 
-  \item{identifiers}{named list of any other identifiers
+  \item{identifiers}{Named list of any other identifiers
   that should also be stored for this instrument}
 
   \item{type}{instrument type to be appended to the class
@@ -72,31 +71,34 @@
 }
 \details{
   In \dots you may pass any other arbitrary instrument
-  fields that will be used to create 'custom' fields. S3
+  fields that will be used to create 'custom' fields.  S3
   classes in \R are basically lists with a class attribute.
   We use this to our advantage to allow us to set arbitrary
   fields.
 
   \code{identifiers} should be a named list to specify
-  other identifiers beyond the \code{primary_id}. Please
+  other identifiers beyond the \code{primary_id}.  Please
   note that whenever possible, these should still be
   unique.  Perhaps Bloomberg, Reuters-X.RIC, CUSIP, etc.
-  The code will return the first (and only the first) match
-  that it finds, starting with the primary_id, and then
-  searching all instruments in the list alphabetically by
-  primary_id. This is robust enough if you take some care,
-  though a more robust patch would be welcomed.
+  \code{\link{getInstrument}} will return the first (and
+  only the first) match that it finds, starting with the
+  primary_id, and then searching the primary_ids of all
+  instruments for each of the \code{identifiers}.  Note
+  that when a large number of instruments are defined, it
+  is faster to find instruments by \code{primary_id} than
+  by \code{identifiers} because it looks for
+  \code{primary_id}s first.
 
   The \code{primary_id} will be coerced within reason to a
   valid \R variable name by using \code{\link{make.names}}.
   We also remove any leading '1' digit (a simple workaround
   to account for issues with the Reuters API). Please use
   some care to choose your primary identifiers so that R
-  won't complain. If you have better regular expression
+  won't complain.  If you have better regular expression
   code, we'd be happy to include it.
 
   Identifiers will also try to be discovered as regular
-  named arguments passed in via \code{...}. We currently
+  named arguments passed in via \code{...}.  We currently
   match any of the following:
   \code{"CUSIP","SEDOL","ISIN","OSI","Bloomberg","Reuters","X.RIC","CQG","TT","Yahoo","Google"}
   Others may be specified using a named list of
@@ -113,6 +115,10 @@
   presumably assignment) or to test your parameters before
   assignment.
 
+  As of version 0.10.0, the .instrument environment is
+  located at the top level of the package. i.e.
+  \code{FinancialInstrument:::.instrument}.
+
   \code{future} and \code{option} are used to define the
   contract specs of a series of instruments.  The
   \code{primary_id} for these can begin with 1 or 2 dots if
@@ -124,7 +130,8 @@
   stock \code{future} specs. (or vice versa)
 
   You can (optionally) provide a \code{src} argument in
-  which case, it will be used in a call to setSymbolLookup.
+  which case, it will be used in a call to
+  \code{\link[quantmod]{setSymbolLookup}}.
 }
 \seealso{
   \code{\link{exchange_rate}} \code{\link{option_series}}

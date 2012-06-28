@@ -1,17 +1,18 @@
 \name{make_spread_id}
 \alias{make_spread_id}
-\title{construct a primary_id for a spread instrument from the primary_ids of its members}
+\title{Construct a primary_id for a \code{spread} \code{instrument} from the
+primary_ids of its members}
 \usage{
   make_spread_id(x, root = NULL, format = NULL, sep = "_")
 }
 \arguments{
-  \item{x}{vector of member primary_ids}
+  \item{x}{character vector of member primary_ids}
 
-  \item{root}{optional character string of root_id to use.}
+  \item{root}{Optional character string of root_id to use.}
 
-  \item{format}{string indicating how to format the
+  \item{format}{String indicating how to format the
   suffix_ids of the spread.  If \code{NULL} (the default),
-  or \code{FALSE}, no formatting will be done.  the See
+  or \code{FALSE}, no formatting will be done.  See
   \code{\link{format_id}} for other accepted values for
   \code{format}}
 
@@ -23,8 +24,8 @@
   \code{\link{spread}} instrument
 }
 \description{
-  construct a primary_id for a spread instrument from the
-  primary_ids of its members
+  Construct a primary_id for a \code{spread}
+  \code{instrument} from the primary_ids of its members
 }
 \examples{
 ids <- c('VX_aug1','VX_U11')

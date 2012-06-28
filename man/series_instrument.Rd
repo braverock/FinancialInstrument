@@ -2,7 +2,7 @@
 \alias{bond_series}
 \alias{future_series}
 \alias{option_series}
-\title{constructors for series contracts on instruments such as options and futures}
+\title{Constructors for series contracts}
 \usage{
   future_series(primary_id, root_id = NULL,
     suffix_id = NULL, first_traded = NULL, expires = NULL,
@@ -21,36 +21,36 @@
     assign_i = TRUE)
 }
 \arguments{
-  \item{primary_id}{string describing the unique ID for the
+  \item{primary_id}{String describing the unique ID for the
   instrument. May be a vector for \code{future_series} and
   \code{option_series}}
 
-  \item{root_id}{string product code or underlying_id,
+  \item{root_id}{String product code or underlying_id,
   usually something like 'ES' or 'CL' for futures, or the
   underlying stock symbol (maybe preceded with a dot) for
   equity options.}
 
-  \item{suffix_id}{string suffix that should be associated
+  \item{suffix_id}{String suffix that should be associated
   with the series, usually something like 'Z9' or 'Mar10'
-  denoting expiration and year}
+  denoting expiration and year.}
 
-  \item{first_traded}{string coercible to Date for first
-  trading day}
+  \item{first_traded}{String coercible to Date for first
+  trading day.}
 
-  \item{expires}{string coercible to Date for expiration
+  \item{expires}{String coercible to Date for expiration
   date}
 
-  \item{maturity}{string coercible to Date for maturity
-  date of bond series}
+  \item{maturity}{String coercible to Date for maturity
+  date of bond series.}
 
-  \item{callput}{right of option; call or put}
+  \item{callput}{Right of option; call or put}
 
-  \item{strike}{strike price of option}
+  \item{strike}{Strike price of option}
 
-  \item{payment_schedule}{not currently being implemented}
+  \item{payment_schedule}{Not currently being implemented}
 
-  \item{identifiers}{named list of any other identifiers
-  that should also be stored for this instrument}
+  \item{identifiers}{Named list of any other identifiers
+  that should also be stored for this instrument.}
 
   \item{assign_i}{TRUE/FALSE. Should the instrument be
   assigned in the \code{.instrument} environment?}
@@ -61,10 +61,13 @@
   \item{...}{any other passthru parameters}
 }
 \description{
-  constructors for series contracts on instruments such as
+  Constructors for series contracts on instruments such as
   options and futures
 }
 \details{
+  The root \code{instrument} (e.g. the \code{future} or
+  \code{option}) must be defined first.
+
   In custom parameters for these series contracts, we have
   often found it useful to store attributes such as local
   roll-on and roll-off dates (rolling not on the
@@ -74,6 +77,11 @@
   either provide a \code{primary_id} (or vector of
   \code{primary_id}s), OR both a \code{root_id} and
   \code{suffix_id}.
+
+  Note that the code for \code{bond} and \code{bond_series}
+  has not been updated recently and may not support all the
+  features supported for \code{option_series} and
+  \code{future_series}.  Patches welcome.
 }
 \examples{
 \dontrun{

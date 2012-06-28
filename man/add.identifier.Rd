@@ -1,6 +1,6 @@
 \name{add.identifier}
 \alias{add.identifier}
-\title{add an identifier to an \code{instrument}}
+\title{Add an identifier to an \code{instrument}}
 \usage{
   add.identifier(primary_id, ...)
 }

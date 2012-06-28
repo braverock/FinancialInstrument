@@ -1,6 +1,6 @@
 \name{add.defined.by}
 \alias{add.defined.by}
-\title{add a source to the defined.by field of an \code{instrument}}
+\title{Add a source to the defined.by field of an \code{instrument}}
 \usage{
   add.defined.by(primary_ids, ...)
 }
@@ -15,7 +15,7 @@
   called for side-effect
 }
 \description{
-  concatenate a string or strings (passed through dots) to
+  Concatenate a string or strings (passed through dots) to
   the defined.by field of an instrument (separated by
   semi-colons).  Any duplicates will be removed.  See
   Details.

@@ -19,7 +19,8 @@
   separately.}
 }
 \description{
-  instrument all.equal method
+  This is most useful for seeing the difference between two
+  \code{instrument} objects.
 }
 \note{
   ALPHA code. Subject to change

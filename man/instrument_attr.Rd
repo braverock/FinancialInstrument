@@ -1,6 +1,6 @@
 \name{instrument_attr}
 \alias{instrument_attr}
-\title{add or change an attribute of an instrument}
+\title{Add or change an attribute of an instrument}
 \usage{
   instrument_attr(primary_id, attr, value)
 }
@@ -8,10 +8,10 @@
   \item{primary_id}{primary_id of the instrument that will
   be updated}
 
-  \item{attr}{name of the slot that will be added or
+  \item{attr}{Name of the slot that will be added or
   changed}
 
-  \item{value}{what to assign to the \code{attr} slot of
+  \item{value}{What to assign to the \code{attr} slot of
   the \code{primary_id} instrument}
 }
 \value{
@@ -29,7 +29,7 @@
   the \code{attr} you are changing is \dQuote{type}, the
   instrument will be reclassed with that type. If
   \code{attr} is \dQuote{src}, \code{value} will be used in
-  a call to \code{setSymbolLookup}. Other checks are in
+  a call to \code{setSymbolLookup}.  Other checks are in
   place to make sure that \dQuote{currency} remains a
   \code{\link{currency}} object and that
   \dQuote{multiplier} and \dQuote{tick_size} can only be
@@ -44,7 +44,7 @@
   \code{identifiers}
 }
 \note{
-  you can remove an attribute/slot from an instrument by
+  You can remove an attribute/level from an instrument by
   calling this function with \code{value=NULL}
 }
 \examples{

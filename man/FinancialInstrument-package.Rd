@@ -85,11 +85,10 @@
   section below.
 
   Defining instruments can be tedious, so we've also
-  included a CSV loader in the package (See
-  \code{\link{load.instruments}}, as well as some functions
-  that will update instruments with data downloaded from
-  the internet. See, e.g.
-  \code{\link{update_instruments.yahoo}},
+  included a CSV loader, \code{\link{load.instruments}}, in
+  the package, as well as some functions that will update
+  instruments with data downloaded from the internet. See,
+  e.g., \code{\link{update_instruments.yahoo}},
   \code{\link{update_instruments.TTR}},
   \code{\link{update_instruments.morningstar}},
   \code{\link{update_instruments.iShares}}. You can also

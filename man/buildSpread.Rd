@@ -1,7 +1,7 @@
 \name{buildSpread}
 \alias{buildBasket}
 \alias{buildSpread}
-\title{construct a price/level series for pre-defined multi-leg spread instrument}
+\title{Construct a price/level series for pre-defined multi-leg spread instrument}
 \usage{
   buildSpread(spread_id, Dates = NULL, onelot = TRUE,
     prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
@@ -10,22 +10,25 @@
     prefer = NULL, auto.assign = TRUE, env = .GlobalEnv)
 }
 \arguments{
-  \item{spread_id}{The name of the instrument that contains
-  members and memberratio}
+  \item{spread_id}{The name of the \code{instrument} that
+  contains members and memberratio}
 
-  \item{Dates}{date range to subset on, will be used for
-  \code{\link[quantmod]{getSymbols}} if the instrument is
-  not available via \code{\link{get}}}
+  \item{Dates}{Date range on which to subset.  Also, if a
+  member's data is not available via \code{\link{get}}
+  \code{\link[quantmod]{getSymbols}} will be called, and
+  the values of the \code{from} and \code{to} arguments
+  will be determined using \code{\link[xts]{.parseISO8601}}
+  on \code{Dates}.}
 
   \item{onelot}{Should the series be divided by the first
   leg's ratio?}
 
-  \item{prefer}{price column to use to build structure.}
+  \item{prefer}{Price column to use to build structure.}
 
-  \item{auto.assign}{assign the spread? If FALSE, the xts
-  object will be returned}
+  \item{auto.assign}{Assign the spread? If FALSE, the xts
+  object will be returned.}
 
-  \item{env}{environment in which to assign spread.}
+  \item{env}{Environment in which to assign spread data.}
 }
 \value{
   If \code{auto.assign} is FALSE, a univariate xts object.
@@ -34,7 +37,7 @@
   returned.
 }
 \description{
-  build price series for spreads, butterflies, or other
+  Build price series for spreads, butterflies, or other
   synthetic instruments, using metadata of a previously
   defined synthetic instrument.
 }
@@ -43,8 +46,11 @@
 
   This function can build multileg spreads such as
   calendars, butterflies, condors, etc. However, the
-  returned series will be univariate. It does not build Bid
-  Ask Mid data like fn_SpreadBuilder does.
+  returned series will be univariate. It does not return
+  multiple columns (e.g. \sQuote{Bid}, \sQuote{Ask},
+  \sQuote{Mid}) like \code{\link{fn_SpreadBuilder}} does.
+
+  \code{buildBasket} is an alias
 
   TODO: allow for multiplier (divisor) that is a vector.
 }

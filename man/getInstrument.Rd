@@ -1,12 +1,12 @@
 \name{getInstrument}
 \alias{getInstrument}
-\title{primary accessor function for getting objects of type 'instrument'}
+\title{Primary accessor function for getting objects of class 'instrument'}
 \usage{
   getInstrument(x, Dates = NULL, silent = FALSE,
     type = "instrument")
 }
 \arguments{
-  \item{x}{string identifier of instrument to retrieve}
+  \item{x}{String identifier of instrument to retrieve}
 
   \item{Dates}{date range to retrieve 'as of', may not
   currently be implemented}
@@ -14,15 +14,16 @@
   \item{silent}{if TRUE, will not warn on failure, default
   FALSE}
 
-  \item{type}{type of object to look for. See Details}
+  \item{type}{class of object to look for. See Details}
 }
 \description{
   This function will search the \code{.instrument}
-  environment for objects of type \code{type}, using first
+  environment for objects of class \code{type}, using first
   the \code{primary_id} and then any \code{identifiers} to
   locate the instrument.  Finally, it will try adding 1 and
-  then 2 dots to the \code{primary_id} to see if an
-  instrument was stored there to avoid naming conflicts.
+  then 2 dots to the beginning of the \code{primary_id} to
+  see if an instrument was stored there to avoid naming
+  conflicts.
 }
 \details{
   \code{\link{future}} and \code{\link{option}} objects may
@@ -30,7 +31,7 @@
   to avoid naming conflics).  For example, the root specs
   for options (or futures) on the stock with ticker "SPY"
   may be stored with a primary_id of "SPY", ".SPY", or
-  "..SPY".  \code{getInstrument} will try using each
+  "..SPY". \code{getInstrument} will try using each
   possible \code{primary_id} until it finds an instrument
   of the appropriate \code{type}
 }
