@@ -90,6 +90,16 @@
   \code{setDefaults} will be used.  Finally, if none of the
   above are true, the formal defaults will be used.
 }
+\examples{
+\dontrun{
+getSymbols("SPY", src='yahoo')
+dir.create("tmpdata")
+saveSymbols.common("SPY", base_dir="tmpdata")
+rm("SPY")
+getSymbols("SPY", src='FI', dir="tmpdata", split_method='common')
+unlink("tmpdata/SPY", recursive=TRUE)
+}
+}
 \seealso{
   \code{\link{saveSymbols.days}} \code{\link{instrument}}
   \code{\link{setSymbolLookup.FI}}

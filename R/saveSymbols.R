@@ -12,18 +12,18 @@
 #
 ###############################################################################
 
-#' save data to disk
+#' Save data to disk
 #'
-#' save data to disk the way that \code{getSymbols.FI} 
+#' Save data to disk the way that \code{getSymbols.FI} 
 #' expects it to be saved.
 #'
-#' If they do not already exist, subdirectories will be created for each of the \code{Symbols}.
-#' \code{saveSymbols.common} will save a single \sQuote{rda} file for each of the \code{Symbols}
-#' in that symbol's subdirectory.
-#' \code{saveSymbols.days} will split the data up into days and save a separate \sQuote{rda} file
-#' for each day in that symbol's subdirectory.
+#' If they do not already exist, subdirectories will be created for each of the 
+#' \code{Symbols}.  \code{saveSymbols.common} will save a single \sQuote{rda} 
+#' file for each of the \code{Symbols} in that symbol's subdirectory.
+#' \code{saveSymbols.days} will split the data up into days and save a separate 
+#' \sQuote{rda} file for each day in that symbol's subdirectory.
 #'
-#' @param Symbols vector of character names of objects to be saved
+#' @param Symbols character vector of names of objects to be saved
 #' @param base_dir character.  directory in which to store data.
 #' @param extension file extension (\dQuote{rda})
 #' @param env environment that holds the data to be saved (.GlobalEnv by default)
@@ -32,10 +32,11 @@
 #' @examples
 #' \dontrun{
 #' getSymbols("SPY", src='yahoo')
-#' saveSymbols.common("SPY", base_dir="~/")
+#' dir.create("tmpdata")
+#' saveSymbols.common("SPY", base_dir="tmpdata")
 #' rm("SPY")
-#' getSymbols("SPY", src='FI', dir="~/", split_method='common')
-#' unlink("~/SPY", recursive=TRUE)
+#' getSymbols("SPY", src='FI', dir="tmpdata", split_method='common')
+#' unlink("tmpdata/SPY", recursive=TRUE)
 #' }
 #' @export
 #' @rdname saveSymbols.days

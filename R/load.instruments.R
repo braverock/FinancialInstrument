@@ -271,6 +271,15 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' \code{\link{setSymbolLookup.FI}}
 #' \code{\link{loadInstruments}}
 #' \code{\link[quantmod]{getSymbols}}
+#' @examples
+#' \dontrun{
+#' getSymbols("SPY", src='yahoo')
+#' dir.create("tmpdata")
+#' saveSymbols.common("SPY", base_dir="tmpdata")
+#' rm("SPY")
+#' getSymbols("SPY", src='FI', dir="tmpdata", split_method='common')
+#' unlink("tmpdata/SPY", recursive=TRUE)
+#' }
 #' @export
 getSymbols.FI <- function(Symbols,
                             from='2010-01-01',

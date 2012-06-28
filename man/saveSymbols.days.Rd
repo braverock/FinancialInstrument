@@ -1,7 +1,7 @@
 \name{saveSymbols.days}
 \alias{saveSymbols.common}
 \alias{saveSymbols.days}
-\title{save data to disk}
+\title{Save data to disk}
 \usage{
   saveSymbols.days(Symbols, base_dir = "",
     extension = "rda", env = .GlobalEnv)
@@ -10,7 +10,7 @@
     extension = "rda", env = .GlobalEnv)
 }
 \arguments{
-  \item{Symbols}{vector of character names of objects to be
+  \item{Symbols}{character vector of names of objects to be
   saved}
 
   \item{base_dir}{character.  directory in which to store
@@ -25,7 +25,7 @@
   called for side-effect.
 }
 \description{
-  save data to disk the way that \code{getSymbols.FI}
+  Save data to disk the way that \code{getSymbols.FI}
   expects it to be saved.
 }
 \details{
@@ -40,10 +40,11 @@
 \examples{
 \dontrun{
 getSymbols("SPY", src='yahoo')
-saveSymbols.common("SPY", base_dir="~/")
+dir.create("tmpdata")
+saveSymbols.common("SPY", base_dir="tmpdata")
 rm("SPY")
-getSymbols("SPY", src='FI', dir="~/", split_method='common')
-unlink("~/SPY", recursive=TRUE)
+getSymbols("SPY", src='FI', dir="tmpdata", split_method='common')
+unlink("tmpdata/SPY", recursive=TRUE)
 }
 }
 \seealso{
