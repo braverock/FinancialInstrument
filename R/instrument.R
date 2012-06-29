@@ -210,10 +210,11 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL,
   } else tclass = unique(c(type,"instrument"))
 
   if (is.currency.name(primary_id)) {
-      warning(paste(primary_id, "is the name of a currency. Using", 
-          primary_id <- tail(make.names(c(ls_instruments(), primary_id), 
-                                        unique=TRUE), 1),
-          "for the primary_id of this", type))
+      oid <- primary_id
+      primary_id <- tail(make.names(c(ls_instruments(), oid), unique=TRUE), 1)
+      warning(paste(oid, "is the name of a currency. Using", primary_id, 
+                    "for the primary_id of this", type))
+      identifiers <- c(identifiers, ticker=oid)
   }
   tmpinstr <- list(primary_id = primary_id,
                    currency = currency,
