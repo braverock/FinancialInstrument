@@ -80,7 +80,13 @@ is.currency.name <- function( x ) {
 #' 
 #' The \code{primary_id} will be coerced within reason to a valid \R variable 
 #' name by using \code{\link{make.names}}. We also remove any leading '1' digit 
-#' (a simple workaround to account for issues with the Reuters API).  
+#' (a simple workaround to account for issues with the Reuters API).  If you are
+#' defining an instrument that is not a \code{currency}, with a primary_id that
+#' already belongs to a \code{currency}, a new primary_id will be create using
+#' \code{make.names}.  For example, \code{stock("USD", currency("USD"))}, would
+#' create a stock with a primary_id of \dQuote{USD.1} instead of overwritting
+#' the \code{currency}.
+#'
 #' Please use some care to choose your primary identifiers so that R won't 
 #' complain.  If you have better regular expression code, we'd be happy to 
 #' include it.   
@@ -203,6 +209,12 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL,
       tclass="instrument" 
   } else tclass = unique(c(type,"instrument"))
 
+  if (is.currency.name(primary_id)) {
+      warning(paste(primary_id, "is the name of a currency. Using", 
+          primary_id <- tail(make.names(c(ls_instruments(), primary_id), 
+                                        unique=TRUE), 1),
+          "for the primary_id of this", type))
+  }
   tmpinstr <- list(primary_id = primary_id,
                    currency = currency,
                    multiplier = multiplier,

@@ -92,10 +92,18 @@
   The \code{primary_id} will be coerced within reason to a
   valid \R variable name by using \code{\link{make.names}}.
   We also remove any leading '1' digit (a simple workaround
-  to account for issues with the Reuters API). Please use
-  some care to choose your primary identifiers so that R
-  won't complain.  If you have better regular expression
-  code, we'd be happy to include it.
+  to account for issues with the Reuters API).  If you are
+  defining an instrument that is not a \code{currency},
+  with a primary_id that already belongs to a
+  \code{currency}, a new primary_id will be create using
+  \code{make.names}.  For example, \code{stock("USD",
+  currency("USD"))}, would create a stock with a primary_id
+  of \dQuote{USD.1} instead of overwritting the
+  \code{currency}.
+
+  Please use some care to choose your primary identifiers
+  so that R won't complain.  If you have better regular
+  expression code, we'd be happy to include it.
 
   Identifiers will also try to be discovered as regular
   named arguments passed in via \code{...}.  We currently

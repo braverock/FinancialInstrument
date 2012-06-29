@@ -141,11 +141,16 @@ parse_id <- function(x, silent=TRUE, root=NULL) {
                 if (nchar(pidhalf$suffix) == nchar(strsplit(x, "\\.")[[1]][2])) {
                     root <- pidhalf$root
                     suffix <- gsub(root, "", x)
-                } else {
+                } else if ("outright" %in% pidhalf$type) {
                     #x <- "DIA111230P139.75"
                     root <- gsub("[0-9.-]","",x) #now it looks like DIAP, SPYC or TP
                     root <- substr(root, 1,nchar(root)-1)
                     suffix <- gsub(root,"",x) #whatever isn't the root
+                } else {
+                    #x <- "USD.1" #a stock whose symbols was created by 'make.names'
+                    suffix <- ""
+                    root <- x
+                    type <- 'root'
                 }
             } else {
                 #has a dot, has a number, and a non-number, and no underscore.  Probably a strange root (e.g. "..BL2")

@@ -34,7 +34,7 @@ update_instruments.iShares <- function(Symbols, silent=FALSE) {
   tmp <- tempfile()
   lnk <- paste0("http://us.ishares.com/product_info/fund/excel_returns.htm",
                 "?assetClassCd=EQ&ticker=&asofDt=")
-  download.file(lnk, destfile=tmp)
+  download.file(lnk, destfile=tmp, quiet=TRUE)
   fr <- read.csv(tmp, skip=3, stringsAsFactors=FALSE, header=FALSE)
   colnames(fr) <- read.delim(text=readLines(tmp, 1), sep=",", header=FALSE, 
                              stringsAsFactors=FALSE)
