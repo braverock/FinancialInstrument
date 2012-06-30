@@ -1,14 +1,15 @@
 \name{find.instrument}
 \alias{find.instrument}
-\title{Find the primary_ids of instruments that contain certain
-strings}
+\title{Find the primary_ids of instruments that contain certain strings}
 \usage{
   find.instrument(text, where = "anywhere",
     Symbols = ls_instruments(), ignore.case = TRUE,
     exclude = NULL, ...)
 }
 \arguments{
-  \item{text}{string to search for}
+  \item{text}{character string containing a regular
+  expression.  This is used by \code{\link{grep}} (see
+  also) as the \code{pattern} argument.}
 
   \item{where}{if \dQuote{anywhere} all levels/attributes
   of the instruments will be searched.  Otherwise,
@@ -27,7 +28,7 @@ strings}
   \item{exclude}{character vector of names of
   levels/attributes that should not be searched.}
 
-  \item{...}{other arguments to pass throught to
+  \item{...}{other arguments to pass through to
   \code{\link{grep}}}
 }
 \value{
@@ -35,12 +36,12 @@ strings}
   contain the sought after \code{text}.
 }
 \description{
-  Uses regular expressions matching to find
+  Uses regular expression matching to find
   \code{\link{instrument}}s
 }
 \examples{
 \dontrun{
-instruments.bak <- as.list(FinancialInstrument:::.instrument)
+instruments.bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
 rm_instruments(keep.currencies=FALSE)
 currency("USD")
 stock("SPY", "USD", description="S&P 500 ETF")
@@ -54,6 +55,10 @@ find.instrument("USD")
 find.instrument("EUR")
 find.instrument("EUR", Symbols=ls_stocks())
 find.instrument("USD", "type")
+
+## Can be combined with buildHierachy
+buildHierarchy(find.instrument("ETF"), "type", "description")
+
 ## Cleanup. restore previous instrument environment
 rm_instruments(); rm_currencies()
 loadInstruments(instruments.bak)

@@ -13,12 +13,12 @@
 ###############################################################################
 
 
-#' Find the primary_ids of instruments that contain certain 
-#' strings
+#' Find the primary_ids of instruments that contain certain strings
 #' 
-#' Uses regular expressions matching to find \code{\link{instrument}}s
+#' Uses regular expression matching to find \code{\link{instrument}}s
 #' 
-#' @param text string to search for
+#' @param text character string containing a regular expression.  This is used 
+#'   by \code{\link{grep}} (see also) as the \code{pattern} argument.
 #' @param where if \dQuote{anywhere} all levels/attributes of the instruments
 #' will be searched.  Otherwise, \code{where} can be used to specify in which
 #' levels/attributes to look. (e.g. \code{c("name", "description")} would only
@@ -30,7 +30,7 @@
 #' matching.
 #' @param exclude character vector of names of levels/attributes that should not
 #' be searched.
-#' @param ... other arguments to pass throught to \code{\link{grep}}
+#' @param ... other arguments to pass through to \code{\link{grep}}
 #' @return character vector of primary_ids of instruments that contain the 
 #' sought after \code{text}.
 #' @author Garrett See
@@ -38,7 +38,7 @@
 #' \code{\link{regex}}
 #' @examples
 #' \dontrun{
-#' instruments.bak <- as.list(FinancialInstrument:::.instrument)
+#' instruments.bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
 #' rm_instruments(keep.currencies=FALSE)
 #' currency("USD")
 #' stock("SPY", "USD", description="S&P 500 ETF")
@@ -52,6 +52,10 @@
 #' find.instrument("EUR")
 #' find.instrument("EUR", Symbols=ls_stocks())
 #' find.instrument("USD", "type")
+#'
+#' ## Can be combined with buildHierachy
+#' buildHierarchy(find.instrument("ETF"), "type", "description")
+#'
 #' ## Cleanup. restore previous instrument environment
 #' rm_instruments(); rm_currencies()
 #' loadInstruments(instruments.bak)
