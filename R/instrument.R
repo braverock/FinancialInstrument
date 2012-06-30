@@ -144,10 +144,11 @@ is.currency.name <- function( x ) {
 #' instrument
 #' fund
 #' @seealso 
-#' \code{\link{exchange_rate}}
-#' \code{\link{option_series}}
-#' \code{\link{future_series}}
-#' \code{\link{spread}}
+#' \code{link{currency}},
+#' \code{\link{exchange_rate}},
+#' \code{\link{option_series}},
+#' \code{\link{future_series}},
+#' \code{\link{spread}},
 #' \code{\link{load.instruments}}
 #' @export
 instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL, 

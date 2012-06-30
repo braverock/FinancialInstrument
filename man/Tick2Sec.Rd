@@ -1,14 +1,30 @@
 \name{to_secBATV}
+\alias{alltick2sec}
 \alias{to_secBATV}
-\title{convert tick data to one-second data}
+\title{Convert tick data to one-second data}
 \usage{
   to_secBATV(x)
+
+  alltick2sec(getdir = "~/TRTH/tick/",
+    savedir = "~/TRTH/sec/", Symbols = list.files(getdir),
+    overwrite = FALSE)
 }
 \arguments{
-  \item{x}{the xts series to convert to 1 minute BATMV}
+  \item{x}{the xts series to convert to 1 minute BATV}
+
+  \item{getdir}{Directory that contains tick data}
+
+  \item{savedir}{Directory in which to save converted data}
+
+  \item{Symbols}{String names of instruments to convert}
+
+  \item{overwrite}{TRUE/FALSE. If file already exists in
+  savedir, should it be overwritten?}
 }
 \value{
-  an xts object of 1 second frequency
+  \code{to_secBATV} returns an xts object of one second
+  frequency.  \code{alltick2sec} returns a list of files
+  that were converted.
 }
 \description{
   This is like taking a snapshot of the market at the end
@@ -23,7 +39,7 @@
   \dQuote{Bid.Size}, \dQuote{Ask.Price}, \dQuote{Ask.Size},
   \dQuote{Trade.Price}, and \dQuote{Volume}
 
-  The primary purpose of this function is to reduce the
+  The primary purpose of these functions is to reduce the
   amount of data on disk so that it will take less time to
   load the data into memory.
 
@@ -38,11 +54,21 @@
   price in that second will be printed. Similarly, if there
   is a trade, and then later in the same second, there is a
   bid/ask update, the last Bid/Ask Price/Size will be used.
+
+  \code{alltick2sec} is used to convert the data of several
+  files from tick to one second frequency data.
+}
+\note{
+  \code{to_secBATV} is used by the TRTH_BackFill.R script
+  in the inst/parser directory of the FinancialInstrument
+  package.  These functions are specific to to data created
+  by that script and are not intended for more general use.
 }
 \examples{
 \dontrun{
 getSymbols("CLU1")
 system.time(xsec <- to_secBATV(CLU1))
+convert.log <- alltick2sec()
 }
 }
 \author{
