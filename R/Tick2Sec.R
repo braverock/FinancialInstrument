@@ -96,7 +96,6 @@ to_secBATV <- function(x) {
 } 
 
 
-#' @export
 #' @rdname Tick2Sec
 alltick2sec <- function(getdir = '~/TRTH/tick/', 
                         savedir = '~/TRTH/sec/', 

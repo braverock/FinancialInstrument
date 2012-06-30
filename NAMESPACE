@@ -1,6 +1,5 @@
 export(add.defined.by)
 export(add.identifier)
-export(alltick2sec)
 export(bond)
 export(bond_series)
 export(buildBasket)
