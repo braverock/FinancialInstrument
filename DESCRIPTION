@@ -55,3 +55,4 @@ Collate:
     'Notionalize.R'
     'update_instruments.iShares.R'
     'update_instruments.morningstar.R'
+    'CompareInstrumentFiles.R'
