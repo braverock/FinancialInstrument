@@ -2,22 +2,24 @@
 #'
 #' Compare the .instrument environments of two files
 #'
-#' This will load 2 instrument files (created by \code{\link{saveInstruments}})
-#' and find the differences between them.  It will produce messages 
-#' indicating the number of instruments that were added, the number of 
+#' This will load two instrument files (created by 
+#' \code{\link{saveInstruments}}) and find the differences between them.  In 
+#' addition to returning a list of difference that are found, it will produce 
+#' messages indicating the number of instruments that were added, the number of 
 #' instruments that were removed, and the number of instruments that are 
-#' different
+#' different.
 #'
-#' @param file1 file containing an instrument environment
-#' @param file2 another file containing an instrument environment
-#' @param ... arguments to pass to \code{\link{all.equal.instrument}}
+#' @param file1 A file containing an instrument environment
+#' @param file2 Another file containing an instrument environment
+#' @param ... Arguments to pass to \code{\link{all.equal.instrument}}
 #' @return A list that contains the names of all instruments that were added,
 #'   the names of all instruments that were removed, and the changes to all
 #'   instruments that were updated (per \code{\link{all.equal.instrument}}).
 #' @author Garrett See
 #' @seealso \code{\link{saveInstruments}}, \code{\link{all.equal.instrument}}
-#' @examples
-#backup current .instrument environment
+#' @examples 
+#' \dontrun{
+#' #backup current .instrument environment
 #' bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE) 
 #' old.wd <- getwd()
 #' tmpdir <- tempdir()
@@ -35,6 +37,7 @@
 #' #Clean up
 #' setwd(old.wd)
 #' reloadInstruments(bak)
+#' }
 #' @export
 CompareInstrumentFiles <- function(file1, file2, ...) {
     stopifnot(require("FinancialInstrument"))

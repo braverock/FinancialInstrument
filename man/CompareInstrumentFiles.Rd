@@ -5,12 +5,12 @@
   CompareInstrumentFiles(file1, file2, ...)
 }
 \arguments{
-  \item{file1}{file containing an instrument environment}
+  \item{file1}{A file containing an instrument environment}
 
-  \item{file2}{another file containing an instrument
+  \item{file2}{Another file containing an instrument
   environment}
 
-  \item{...}{arguments to pass to
+  \item{...}{Arguments to pass to
   \code{\link{all.equal.instrument}}}
 }
 \value{
@@ -23,14 +23,17 @@
   Compare the .instrument environments of two files
 }
 \details{
-  This will load 2 instrument files (created by
+  This will load two instrument files (created by
   \code{\link{saveInstruments}}) and find the differences
-  between them.  It will produce messages indicating the
-  number of instruments that were added, the number of
-  instruments that were removed, and the number of
-  instruments that are different
+  between them.  In addition to returning a list of
+  difference that are found, it will produce messages
+  indicating the number of instruments that were added, the
+  number of instruments that were removed, and the number
+  of instruments that are different.
 }
 \examples{
+\dontrun{
+#backup current .instrument environment
 bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
 old.wd <- getwd()
 tmpdir <- tempdir()
@@ -48,6 +51,7 @@ CompareInstrumentFiles("MyInstruments1", "MyInstruments2")
 #Clean up
 setwd(old.wd)
 reloadInstruments(bak)
+}
 }
 \author{
   Garrett See
