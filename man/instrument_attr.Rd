@@ -2,7 +2,7 @@
 \alias{instrument_attr}
 \title{Add or change an attribute of an instrument}
 \usage{
-  instrument_attr(primary_id, attr, value)
+  instrument_attr(primary_id, attr, value, ...)
 }
 \arguments{
   \item{primary_id}{primary_id of the instrument that will
@@ -13,6 +13,11 @@
 
   \item{value}{What to assign to the \code{attr} slot of
   the \code{primary_id} instrument}
+
+  \item{...}{arguments to pass to \code{getInstrument}. For
+  example, \code{type} could be provided to allow for
+  \code{primary_id} to be an identifier that is shared by
+  more that one instrument (of different types)}
 }
 \value{
   called for side-effect

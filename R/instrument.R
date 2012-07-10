@@ -1247,6 +1247,9 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' @param attr Name of the slot that will be added or changed
 #' @param value What to assign to the \code{attr} slot of the \code{primary_id} 
 #'   instrument
+#' @param ... arguments to pass to \code{getInstrument}. For example,
+#'   \code{type} could be provided to allow for \code{primary_id} to be an
+#'   identifier that is shared by more that one instrument (of different types)
 #' @return called for side-effect
 #' @note You can remove an attribute/level from an instrument by calling this 
 #'   function with \code{value=NULL}
@@ -1270,8 +1273,8 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
 #' getInstrument("SPX")
 #' }
 #' @export
-instrument_attr <- function(primary_id, attr, value) {
-    instr <- try(getInstrument(primary_id, silent=TRUE))
+instrument_attr <- function(primary_id, attr, value, ...) {
+    instr <- try(getInstrument(primary_id, silent=TRUE, ...))
     if (inherits(instr, 'try-error') || !is.instrument(instr))
         stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
     if (attr == 'primary_id') {
