@@ -54,9 +54,9 @@ CompareInstrumentFiles <- function(file1, file2, ...) {
     removed.instruments <- names(orig)[!names(orig) %in% names(new)]
     lni <- length(new.instruments)
     if (lni == 1L) { # grammar
-        message(paste("1 new instrument."))
+        message(paste("1 instrument added."))
     } else {
-        message(paste(lni, "new instruments."))
+        message(paste(lni, "instruments added."))
     }
     lri <- length(removed.instruments)
     if (lri == 1L) { #grammar
