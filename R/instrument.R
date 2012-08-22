@@ -144,7 +144,7 @@ is.currency.name <- function( x ) {
 #' instrument
 #' fund
 #' @seealso 
-#' \code{link{currency}},
+#' \code{\link{currency}},
 #' \code{\link{exchange_rate}},
 #' \code{\link{option_series}},
 #' \code{\link{future_series}},

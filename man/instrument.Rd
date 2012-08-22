@@ -142,7 +142,7 @@
   \code{\link[quantmod]{setSymbolLookup}}.
 }
 \seealso{
-  \code{link{currency}}, \code{\link{exchange_rate}},
+  \code{\link{currency}}, \code{\link{exchange_rate}},
   \code{\link{option_series}}, \code{\link{future_series}},
   \code{\link{spread}}, \code{\link{load.instruments}}
 }

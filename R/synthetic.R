@@ -99,7 +99,7 @@ synthetic.ratio <- function(primary_id , currency ,  members, memberratio, ..., 
 #' @param root_id instrument identifier for the root contract, default NULL
 #' @param suffix_id identifiers for the member contract suffixes, default NULL, will be split as \code{members}, see Details
 #' @return called for side effect. stores an instrument in .instrument environment
-#' @author author Brian Peterson, Garrett See
+#' @author Brian Peterson, Garrett See
 #' @seealso instrument, future, option_series.yahoo
 #' @examples
 #'

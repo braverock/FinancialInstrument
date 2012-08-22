@@ -128,7 +128,7 @@ spread('SPY.DIA','USD',c('SPY','DIA'),c(1,-1))
 }
 }
 \author{
-  author Brian Peterson, Garrett See
+  Brian Peterson, Garrett See
 }
 \seealso{
   instrument, future, option_series.yahoo
