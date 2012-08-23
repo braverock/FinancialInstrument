@@ -7,10 +7,8 @@ Type: Package
 LazyLoad: yes
 Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua
     Ulrich, Brian G. Peterson, Garrett See
-Description: Infrastructure for defining instruments
-    meta-data and relationships. Provides support for
-    multi-asset class and multi-currency portfolios. Still
-    in heavy development.
+Description: Infrastructure for defining meta-data and 
+    relationships for financial instruments.
 Version: 1.0
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
