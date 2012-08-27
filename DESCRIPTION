@@ -9,12 +9,13 @@ Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua
     Ulrich, Brian G. Peterson, Garrett See
 Description: Infrastructure for defining meta-data and 
     relationships for financial instruments.
-Version: 1.0
+Version: 1.0.1
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: $Date$
 Depends:
     R (>= 2.12.0),
     quantmod(>= 0.3-17),
+    xts,
     zoo(>= 1.7-5)
 Suggests:
     foreach,

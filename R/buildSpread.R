@@ -230,6 +230,7 @@ buildBasket <- buildSpread
 #' #download data and plot the closing values of a spread in one line
 #' chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")),auto.assign=FALSE)))
 #' }
+#' @import xts
 #' @export
 fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL, 
     to=NULL, session_times=NULL, notional=TRUE,
@@ -305,6 +306,7 @@ fn_SpreadBuilder <- function(prod1, prod2, ratio=1, currency='USD', from=NULL,
             Data.2 <- do.call("getSymbols", c(Symbols=prod2, gS.args, dargs))
         }
     }
+
     
     if ( (all(has.Op(Data.1), has.Cl(Data.2)) && !(all(has.Op(Data.2), has.Cl(Data.2)))) || 
 	(is.BBO(Data.1) && !is.BBO(Data.2)) ||
