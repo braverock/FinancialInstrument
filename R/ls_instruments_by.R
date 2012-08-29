@@ -63,12 +63,22 @@ ls_instruments_by <- function (what, value, in.slot=NULL, pattern=NULL, match=TR
             if (
                 if (is.null(value)) { #ls_instruments_by('type',NULL) or ls_instruments_by('name',NULL,'src')
                     if (is.null(in.slot)) { #ls_instruments_by('type',NULL) -- all instruments that have a 'type' element
-                        if (!inherits(try(tmp_instr[[what]],silent=TRUE), 'try-error') && !is.null(tmp_instr[[what]])) {TRUE} else {FALSE}
-                    } else if (!inherits(try(tmp_instr[[in.slot]][[what]],silent=TRUE), 'try-error') && !is.null(tmp_instr[[in.slot]][[what]])) {TRUE} else {FALSE}
+                        if (!inherits(try(tmp_instr[[what]],silent=TRUE), 
+                                      'try-error') && 
+                            !is.na(tmp_instr[[what]]) && 
+                            !is.null(tmp_instr[[what]])) {TRUE} else {FALSE}
+                    } else if (!inherits(try(tmp_instr[[in.slot]][[what]],
+                                             silent=TRUE), 'try-error') && 
+                        !is.na(tmp_instr[[in.slot]][[what]]) && 
+                        !is.null(tmp_instr[[in.slot]][[what]])) {TRUE} else {FALSE}
                 } else if (is.null(in.slot)) {
-                    if (!is.null(tmp_instr[[what]]) && any(tmp_instr[[what]] == value) ) {TRUE} else {FALSE}
+                    if (!is.null(tmp_instr[[what]]) && 
+                        !is.na(tmp_instr[[what]]) && 
+                        any(tmp_instr[[what]] == value) ) {TRUE} else {FALSE}
                 } else { #!is.null(value) && !is.null(in.slot)
-                    if (!is.null(tmp_instr[[in.slot]][[what]]) && any(tmp_instr[[in.slot]][[what]] == value)) {TRUE} else {FALSE}
+                    if (!is.null(tmp_instr[[in.slot]][[what]]) && 
+                        !is.na(tmp_instr[[in.slot]][[what]]) && 
+                        any(tmp_instr[[in.slot]][[what]] == value)) {TRUE} else {FALSE}
                 }
             ) tmp_symbols <- c(tmp_symbols, symbol)
         }    
