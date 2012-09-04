@@ -28,9 +28,9 @@
 }
 \note{
   \code{update_instruments.SPDR} will probably NOT work on
-  Windows.  It has to download for an https URL scheme, and
-  it uses \code{method=curl} in \code{download.file} to do
-  so.
+  Windows because in the call to \code{download.file} it
+  uses \code{method=curl} since it has to download from an
+  https URL scheme.
 }
 \examples{
 \dontrun{
@@ -54,6 +54,8 @@ buildHierarchy(c("SPY", "JNK"), "Name")
   \code{update_instruments.yahoo},
   \code{update_instruments.TTR},
   \code{twsInstrument:::update_instruments.IB},
-  \code{update_instruments.instrument}
+  \code{update_instruments.instrument},
+  \code{\link{update_instruments.morningstar},
+  \code{\link{update_instruments.masterDATA}
 }
 

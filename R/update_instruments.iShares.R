@@ -12,10 +12,12 @@
 #' @author Garrett See
 #' @seealso \code{update_instruments.yahoo}, \code{update_instruments.TTR},
 #'   \code{twsInstrument:::update_instruments.IB}, 
-#'   \code{update_instruments.instrument}
-#' @note \code{update_instruments.SPDR} will probably NOT work on Windows.  It
-#'   has to download for an https URL scheme, and it uses \code{method=curl}
-#'   in \code{download.file} to do so.
+#'   \code{update_instruments.instrument}, 
+#'   \code{\link{update_instruments.morningstar},
+#'   \code{\link{update_instruments.masterDATA}
+#' @note \code{update_instruments.SPDR} will probably NOT work on Windows 
+#'   because in the call to \code{download.file} it uses \code{method=curl} 
+#'   since it has to download from an https URL scheme.
 #' @references \url{http://us.ishares.com/home.htm}, 
 #'   \url{https://www.spdrs.com/}
 #' @examples

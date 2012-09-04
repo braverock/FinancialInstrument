@@ -34,7 +34,9 @@
 #' @return called for side-effect
 #' @author Garrett See
 #' @seealso \code{\link{update_instruments.instrument}}, 
-#' \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
+#'   \code{\link{update_instruments.morningstar},
+#'   \code{\link{update_instruments.masterDATA},
+#'   \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 #' @references Yahoo! Finance \url{finance.yahoo.com} YahooQuote
 #' \url{http://dirk.eddelbuettel.com/code/yahooquote.html} 
 #' gummy-stuff.org \url{www.gummy-stuff.org/Yahoo-data.htm} 
