@@ -58,8 +58,8 @@
 }
 \seealso{
   \code{\link{update_instruments.instrument}},
-  \code{\link{update_instruments.morningstar},
-  \code{\link{update_instruments.masterDATA},
+  \code{\link{update_instruments.morningstar}},
+  \code{\link{update_instruments.masterDATA}},
   \code{\link[TTR]{stockSymbols}}, \code{\link{stock}}
 }
 

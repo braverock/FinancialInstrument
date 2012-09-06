@@ -55,7 +55,7 @@ buildHierarchy(c("SPY", "JNK"), "Name")
   \code{update_instruments.TTR},
   \code{twsInstrument:::update_instruments.IB},
   \code{update_instruments.instrument},
-  \code{\link{update_instruments.morningstar},
-  \code{\link{update_instruments.masterDATA}
+  \code{\link{update_instruments.morningstar}},
+  \code{\link{update_instruments.masterDATA}}
 }
 
