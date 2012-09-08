@@ -1406,3 +1406,18 @@ print.instrument <- function(x, ...) {
   invisible(x)
 }
 
+#' instrument class sort method
+#' 
+#' @method sort instrument
+#' @S3method sort instrument
+#' @author Garrett See
+#' @keywords internal
+sort.instrument <- function(x, decreasing=FALSE, na.last=NA, ...) {
+    anchored <- x[c("primary_id", "currency", "multiplier", "tick_size", 
+                  "identifiers", "type")] 
+    sortable <- x[setdiff(names(x), names(anchored))]
+    out <- c(anchored, sortable[order(names(sortable), decreasing=decreasing, 
+                                      na.last=na.last, ...)])
+    class(out) <- class(x)
+    out
+}
