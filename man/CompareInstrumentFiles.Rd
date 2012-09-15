@@ -8,7 +8,9 @@
   \item{file1}{A file containing an instrument environment}
 
   \item{file2}{Another file containing an instrument
-  environment}
+  environment.  If not provided, \code{file1} will be
+  compared against the currently loaded instrument
+  environment will be used}
 
   \item{...}{Arguments to pass to
   \code{\link{all.equal.instrument}}}

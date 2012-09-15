@@ -10,7 +10,9 @@
 #' different.
 #'
 #' @param file1 A file containing an instrument environment
-#' @param file2 Another file containing an instrument environment
+#' @param file2 Another file containing an instrument environment.  If not 
+#'   provided, \code{file1} will be compared against the currently loaded 
+#'   instrument environment will be used
 #' @param ... Arguments to pass to \code{\link{all.equal.instrument}}
 #' @return A list that contains the names of all instruments that were added,
 #'   the names of all instruments that were removed, and the changes to all
@@ -40,17 +42,19 @@
 #' }
 #' @export
 CompareInstrumentFiles <- function(file1, file2, ...) {
-    force(file1); force(file2)
-    stopifnot(require("FinancialInstrument"))
+    force(file1)
     #backup current instrument environment
     bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
     # load files to be compared
     reloadInstruments(file1)
     orig <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
-    reloadInstruments(file2)
-    new <-  as.list(FinancialInstrument:::.instrument, all.names=TRUE)
-    #restore user's instrument environment
-    reloadInstruments(bak)
+    if (!missing(file2)) {
+        force(file2)
+        reloadInstruments(file2)
+        new <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
+        #restore user's instrument environment
+        reloadInstruments(bak)
+    } else new <- bak
     new.instruments <- names(new)[!names(new) %in% names(orig)]
     removed.instruments <- names(orig)[!names(orig) %in% names(new)]
     lni <- length(new.instruments)
