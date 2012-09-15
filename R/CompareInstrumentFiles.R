@@ -40,6 +40,7 @@
 #' }
 #' @export
 CompareInstrumentFiles <- function(file1, file2, ...) {
+    force(file1); force(file2)
     stopifnot(require("FinancialInstrument"))
     #backup current instrument environment
     bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
