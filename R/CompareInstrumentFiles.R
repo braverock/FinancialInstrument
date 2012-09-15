@@ -12,7 +12,7 @@
 #' @param file1 A file containing an instrument environment
 #' @param file2 Another file containing an instrument environment.  If not 
 #'   provided, \code{file1} will be compared against the currently loaded 
-#'   instrument environment will be used
+#'   instrument environment.
 #' @param ... Arguments to pass to \code{\link{all.equal.instrument}}
 #' @return A list that contains the names of all instruments that were added,
 #'   the names of all instruments that were removed, and the changes to all
