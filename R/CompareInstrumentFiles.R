@@ -52,9 +52,9 @@ CompareInstrumentFiles <- function(file1, file2, ...) {
         force(file2)
         reloadInstruments(file2)
         new <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
-        #restore user's instrument environment
-        reloadInstruments(bak)
     } else new <- bak
+    #restore user's instrument environment
+    reloadInstruments(bak)
     new.instruments <- names(new)[!names(new) %in% names(orig)]
     removed.instruments <- names(orig)[!names(orig) %in% names(new)]
     lni <- length(new.instruments)
