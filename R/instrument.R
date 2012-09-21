@@ -650,7 +650,8 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100,
 
     opts <- getOptionChain(Symbols=symbol,Exp=Exp, src="yahoo")
 
-    locals <- function(x) c(rownames(x$calls),rownames(x$puts))
+    locals <- function(x) c(grep(symbol, rownames(x$puts), value=TRUE),
+                            grep(symbol, rownames(x$calls), value=TRUE))
     if (is.null(opts$calls)) { #if is.null(Exp) we'll get back all chains
         led <- (lapply(opts, locals))  
         optnames <- unname(do.call(c, led)) #FIXME: Is this a reasonable way to get rownames?
