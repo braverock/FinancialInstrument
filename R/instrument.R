@@ -220,7 +220,7 @@ instrument<-function(primary_id , ..., currency , multiplier , tick_size=NULL,
   tmpinstr <- list(primary_id = primary_id,
                    currency = currency,
                    multiplier = multiplier,
-				   tick_size=tick_size,
+                   tick_size=tick_size,
                    identifiers = identifiers,
                    type = type)
   if(length(arg)>=1) {
@@ -649,13 +649,13 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100,
     }    
 
     opts <- getOptionChain(Symbols=symbol,Exp=Exp, src="yahoo")
-	
-	locals <- function(x) c(rownames(x$calls),rownames(x$puts))
-	if (is.null(opts$calls)) { #if is.null(Exp) we'll get back all chains
-		led <- (lapply(opts, locals))  
-		optnames <- unname(do.call(c, led))	#FIXME: Is this a reasonable way to get rownames?		
-	} else 	optnames <- locals(opts) #c(rownames(opts$calls),rownames(opts$puts))
-	
+
+    locals <- function(x) c(rownames(x$calls),rownames(x$puts))
+    if (is.null(opts$calls)) { #if is.null(Exp) we'll get back all chains
+        led <- (lapply(opts, locals))  
+        optnames <- unname(do.call(c, led)) #FIXME: Is this a reasonable way to get rownames?
+    } else optnames <- locals(opts) #c(rownames(opts$calls),rownames(opts$puts))
+
     idout <- NULL
     for (r in optnames) {
         root_id <- symbol
@@ -664,46 +664,46 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100,
         right <- substr(si,7,7)
         strike <- as.numeric(substr(si,8,15))/1000
 #        local <- paste(symbol, si, sep="   ")      
-		clean.si <- paste(expiry,right,strike,sep="")		
-		primary_id <- paste(symbol, "_", clean.si, sep="")
+        clean.si <- paste(expiry,right,strike,sep="")
+        primary_id <- paste(symbol, "_", clean.si, sep="")
 
-		#create currency if it doesn't exist	#?? Any reason not to ??	
-		tmpccy <- try(getInstrument(currency,silent=TRUE),silent=TRUE)
-		if (!inherits(tmpccy, "currency")) {
-			warning(paste("Created currency", currency, 
-                          "because it did not exist."))			
-			currency(currency) #create it
-		}
-		#create option spec if we need to.
-		tmpInstr <- try(getInstrument(paste('.',symbol,sep=""), silent=TRUE),
+        #create currency if it doesn't exist #?? Any reason not to ??
+        tmpccy <- try(getInstrument(currency,silent=TRUE),silent=TRUE)
+        if (!inherits(tmpccy, "currency")) {
+            warning(paste("Created currency", currency, 
+                          "because it did not exist."))
+            currency(currency) #create it
+        }
+        #create option spec if we need to.
+        tmpInstr <- try(getInstrument(paste('.',symbol,sep=""), silent=TRUE),
                         silent=TRUE)
-		if (!inherits(tmpInstr, "option")) {
-			warning(paste('Created option specs for root',
+        if (!inherits(tmpInstr, "option")) {
+        warning(paste('Created option specs for root',
                           paste('.', symbol, sep="")))
-			option(primary_id=paste('.',symbol,sep=""), currency=currency,
-					multiplier=multiplier, tick_size=tick_size, 
-					underlying_id=symbol)
-		}
-		#create specific option
+        option(primary_id=paste('.',symbol,sep=""), currency=currency,
+            multiplier=multiplier, tick_size=tick_size, 
+            underlying_id=symbol)
+        }
+        #create specific option
         tempseries = instrument(primary_id=primary_id, 
-				                suffix_id=clean.si, 
-				                first_traded=first_traded, 
-				                currency=currency, 
-				                multiplier=multiplier, 
-				                tick_size=tick_size, 
-				                expires=as.Date(paste(paste('20', 
+                                suffix_id=clean.si, 
+                                first_traded=first_traded, 
+                                currency=currency, 
+                                multiplier=multiplier, 
+                                tick_size=tick_size, 
+                                expires=as.Date(paste(paste('20', 
                                                             substr(expiry,1,2),
                                                             sep=""), 
                                                       substr(expiry,3,4), 
                                                       substr(expiry,5,6),
                                                             sep="-")), 
-			                    callput=switch(right, C="call", P="put"), #to be consistent with the other option_series function	
-			                    strike=strike, 
-			                    underlying_id=symbol, 
-			                    type = c("option_series","option"), 
-			                    defined.by='yahoo', assign_i=TRUE
+                                callput=switch(right, C="call", P="put"), #to be consistent with the other option_series function
+                                strike=strike, 
+                                underlying_id=symbol, 
+                                type = c("option_series","option"), 
+                                defined.by='yahoo', assign_i=TRUE
                                 )    
-#		option_series(primary_id=primary_id, suffix_id=si, exires=expiry, currency=currency,
+#option_series(primary_id=primary_id, suffix_id=si, exires=expiry, currency=currency,
 #                        callput = switch(right,C='call',P='put'))   
         idout <- c(idout, primary_id)    
     }
