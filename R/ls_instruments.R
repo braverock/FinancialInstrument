@@ -555,12 +555,16 @@ rm_currencies <- function(x) {
 
 #' @export
 #' @rdname ls_instruments
-rm_exchange_rates <- rm_FX <- function(x) {
+rm_exchange_rates <- function(x) {
     if (missing(x)) {
         x <- ls_exchange_rates()
     }
     rm(list=x[x %in% ls_exchange_rates()], pos=FinancialInstrument:::.instrument)
 }
+
+#' @export
+#' @rdname ls_instruments
+rm_FX <- rm_exchange_rates
 
 #' @export
 #' @rdname ls_instruments

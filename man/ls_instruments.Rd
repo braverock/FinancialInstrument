@@ -100,6 +100,8 @@
 
   rm_exchange_rates(x)
 
+  rm_FX(x)
+
   rm_bonds(x)
 
   rm_funds(x)
