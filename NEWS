@@ -1,0 +1,19 @@
+****************************
+** Changes in Version 1.1 **
+****************************
+NEW FEATURES
+  o sort.instrument() method to sort the components of an instrument
+  o CompareInstrumentFiles() allows passing it only 1 argument in which case it
+    will compare the currently loaded instrument environment against it.
+
+BUG FIXES
+  o import xts to prevent xts functions from being masked.
+  o ls_instruments_by() checks for NA to avoid an error.
+  o force evaluation of arguments to CompareInstrumentEnvironment()
+  o option_series.yahoo() checks the results of the call to 
+    quantmod::getOptionChain() and only uses rows that contain the ticker Symbol
+    (sometimes in the off-hours, yahoo includes a bad row)
+
+USER VISIBLE CHANGES
+  o minor updates to docs: typo fixes, updated seealso sections
+
