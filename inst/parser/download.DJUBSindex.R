@@ -46,7 +46,7 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS", download=TRUE) {
   sheetnames=c("Excess Return", "Total Return")
   for(sheet in sheetnames){  
     print(paste("Reading", sheet, "sheet... This will take a moment..."))
-    x = read.xls("DJUBS_full_hist.xls", sheet=sheet)
+    x = read.xls("DJUBS_full_hist.xls", sheet=sheet, stringsAsFactors=FALSE)
     
     # Add column names, get the descriptions to add as attributes
     colnames(x)=t(as.data.frame(apply(x[2,], FUN=as.character, MARGIN=1), stringsAsFactors=FALSE))
@@ -79,7 +79,7 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS", download=TRUE) {
       x.xts = as.xts(as.numeric(x[,i]), order.by=ISOdates)
       R.xts = Return.calculate(x.xts)
       x.xts = cbind(x.xts, R.xts)
-      colnames(x.xts)=c("Close", "Returns")
+      colnames(x.xts)=c(paste(symbolNames[i],".Close",sep=""), paste(symbolNames[i],".Returns",sep=""))
       xtsAttributes(x.xts) <- list(Description = paste(categoryNames[i], sheet, "Index"))
   
       save(x.xts, file=paste(filesroot, symbolNames[i], paste(symbolNames[i], ".rda", sep=""), sep="/"))
@@ -91,7 +91,7 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS", download=TRUE) {
       # Construct a monthly series from the daily series
       x.m.xts = to.monthly(Cl(x.xts))
       x.m.xts = cbind(x.m.xts[,4], Return.calculate(x.m.xts[,4]))
-      colnames(x.m.xts)=c("Close","Returns")
+      colnames(x.m.xts)=c(paste(symbolNames[i],".Close",sep=""), paste(symbolNames[i],".Returns",sep=""))
       # @ TODO Want to delete the last line off ONLY IF the month is incomplete
       if(tail(index(x.xts),1) != as.Date(as.yearmon(tail(index(x.xts),1)), frac=1)) {
         # That test isn't quite right, but its close.  It won't work on the first
@@ -125,33 +125,33 @@ download.DJUBS <- function (filesroot = "~/Data/DJUBS", download=TRUE) {
   print( "> getSymbols('DJUBSTR.IDX') ")
 }
 
-# Now you should be able to:
-getSymbols("DJUBSTR.IDX")
-# chartSeries(Cl(DJUBSTR.IDX), theme="white")
-charts.PerformanceSummary(DJUBSTR.IDX[,"Returns"], ylog=TRUE, wealth.index=TRUE, main = "DJUBS Total Returns Index Returns")
-tail(DJUBSTR.IDX)
-
-
-symbols=c('DJUBSTR.M.IDX','DJUBS.M.IDX','DJUBSSP.M.IDX')
-getSymbols(symbols)
-
-# Look at how Garett does this
-x=cbind(DJUBSTR.M.IDX[,2],DJUBS.M.IDX[,2],DJUBSSP.M.IDX[,2])
-y=NULL; for(i in symbols) y=c(y,attr(get(i),"Description"))
-y[3]="DJUBS Spot Index"
-colnames(x)=y
-
-# Get an inflation series from FRED
-getSymbols("CPIAUCSL",src="FRED") #load CPI for inflation
-inflation = ROC(CPIAUCSL,12,type="discrete")/12
-index(inflation) = as.Date(as.yearmon(index(inflation,1)), frac=1)
-realspot=DJUBSSP.M.IDX[,2]-inflation
-
-charts.RollingPerformance(realspot, width=12)
-# Not much of a difference during this period of low inflation
-
-
-
-# To calculate roll returns (shown on daily)
-roll.R = DJUBS[,"Returns"]-DJUBSSP[,"Returns"]
-chart.CumReturns(roll.R)
+# # Now you should be able to:
+# getSymbols("DJUBSTR.IDX")
+# # chartSeries(Cl(DJUBSTR.IDX), theme="white")
+# charts.PerformanceSummary(DJUBSTR.IDX[,"Returns"], ylog=TRUE, wealth.index=TRUE, main = "DJUBS Total Returns Index Returns")
+# tail(DJUBSTR.IDX)
+# 
+# 
+# symbols=c('DJUBSTR.M.IDX','DJUBS.M.IDX','DJUBSSP.M.IDX')
+# getSymbols(symbols)
+# 
+# # Look at how Garett does this
+# x=cbind(DJUBSTR.M.IDX[,2],DJUBS.M.IDX[,2],DJUBSSP.M.IDX[,2])
+# y=NULL; for(i in symbols) y=c(y,attr(get(i),"Description"))
+# y[3]="DJUBS Spot Index"
+# colnames(x)=y
+# 
+# # Get an inflation series from FRED
+# getSymbols("CPIAUCSL",src="FRED") #load CPI for inflation
+# inflation = ROC(CPIAUCSL,12,type="discrete")/12
+# index(inflation) = as.Date(as.yearmon(index(inflation,1)), frac=1)
+# realspot=DJUBSSP.M.IDX[,2]-inflation
+# 
+# charts.RollingPerformance(realspot, width=12)
+# # Not much of a difference during this period of low inflation
+# 
+# 
+# 
+# # To calculate roll returns (shown on daily)
+# roll.R = DJUBS[,"Returns"]-DJUBSSP[,"Returns"]
+# chart.CumReturns(roll.R)
