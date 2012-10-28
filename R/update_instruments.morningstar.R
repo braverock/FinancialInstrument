@@ -27,12 +27,15 @@ update_instruments.morningstar <- function(Symbols, silent=FALSE) {
     require(XML)
     x <- readHTMLTable(paste("http://news.morningstar.com/etf/Lists/ETFReturn",
                              "s.html?topNum=All&lastRecNum=1000&curField=8&ca",
-                             "tegory=0", sep=""), stringsAsFactors=FALSE)[[4L]]
+                             "tegory=0", sep=""), stringsAsFactors=FALSE)
+    x <- x[[which.max(sapply(x, nrow))]]
     colnames(x) <- x[2, ]
     x <- x[-c(1:3), -1]
     x <- x[!is.na(x[, 1]), ]
     x <- x[!duplicated(x[, 1]), ]
     tickers <- gsub(".*\\(|*\\)", "", x[,1])
+    x <- x[tickers != "", ]
+    tickers <- tickers[tickers != ""]
     rownames(x) <- tickers
     if (missing(Symbols)) {
         Symbols <- unique(c(ls_funds(), ls_stocks()))

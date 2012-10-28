@@ -13,6 +13,9 @@ BUG FIXES
   o option_series.yahoo() checks the results of the call to 
     quantmod::getOptionChain() and only uses rows that contain the ticker Symbol
     (sometimes in the off-hours, yahoo includes a bad row)
+  o update_instruments.morningstar is slightly more robust.  It no longer 
+    depends on the relevant table being the 4th on the page; instead it uses
+    the table with the most rows.
 
 USER VISIBLE CHANGES
   o minor updates to docs: typo fixes, updated seealso sections
