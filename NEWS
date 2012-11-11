@@ -1,22 +1,29 @@
-****************************
-** Changes in Version 1.1 **
-****************************
+Changes in Version 1.1
+======================
+
 NEW FEATURES
-  o sort.instrument() method to sort the components of an instrument
-  o CompareInstrumentFiles() allows passing it only 1 argument in which case it
-    will compare the currently loaded instrument environment against it.
+
+* sort.instrument() method to sort the components of an instrument
+
+* CompareInstrumentFiles() allows passing it only 1 argument in which case it
+  will compare the currently loaded instrument environment against it.
 
 BUG FIXES
-  o import xts to prevent xts functions from being masked.
-  o ls_instruments_by() checks for NA to avoid an error.
-  o force evaluation of arguments to CompareInstrumentEnvironment()
-  o option_series.yahoo() checks the results of the call to 
-    quantmod::getOptionChain() and only uses rows that contain the ticker Symbol
-    (sometimes in the off-hours, yahoo includes a bad row)
-  o update_instruments.morningstar is slightly more robust.  It no longer 
-    depends on the relevant table being the 4th on the page; instead it uses
-    the table with the most rows.
+
+* import xts to prevent xts functions from being masked.
+
+* ls_instruments_by() checks for NA to avoid an error.
+
+* force evaluation of arguments to CompareInstrumentEnvironment()
+
+* option_series.yahoo() checks the results of the call to 
+  quantmod::getOptionChain() and only uses rows that contain the ticker Symbol
+  (sometimes in the off-hours, yahoo includes a bad row)
+
+* update_instruments.morningstar is slightly more robust.  It no longer 
+  depends on the relevant table being the 4th on the page; instead it uses
+  the table with the most rows.
 
 USER VISIBLE CHANGES
-  o minor updates to docs: typo fixes, updated seealso sections
 
+* minor updates to docs: typo fixes, updated seealso sections
