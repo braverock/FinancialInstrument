@@ -1,3 +1,7 @@
+#!/usr/bin/env Rscript
+args <- commandArgs(TRUE)
+## cores should not be greater than the number of gigs of available memory.
+cores <- if(length(args) > 0L) { as.numeric(args[1]) } else 4L
 
 # Download Bid/Ask tick data for 15 FX pairs since May 2009 from TrueFX.com
 #
@@ -37,7 +41,7 @@ require(doMC)
 #########################
 base_dir <- "~/truefx/"
 ## cores should not be greater than the number of gigs of available memory.
-registerDoMC(cores=4) # Can replace with a different registerDo* function
+registerDoMC(cores=cores) # Can replace with a different registerDo* function
 Symbols <- c("AUDJPY", "AUDNZD", "AUDUSD", "CADJPY", "CHFJPY", "EURCHF", 
              "EURGBP", "EURJPY", "EURUSD", "GBPJPY", "GBPUSD", "NZDUSD",
              "USDCAD", "USDCHF", "USDJPY")

@@ -394,6 +394,7 @@ getSymbols.FI <- function(Symbols,
             if (!use_identifier=='primary_id') {
                 instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
             } else  instr_str <- make.names(tmp_instr[[use_identifier]])
+            if (length(instr_str) == 0L) stop("Could not find instrument. Try with use_identifier=NA")
         }
         Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str)
         ndc<-nchar(dir)

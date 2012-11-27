@@ -2,6 +2,7 @@ Changes in Version 1.1
 ======================
 
 NEW FEATURES
+------------
 
 * sort.instrument() method to sort the components of an instrument
 
@@ -9,6 +10,7 @@ NEW FEATURES
   will compare the currently loaded instrument environment against it.
 
 BUG FIXES
+---------
 
 * import xts to prevent xts functions from being masked.
 
@@ -25,5 +27,16 @@ BUG FIXES
   the table with the most rows.
 
 USER VISIBLE CHANGES
+--------------------
+
+* If use_identifier is not NA in a call to getSymbols.FI, and the instrument
+  cannot be found, there is a more informative error message.
 
 * minor updates to docs: typo fixes, updated seealso sections
+
+SANDBOX
+-------
+
+* The download.TrueFX.R script can now be called with Rscript. It accepts a 
+  trailing argument to specify the number of cores to use.
+
