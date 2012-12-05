@@ -9,6 +9,10 @@ NEW FEATURES
 * CompareInstrumentFiles() allows passing it only 1 argument in which case it
   will compare the currently loaded instrument environment against it.
 
+* If an instrument has a string like "2012-09", "2012/09", or "201209" in the
+  "expires" attribute, sort_id() will treat that instrument as expiring on the
+  first day of that month (2012-09-01).  Thanks to Jan Humme for reporting.
+
 BUG FIXES
 ---------
 
