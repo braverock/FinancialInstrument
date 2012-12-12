@@ -30,6 +30,8 @@ BUG FIXES
   depends on the relevant table being the 4th on the page; instead it uses
   the table with the most rows.
 
+* Replace paste0() calls with paste() so that R 2.15 in not required.
+
 USER VISIBLE CHANGES
 --------------------
 
