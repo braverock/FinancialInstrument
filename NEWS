@@ -1,3 +1,12 @@
+Changes in Version 1.2
+======================
+
+TESTS
+-----
+
+* Now using testthat for package testing
+
+
 Changes in Version 1.1
 ======================
 
