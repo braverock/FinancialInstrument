@@ -1,15 +1,15 @@
-Copyright: (c) 2004 - 2012
+Copyright: (c) 2004 - 2013
 Package: FinancialInstrument
 Maintainer: Garrett See <gsee000@gmail.com>
 License: GPL
 Title: Financial Instrument Model Infrastructure for R
 Type: Package
 LazyLoad: yes
-Author: Peter Carl, Dirk Eddelbuettel, Jeffrey Ryan, Joshua
-    Ulrich, Brian G. Peterson, Garrett See
+Author: Peter Carl, Brian G. Peterson, Garrett See
+Contributors: Dirk Eddelbuettel, Alexis Petit, Jeffrey Ryan, Joshua Ulrich
 Description: Infrastructure for defining meta-data and
     relationships for financial instruments.
-Version: 1.1.1
+Version: 1.1.2
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: 2012-12-12
 Depends:
