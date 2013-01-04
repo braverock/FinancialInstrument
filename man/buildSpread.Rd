@@ -28,7 +28,8 @@
   \item{auto.assign}{Assign the spread? If FALSE, the xts
   object will be returned.}
 
-  \item{env}{Environment in which to assign spread data.}
+  \item{env}{Environment holding data for members as well
+  as where spread data will be assigned.}
 }
 \value{
   If \code{auto.assign} is FALSE, a univariate xts object.
