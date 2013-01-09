@@ -36,6 +36,15 @@ require(FinancialInstrument)
 require(foreach)
 require(doMC)
 
+use.fasttime <- if (require(fasttime)) {
+  TRUE
+} else {
+  message("This would be faster if the fasttime package were installed")
+  message("see http://www.rforge.net/fasttime/")
+  FALSE
+}
+#use.data.table <- require(data.table) # for fread()... not sure this will work with doMC
+
 ################################################################################
 # Begin User Parameters #
 #########################
@@ -81,6 +90,19 @@ dir.create(tick_dir <- paste0(base_dir, "tick/"), mode="0755",
 dir.create(sec_dir <- paste0(base_dir, "sec/"), mode="0755", 
            showWarnings=FALSE)
 
+# If fasttime is loaded, use fastPOSIXct, else use as.POSIXct
+PosixFun <- if (use.fasttime) {
+  function(x) {
+    xx <- paste(paste(substring(x, 1, 4), substring(x, 5, 6), 
+                      substring(x, 7, 8), sep="-"), substring(x, 10))
+    fastPOSIXct(xx, "GMT")
+  }
+} else {
+  function(x) {
+    as.POSIXct(x, format="%Y%m%d %H:%M:%OS", tz="GMT")
+  }
+}
+
 # set some options
 if (is.null(getOption("digits.secs"))) options(digits.secs=6)
 oldTZ <- Sys.getenv("TZ")
@@ -110,7 +132,7 @@ foreach(ym = yyyymm) %:% foreach(Symbol = Symbols) %dopar% {
   unlink(uzf)
   id <- sub("/", "", fr[1, 1])
   cat("making index for ", id, "\n")
-  idx <- as.POSIXct(fr[, 2], format="%Y%m%d %H:%M:%OS", tz="GMT")
+  idx <- PosixFun(fr[, 2])
   obj <- xts(fr[, 3:4], idx, tzone="GMT")
   #colnames(obj) <- paste(id, c("Bid.Price", "Ask.Price"), sep=".")
   colnames(obj) <- c("Bid.Price", "Ask.Price")
