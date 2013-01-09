@@ -43,7 +43,6 @@ use.fasttime <- if (require(fasttime)) {
   message("see http://www.rforge.net/fasttime/")
   FALSE
 }
-#use.data.table <- require(data.table) # for fread()... not sure this will work with doMC
 
 ################################################################################
 # Begin User Parameters #
