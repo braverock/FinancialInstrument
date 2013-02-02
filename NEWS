@@ -1,6 +1,12 @@
 Changes in Version 1.2
 ======================
 
+BUG FIXES
+---------
+
+* If the end of dir was the same as Symbol, getSymbols.FI had trouble finding 
+  the files.  Test added.
+
 TESTS
 -----
 

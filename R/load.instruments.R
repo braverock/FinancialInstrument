@@ -399,8 +399,7 @@ getSymbols.FI <- function(Symbols,
         Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str)
         ndc<-nchar(dir)
         if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
-        ssd <- strsplit(dir,"/")[[1]]
-        if (identical(character(0), ssd) || (!identical(character(0), ssd) && ssd[length(ssd)] != Symbol)) dir <- paste(dir,Symbol,sep="/")
+        dir <- paste(dir, Symbol, sep="/")
         
         if(!dir=="" && !file.exists(dir)) {
             if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
