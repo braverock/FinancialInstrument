@@ -202,7 +202,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
         symbol<-list()
         symbol[[1]]<-params
         # construct $dir
-        symbol[[1]]$dir<-paste(base_dir,instr_str,sep=sepch)
+        symbol[[1]]$dir<-base_dir
         names(symbol)[1]<-instr
         new.symbols<-c(new.symbols,symbol)
     }

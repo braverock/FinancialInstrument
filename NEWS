@@ -4,8 +4,12 @@ Changes in Version 1.2
 BUG FIXES
 ---------
 
-* If the end of dir was the same as Symbol, getSymbols.FI had trouble finding 
-  the files.  Test added.
+* setSymbolLookup.FI was appending the Symbol to the directory, and 
+  getSymbols.FI was only adding the Symbol to the file path if the end of the 
+  path was not the same as the Symbol.  That meant that getSymbols.FI could not
+  be used to get data for a Symbol that was the same as the base directory.
+  getSymbols.FI now always appends the Symbol to the file path and 
+  setSymbolLookup.FI does not append it to the base_dir. Test added.
 
 TESTS
 -----
