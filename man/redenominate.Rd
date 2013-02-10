@@ -31,9 +31,11 @@
   Redenominate (change the base of) an instrument
 }
 \details{
-  If \code{x} is the name of an instrument, old_base is not
-  required and will become whatever is in the currency slot
-  of the instrument. Otherwise, old_base must be provided.
+  If \code{old_base} is not provided, \code{x} must be the
+  name of an instrument (or an object with the name of a
+  defined instrument) so that the currency attribute of the
+  instrument can be used.  Otherwise, \code{old_base} must
+  be provided.
 
   If you want to convert to JPY something that is
   denominated in EUR, you must have data for the EURJPY (or

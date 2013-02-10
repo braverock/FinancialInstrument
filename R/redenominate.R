@@ -280,9 +280,10 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
 #'
 #' Redenominate (change the base of) an instrument
 #'
-#' If \code{x} is the name of an instrument, old_base is not required 
-#' and will become whatever is in the currency slot of the instrument.  
-#' Otherwise, old_base must be provided.
+#' If \code{old_base} is not provided, \code{x} must be the name of an 
+#' instrument (or an object with the name of a defined instrument) so that the
+#' currency attribute of the instrument can be used.  Otherwise, \code{old_base}
+#' must be provided.
 #'
 #' If you want to convert to JPY something that is denominated in EUR,
 #' you must have data for the EURJPY (or JPYEUR) exchange rate. If you don't have
@@ -327,7 +328,7 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
             if (is.null(old_base)) stop(paste("If old_base is not provided, ", Symbol, ' must be defined.', sep=""))
             mult <- 1        
         } else {
-            old_base <- instr$currency
+            if (is.null(old_base)) old_base <- instr$currency
             mult <- as.numeric(instr$multiplier)    
         }
         if (is.character(x)) x <- get(Symbol,pos=env)

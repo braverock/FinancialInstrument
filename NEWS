@@ -11,6 +11,10 @@ BUG FIXES
   getSymbols.FI now always appends the Symbol to the file path and 
   setSymbolLookup.FI does not append it to the base_dir. Test added.
 
+* In redenominate, if the object was a defined instrument, the currency in the
+  instrument object would be used even if the user passed a different currency
+  in the old_base argument.  
+
 TESTS
 -----
 
