@@ -1,5 +1,9 @@
 Changes in Version 1.2
 ======================
+USER VISIBLE CHANGES
+--------------------
+* saveInstruments() gains a "compress" argument to allow for different 
+  compression than the default ("gzip")
 
 BUG FIXES
 ---------

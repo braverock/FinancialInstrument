@@ -4,7 +4,8 @@
 \alias{saveInstruments}
 \title{Save and Load all instrument definitions}
 \usage{
-  saveInstruments(file_name = "MyInstruments", dir = "")
+  saveInstruments(file_name = "MyInstruments", dir = "",
+    compress = "gzip")
 
   loadInstruments(file_name = "MyInstruments", dir = "")
 
@@ -18,6 +19,9 @@
 
   \item{dir}{Directory of file (defaults to current working
   directory. ie. "")}
+
+  \item{compress}{argument passed to \code{\link{save}},
+  default is "gzip"}
 }
 \value{
   Called for side-effect

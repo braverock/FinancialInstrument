@@ -39,6 +39,7 @@
 #' As an experimental feature, a \code{list} or \code{environment} can be passed 
 #' to \code{file_name}.
 #' @param dir Directory of file (defaults to current working directory. ie. "")
+#' @param compress argument passed to \code{\link{save}}, default is "gzip"
 #' @return Called for side-effect
 #' @author Garrett See
 #' @seealso save, load load.instrument define_stocks, define_futures,
@@ -59,7 +60,7 @@
 #' }
 #' @export 
 #' @rdname saveInstruments
-saveInstruments <- function(file_name="MyInstruments", dir="") {
+saveInstruments <- function(file_name="MyInstruments", dir="", compress="gzip") {
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
     .instrument <- FinancialInstrument:::.instrument
@@ -82,7 +83,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="") {
             sink()
             #system(paste("cat", file.name)) #for debugging    
         }
-    } else save(.instrument, file = file.name, compress='bzip2')	
+    } else save(.instrument, file = file.name, compress=compress)	
 }
 
 
