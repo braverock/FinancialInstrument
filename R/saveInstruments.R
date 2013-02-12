@@ -82,7 +82,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="") {
             sink()
             #system(paste("cat", file.name)) #for debugging    
         }
-    } else save(.instrument, file = file.name)	
+    } else save(.instrument, file = file.name, compress='bzip2')	
 }
 
 
