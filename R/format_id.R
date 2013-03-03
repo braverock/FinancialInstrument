@@ -283,7 +283,7 @@ sort_ids <- function(ids, ...) {
             }
         }
         pid <- parse_id(x, ...)
-        as.Date(paste(pid$year, pid$month, 1, sep=''), format="%Y%b%d")
+        as.Date(paste(pid$year, MC2N(pid$month), 1, sep = "-"), format = "%Y-%m-%d")
     }
     out1 <- names(sort(sapply(ids,f, ...)))
     out2 <- sort(ids[!(ids %in% out1)])

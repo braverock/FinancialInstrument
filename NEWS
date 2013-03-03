@@ -19,6 +19,11 @@ BUG FIXES
   instrument object would be used even if the user passed a different currency
   in the old_base argument.  
 
+* sort_ids() only worked in some locales when an instrument is not defined.  It 
+  now converts the month (returned by parse_id()) to numeric (with MC2N()) and 
+  uses the "%m" format in the as.Date call instead of using the month name with 
+  the (locale-specific) "%b" format.  Thanks to Alexis Petit for the patch.
+
 TESTS
 -----
 
