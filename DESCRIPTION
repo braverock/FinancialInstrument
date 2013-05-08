@@ -9,7 +9,7 @@ Author: Peter Carl, Brian G. Peterson, Garrett See
 Contributors: Dirk Eddelbuettel, Alexis Petit, Jeffrey Ryan, Joshua Ulrich
 Description: Infrastructure for defining meta-data and
     relationships for financial instruments.
-Version: 1.1.7
+Version: 1.1.8
 URL: https://r-forge.r-project.org/projects/blotter/
 Date: 2013-03-03
 Depends:
@@ -19,7 +19,7 @@ Depends:
     zoo(>= 1.7-5)
 Suggests:
     foreach,
-    XML,
+    XML (>= 3.96.1.1),
     testthat
 Collate:
     'buildHierarchy.R'
