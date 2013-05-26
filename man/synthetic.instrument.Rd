@@ -10,7 +10,8 @@
 \usage{
   synthetic(primary_id = NULL, currency = NULL,
     multiplier = 1, identifiers = NULL, assign_i = TRUE,
-    ..., members = NULL, type = "synthetic")
+    overwrite = TRUE, ..., members = NULL,
+    type = "synthetic")
 
   synthetic.instrument(primary_id, currency, members,
     memberratio, ..., multiplier = 1, tick_size = NULL,
@@ -32,7 +33,7 @@
 
   ICS_root(primary_id, currency = NULL, members,
     multiplier = NULL, identifiers = NULL, assign_i = TRUE,
-    tick_size = NULL, ...)
+    overwrite = TRUE, tick_size = NULL, ...)
 
   ICS(primary_id, assign_i = TRUE, identifiers = NULL, ...)
 }
@@ -69,6 +70,10 @@
   \item{suffix_id}{identifiers for the member contract
   suffixes, default NULL, will be split as \code{members},
   see Details}
+
+  \item{overwrite}{if FALSE and an instrument with the same
+  \code{primary_id} is already defined, an error will be
+  thrown and no instruments will be created.}
 }
 \value{
   called for side effect. stores an instrument in

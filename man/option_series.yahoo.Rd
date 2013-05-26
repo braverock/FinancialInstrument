@@ -4,7 +4,7 @@
 \usage{
   option_series.yahoo(symbol, Exp, currency = "USD",
     multiplier = 100, first_traded = NULL,
-    tick_size = NULL)
+    tick_size = NULL, overwrite = TRUE)
 }
 \arguments{
   \item{symbol}{character vector of ticker symbols of the
@@ -24,6 +24,9 @@
   chains.}
 
   \item{tick_size}{minimum price change of options.}
+
+  \item{overwrite}{if an instrument already exists, should
+  it be overwritten?}
 }
 \value{
   Called for side-effect. The instrument that is created

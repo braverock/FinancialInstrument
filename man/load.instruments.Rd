@@ -3,7 +3,8 @@
 \title{load instrument metadata into the .instrument environment}
 \usage{
   load.instruments(file = NULL, ..., metadata = NULL,
-    id_col = 1, default_type = "stock")
+    id_col = 1, default_type = "stock",
+    identifier_cols = NULL, overwrite = TRUE)
 }
 \arguments{
   \item{file}{string identifying file to load, default
@@ -19,6 +20,12 @@
 
   \item{default_type}{character string to use as instrument
   type fallback, see Details}
+
+  \item{identifier_cols}{character vector of field names to
+  be passed as identifiers, see Details}
+
+  \item{overwrite}{TRUE/FALSE. See
+  \code{\link{instrument}}.}
 }
 \description{
   This function will load instrument metadata (data about
@@ -40,6 +47,11 @@
 
   You will need to specify a \code{currency}, unless the
   instrument \code{type} is 'currency'
+
+  Use the \code{identifier_cols} argument to specify which
+  fields (if any) in the CSV are to be passed to
+  \code{\link{instrument}} as the \code{identifiers}
+  argument
 
   Typically, columns will exist for \code{multiplier} and
   \code{tick_size}.

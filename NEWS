@@ -1,9 +1,28 @@
 Changes in Version 1.2
 ======================
+
 USER VISIBLE CHANGES
 --------------------
+
 * saveInstruments() gains a "compress" argument to allow for different 
   compression than the default ("gzip")
+
+* instrument() and most of its wrappers gain an "overwrite" argument. The 
+  default is TRUE to match previous behavior -- if you try to create an 
+  instrument that already exists, the old one will be replaced by 
+  the new definition.  If overwrite=FALSE is used, there will be an error
+  if you try to define an instrument that has a primary_id that is already 
+  in use.  Thanks to Charlie Friedemann for the suggestion and discussions.
+
+* load.instruments() gains an overwrite argument that is passed through to the
+  instrument() wrapper functions.  Therefore, load.instruments() no longer 
+  checks to see if an instrument already exists.  Thanks to Charlie Friedemann
+  for the patch.
+
+* load.instruments() gains an "identifier_cols" argument that can be used to
+  pass the names of columns that are to be used as identifiers instead of as
+  normal instrument attributes.  Thanks to Charlie Friedemann for the patch.
+
 
 BUG FIXES
 ---------

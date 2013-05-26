@@ -14,7 +14,9 @@
 
 #' @export
 #' @rdname synthetic.instrument
-synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers = NULL, assign_i=TRUE, ..., members=NULL, type="synthetic")
+synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, 
+                      identifiers=NULL, assign_i=TRUE, overwrite=TRUE, ..., 
+                      members=NULL, type="synthetic")
 {
     if (missing(primary_id) || (is.null(primary_id))) primary_id <- make_spread_id(members)
     if (missing(currency) || (is.null(currency))) {
@@ -25,7 +27,10 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
             if (is.instrument(instr)) currency <- instr$currency
         }
     }
-    instrument(primary_id=primary_id , currency=currency , multiplier=multiplier , identifiers = identifiers, assign_i=assign_i, ...=..., type=type, members=members)
+    instrument(primary_id=primary_id , currency=currency , 
+               multiplier=multiplier , identifiers = identifiers, 
+               assign_i=assign_i, overwrite=overwrite, ...=..., type=type, 
+               members=members)
 }
 
 
@@ -69,7 +74,11 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
 #' @param assign_i TRUE/FALSE. Should the instrument be assigned in the \code{.instrument} environment?
 #' @param type type of instrument; wrappers do not require this.
 #' @param root_id instrument identifier for the root contract, default NULL
-#' @param suffix_id identifiers for the member contract suffixes, default NULL, will be split as \code{members}, see Details
+#' @param suffix_id identifiers for the member contract suffixes, default NULL, 
+#'   will be split as \code{members}, see Details
+#' @param overwrite if FALSE and an instrument with the same \code{primary_id}
+#'   is already defined, an error will be thrown and no instruments will be 
+#'   created.
 #' @return called for side effect. stores an instrument in .instrument environment
 #' @author Brian Peterson, Garrett See
 #' @seealso instrument, future, option_series.yahoo
@@ -81,8 +90,11 @@ synthetic <- function(primary_id=NULL, currency=NULL, multiplier=1, identifiers 
 #' spread('SPY.DIA','USD',c('SPY','DIA'),c(1,-1))
 #' }
 #' @export
-synthetic.instrument <- function (primary_id, currency, members, memberratio, ..., multiplier = 1, tick_size=NULL, 
-    identifiers = NULL, assign_i=TRUE, type = c("synthetic.instrument", "synthetic")) 
+synthetic.instrument <- function (primary_id, currency, members, 
+                                  memberratio, ..., multiplier = 1, 
+                                  tick_size=NULL, identifiers = NULL, 
+                                  assign_i=TRUE, 
+                                  type = c("synthetic.instrument", "synthetic")) 
 {
     dargs <- list(...)
     if (!is.list(members)) {
@@ -93,10 +105,10 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
                             currencies = vector(), memberpositions = NULL)
         for (member in members) {
             tmp_instr <- try(getInstrument(member, silent=TRUE))
-            if (inherits(tmp_instr, "try-error") | !is.instrument(tmp_instr)) {                
+            if (inherits(tmp_instr, "try-error") | !is.instrument(tmp_instr)) {
                 if(missing(currency) || is.null(currency)) {
-                    stop("'currency' must be provided if member instruments are not defined") 
-                    warning(paste("Instrument", member, "not found, using currency of", currency))                
+                    stop("'currency' must be provided if member instruments are not defined")
+                    warning(paste("Instrument", member, "not found, using currency of", currency))
                 } 
                 memberlist$currencies[member] <- currency
             }
@@ -117,8 +129,7 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
                     dargs$expires <- expires
             }
         }
-    }
-    else {
+    } else {
         warning("passing in members as a list not fully tested")
         if (all(do.call(c, lapply(members, is.instrument)))) { #if members is a list of instruments
             instrlist <- members
@@ -143,18 +154,19 @@ synthetic.instrument <- function (primary_id, currency, members, memberratio, ..
         primary_id <- make_spread_id(members)
     if (missing(currency) || is.null(currency)) 
         currency <- as.character(memberlist$currencies[1])
-	
+    
     synthetic(primary_id = primary_id, currency = currency, multiplier = multiplier, 
-        identifiers = identifiers, assign_i=assign_i, memberlist = memberlist, memberratio = memberratio, tick_size=tick_size,
-        ... = dargs, members = members, type = type)
+        identifiers = identifiers, assign_i=assign_i, memberlist = memberlist, 
+              memberratio = memberratio, tick_size=tick_size,
+              ... = dargs, members = members, type = type)
 }
 
 
 #' @export
 #' @rdname synthetic.instrument
-spread <- function (primary_id = NULL, currency = NULL, members, memberratio, tick_size=NULL,
-    ..., multiplier = 1, identifiers = NULL, assign_i=TRUE) 
-{
+spread <- function (primary_id = NULL, currency = NULL, members, memberratio, 
+                    tick_size=NULL, ..., multiplier = 1, identifiers = NULL, 
+                    assign_i=TRUE) {
     synthetic.instrument(primary_id = primary_id, currency = currency, 
       members = members, memberratio = memberratio, ...=..., tick_size=tick_size,
       multiplier = multiplier, identifiers = identifiers, assign_i=assign_i,
@@ -168,6 +180,7 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
 {
 ##TODO: butterfly can refer to expirations (futures) or strikes (options)
 ##TODO: A butterfly could either have 3 members that are outrights, or 2 members that are spreads
+    if (length(primary_id) > 1L) stop("primary_id must be length 1")
     if (missing(members)) {  
         pid <- parse_id(primary_id)
         root_id <- pid$root
@@ -202,16 +215,18 @@ butterfly <- function(primary_id = NULL, currency=NULL, members,tick_size=NULL, 
 
 #' @export
 #' @rdname synthetic.instrument
-guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL, root_id=NULL, suffix_id=NULL, members = NULL, memberratio = c(1,-1), ..., 
-    multiplier = NULL, identifiers = NULL, assign_i=TRUE, tick_size=NULL)
-{
+guaranteed_spread <- calendar_spread <- 
+    function (primary_id=NULL, currency=NULL, root_id=NULL, suffix_id=NULL, 
+              members=NULL, memberratio=c(1,-1), ..., multiplier=NULL, 
+              identifiers = NULL, assign_i=TRUE, 
+              tick_size=NULL) {
 
-	if (!is.null(suffix_id)) {
-		if(!is.null(root_id)) {
-			id<- paste(root_id,suffix_id,sep="_")
-		} else {
-			id <- paste(primary_id, suffix_id, sep = "_")
-		}
+    if (!is.null(suffix_id)) {
+        if(!is.null(root_id)) {
+            id<- paste(root_id,suffix_id,sep="_")
+        } else {
+            id <- paste(primary_id, suffix_id, sep = "_")
+        }
     } else id <- primary_id
 
     if (is.null(id) && !is.null(members)) id <- make_spread_id(members, root=root_id)
@@ -221,21 +236,21 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
     if (is.null(suffix_id)) suffix_id <- parse_id(id)$suffix
     if (is.null(root_id)) root_id <- parse_id(id)$root
 
-	if (is.null(members)) {
-		#construct members from suffix_id and either primary_id or root_id
-		members <- unlist(strsplit(suffix_id, "[-;:_,\\.]"))
-		members <- paste(root_id,members, sep ="_")
-	}
-	
-	# go get other instrument quantities from the root contract
-	root_contract<-try(getInstrument(root_id,silent=TRUE,type='future'))
+    if (is.null(members)) {
+        #construct members from suffix_id and either primary_id or root_id
+        members <- unlist(strsplit(suffix_id, "[-;:_,\\.]"))
+        members <- paste(root_id,members, sep ="_")
+    }
+    
+    # go get other instrument quantities from the root contract
+    root_contract<-try(getInstrument(root_id,silent=TRUE,type='future'))
     if (inherits(root_contract, 'try-error')) 
         root_contract <-try(getInstrument(root_id,silent=TRUE,type='option'))
-	if(is.instrument(root_contract)){
-		if(is.null(currency)) currency <- root_contract$currency
-		if(is.null(multiplier)) multiplier <- root_contract$multiplier
-		if(is.null(tick_size)) tick_size <-  root_contract$tick_size
-	} else {
+    if(is.instrument(root_contract)){
+        if(is.null(currency)) currency <- root_contract$currency
+        if(is.null(multiplier)) multiplier <- root_contract$multiplier
+        if(is.null(tick_size)) tick_size <-  root_contract$tick_size
+    } else {
         if (is.null(multiplier)) {
             message(paste(root_id, 'is not defined, using multiplier of 1'))
             multiplier <- 1
@@ -251,11 +266,11 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
             }
         }
     }
-	
+    
     synthetic.instrument(primary_id = id, currency = currency, members = members, 
-	memberratio = memberratio, multiplier = multiplier, identifiers = identifiers, assign_i=assign_i,
-	tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
-	"synthetic.instrument", "synthetic", 'instrument'))
+    memberratio = memberratio, multiplier = multiplier, identifiers = identifiers, assign_i=assign_i,
+    tick_size=tick_size, ... = ..., type = c("guaranteed_spread", "spread", 
+    "synthetic.instrument", "synthetic", 'instrument'))
 }
 
 
@@ -263,7 +278,15 @@ guaranteed_spread <- calendar_spread <- function (primary_id=NULL, currency=NULL
 #' @export
 #' @rdname synthetic.instrument
 ICS_root <- function(primary_id, currency = NULL, members, multiplier=NULL, 
-                    identifiers=NULL, assign_i=TRUE, tick_size=NULL, ...) {
+                    identifiers=NULL, assign_i=TRUE, overwrite=TRUE, 
+                     tick_size=NULL, ...) {
+    if (length(primary_id) < 1) stop("primary_id must be length 1")
+    if (!isTRUE(overwrite) && isTRUE(assign_i) && 
+            is.instrument.name(primary_id)) {
+        stop("overwrite is FALSE and primary_id ", sQuote(primary_id), 
+             "is already in use.")
+    }
+
     # future roots may begin with a dot; make sure we've got the primary_ids
     members <- do.call(c, lapply(members, function(x) {
         instr <- try(getInstrument(x, type='future', silent=TRUE))

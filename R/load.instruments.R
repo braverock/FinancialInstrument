@@ -27,6 +27,8 @@
 #' 
 #' You will need to specify a \code{currency}, unless the instrument \code{type} is 'currency'
 #' 
+#' Use the \code{identifier_cols} argument to specify which fields (if any) in the CSV are to be passed to \code{\link{instrument}} as the \code{identifiers} argument
+#'
 #' Typically, columns will exist for \code{multiplier} and \code{tick_size}.
 #' 
 #' Any other columns necessary to define the specified instrument type will also be required to avoid fatal Errors.  
@@ -38,6 +40,8 @@
 #' @param metadata optional, data.frame containing metadata, default NULL, see Details
 #' @param id_col numeric column containing id if primary_id isn't defined, default 1
 #' @param default_type character string to use as instrument type fallback, see Details
+#' @param identifier_cols character vector of field names to be passed as identifiers, see Details
+#' @param overwrite TRUE/FALSE. See \code{\link{instrument}}.
 #' @seealso 
 #' \code{\link{loadInstruments}},
 #' \code{\link{instrument}}, 
@@ -52,7 +56,7 @@
 #'
 #' }
 #' @export
-load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_type='stock') {
+load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_type='stock', identifier_cols=NULL, overwrite=TRUE) {
 
     if(is.null(file) && is.null(metadata)) stop("You must pass either a file identifier string or a metadata object to be converted.")
     if(is.null(metadata)){
@@ -87,51 +91,55 @@ load.instruments <- function (file=NULL, ..., metadata=NULL, id_col=1, default_t
     
     #now process the data
     for(rn in 1:nrow(filedata)){
-        if(!isTRUE(is.instrument(try(getInstrument(as.character(filedata[rn,id_col]),silent=TRUE),silent=TRUE)))){
-            type=as.character(filedata[rn,'type'])
-            arg<-as.list(filedata[rn,])
-            if(type=='spread' || type=='guaranteed_spread'){
-				if(!is.null(arg$members)){
-					arg$members<-unlist(strsplit(arg$members,','))
-				}
-				if(!is.null(arg$memberratio)){
-					arg$memberratio<-unlist(strsplit(arg$memberratio,','))
-				}
-				if(!is.null(arg$ratio)){
-					arg$memberratio<-unlist(strsplit(arg$ratio,','))
-				}
-			}
-            arg$type<-NULL
-            arg<-arg[!is.na(arg)]
-            arg<-arg[!arg==""]
-            if (set_primary) {
-                arg$primary_id<-filedata[rn,id_col]
+        type <- as.character(filedata[rn,'type'])
+        arg <- as.list(filedata[rn,])
+        if(type=='spread' || type=='guaranteed_spread'){
+            if(!is.null(arg$members)){
+                arg$members<-unlist(strsplit(arg$members,','))
             }
+            if(!is.null(arg$memberratio)){
+                arg$memberratio<-unlist(strsplit(arg$memberratio,','))
+            }
+            if(!is.null(arg$ratio)){
+                arg$memberratio<-unlist(strsplit(arg$ratio,','))
+            }
+        }
+        arg$type <- NULL
+        arg <- arg[!is.na(arg)]
+        arg <- arg[!arg==""]
+        if (set_primary) {
+            arg$primary_id<-filedata[rn,id_col]
+        }
+        
+        #do some name cleanup to make up for Reuters silliness
+        if(substr(arg$primary_id,1,1)==1) arg$primary_id <- substr(arg$primary_id,2,nchar(arg$primary_id))
+        arg$primary_id<-make.names(arg$primary_id)
+        if(!is.null(arg$X.RIC)){
+            if(substr(arg$X.RIC,1,1)==1) arg$X.RIC <- substr(arg$X.RIC,2,nchar(arg$X.RIC))
+        }            
+        if(!is.null(arg$RIC)){
+            if(substr(arg$RIC,1,1)==1) arg$RIC <- substr(arg$RIC,2,nchar(arg$RIC))
+        }            
+        if(length(dotargs)) arg<-c(arg,dotargs)
+        
+        if(!is.null(identifier_cols) && any(identifier_cols %in% names(arg))){
+            arg$identifiers <- arg[names(arg) %in% identifier_cols]
+            arg[identifier_cols] <- NULL
+        }
+        
+        arg$overwrite <- overwrite
+        if(is.function(try(match.fun(type),silent=TRUE))){
+            out <- try(do.call(type,arg))
             
-            #do some name cleanup to make up for Reuters silliness
-            if(substr(arg$primary_id,1,1)==1) arg$primary_id <- substr(arg$primary_id,2,nchar(arg$primary_id))
-            arg$primary_id<-make.names(arg$primary_id)
-            if(!is.null(arg$X.RIC)){
-                if(substr(arg$X.RIC,1,1)==1) arg$X.RIC <- substr(arg$X.RIC,2,nchar(arg$X.RIC))
-            }            
-            if(!is.null(arg$RIC)){
-                if(substr(arg$RIC,1,1)==1) arg$RIC <- substr(arg$RIC,2,nchar(arg$RIC))
-            }            
-            if(length(dotargs)) arg<-c(arg,dotargs)
             
-            if(is.function(try(match.fun(type),silent=TRUE))){
-                out <- try(do.call(type,arg))
-                #TODO recover gracefully?
-            } else {
-                # the call for a function named for type didn't work, so we'll try calling instrument as a generic
-				type=c(type,"instrument")
-				arg$type<-type # set the type
-                arg$assign_i<-TRUE # assign to the environment
-				try(do.call("instrument",arg))
-			}
-        } else {   
-            warning(filedata[rn,id_col]," already exists in the .instrument environment")
-        } # end instrument check
+            #TODO recover gracefully?
+        } else {
+            # the call for a function named for type didn't work, so we'll try calling instrument as a generic
+            type=c(type,"instrument")
+            arg$type<-type # set the type
+            arg$assign_i<-TRUE # assign to the environment
+            try(do.call("instrument",arg))
+        }
     } # end loop on rows
 }
 

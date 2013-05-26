@@ -4,7 +4,8 @@
 \usage{
   exchange_rate(primary_id = NULL, currency = NULL,
     counter_currency = NULL, tick_size = 0.01,
-    identifiers = NULL, assign_i = TRUE, ...)
+    identifiers = NULL, assign_i = TRUE, overwrite = TRUE,
+    ...)
 }
 \arguments{
   \item{primary_id}{string identifier, usually expressed as
@@ -24,6 +25,10 @@
   \item{assign_i}{TRUE/FALSE. Should the instrument be
   assigned in the \code{.instrument} environment? (Default
   TRUE)}
+
+  \item{overwrite}{\code{TRUE} by default.  If
+  \code{FALSE}, an error will be thrown if there is already
+  an instrument defined with the same \code{primary_id}.}
 
   \item{...}{any other passthru parameters}
 }

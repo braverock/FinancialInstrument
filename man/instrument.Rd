@@ -10,29 +10,30 @@
 \usage{
   instrument(primary_id, ..., currency, multiplier,
     tick_size = NULL, identifiers = NULL, type = NULL,
-    assign_i = FALSE)
+    assign_i = FALSE, overwrite = TRUE)
 
   stock(primary_id, currency = NULL, multiplier = 1,
     tick_size = 0.01, identifiers = NULL, assign_i = TRUE,
-    ...)
+    overwrite = TRUE, ...)
 
   fund(primary_id, currency = NULL, multiplier = 1,
     tick_size = 0.01, identifiers = NULL, assign_i = TRUE,
-    ...)
+    overwrite = TRUE, ...)
 
   future(primary_id, currency, multiplier,
     tick_size = NULL, identifiers = NULL, assign_i = TRUE,
-    ..., underlying_id = NULL)
+    overwrite = TRUE, ..., underlying_id = NULL)
 
   option(primary_id, currency, multiplier,
     tick_size = NULL, identifiers = NULL, assign_i = TRUE,
-    ..., underlying_id = NULL)
+    overwrite = TRUE, ..., underlying_id = NULL)
 
   currency(primary_id, identifiers = NULL, assign_i = TRUE,
     ...)
 
   bond(primary_id, currency, multiplier, tick_size = NULL,
-    identifiers = NULL, assign_i = TRUE, ...)
+    identifiers = NULL, assign_i = TRUE, overwrite = TRUE,
+    ...)
 }
 \arguments{
   \item{primary_id}{String describing the unique ID for the
@@ -64,6 +65,11 @@
   \item{assign_i}{TRUE/FALSE. Should the instrument be
   assigned to the \code{.instrument} environment?  Default
   is FALSE for \code{instrument}, TRUE for wrappers.}
+
+  \item{overwrite}{TRUE/FALSE. Should existing instruments
+  with the same primary_id be overwritten? Default is TRUE.
+  If FALSE, an error will be thrown and the instrument will
+  not be created.}
 }
 \description{
   All 'currency' instruments must be defined before
@@ -122,6 +128,9 @@
   \code{instrument} prior to further processing (and
   presumably assignment) or to test your parameters before
   assignment.
+
+  If \code{overwrite=FALSE} is used, an error will be
+  thrown if any \code{primary_id}s are already in use.
 
   As of version 0.10.0, the .instrument environment is
   located at the top level of the package. i.e.
