@@ -25,3 +25,15 @@ test_that("stock overwrite throws errors", {
   expect_true(!getInstrument("BBB", type="stock", silent=TRUE))
 })
 
+test_that("loadInstruments from list", {
+  rm_instruments(keep.currencies=FALSE)
+  stock(c("A", "B"), currency("USD")) # put some stuff in the .instrument env
+  L <- stock(c("DD", "EE"), "USD", assign_i=FALSE)
+  expect_true(!is.instrument.name("DD"))
+  loadInstruments(L)
+  expect_true(is.instrument.name("DD"))
+  expect_true(is.instrument.name("A"))
+  reloadInstruments(L)
+  expect_true(!is.instrument.name("A"))
+  expect_true(is.instrument.name("DD"))
+})

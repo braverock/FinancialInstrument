@@ -93,9 +93,13 @@ loadInstruments <-function(file_name="MyInstruments", dir="") {
     require("utils")
     if (is.environment(file_name) || is.list(file_name)) {
         ilist <- as.list(file_name)
+        if (!all(vapply(ilist, function(x) length(x[["primary_id"]]) == 1L, 
+                        TRUE))) {
+            stop("all instruments must have exactly one primary_id")
+        }
         for (i in seq_along(ilist)) {
-            assign(names(ilist)[i], ilist[[i]],
-                    pos=FinancialInstrument:::.instrument)
+            assign(ilist[[i]][["primary_id"]], ilist[[i]],
+                   pos=FinancialInstrument:::.instrument)
         }
         return(invisible(NULL))
 	}

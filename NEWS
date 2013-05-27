@@ -23,6 +23,8 @@ USER VISIBLE CHANGES
   pass the names of columns that are to be used as identifiers instead of as
   normal instrument attributes.  Thanks to Charlie Friedemann for the patch.
 
+* loadInstruments() can now load unnamed lists of instruments because it now
+  uses the primary_ids directly instead of the names of the list/environment
 
 BUG FIXES
 ---------
