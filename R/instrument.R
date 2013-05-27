@@ -264,9 +264,11 @@ stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01,
              call.=FALSE)
     }
     if (length(primary_id) > 1) {
-        return(unname(sapply(primary_id, stock, currency=currency, 
-                             multiplier=multiplier, tick_size=tick_size, 
-                             identifiers=identifiers, ...=...)))
+        out <- sapply(primary_id, stock, currency=currency, 
+                      multiplier=multiplier, tick_size=tick_size, 
+                      identifiers=identifiers, assign_i=assign_i,
+                      ...=..., simplify=assign_i)
+        return(if (assign_i) unname(out) else out)
     }
     instrument(primary_id=primary_id, currency=currency, multiplier=multiplier, 
                tick_size=tick_size, identifiers = identifiers, ..., 
@@ -287,9 +289,13 @@ fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01,
                    paste(intersect(primary_id, li), collapse=", ")), 
              call.=FALSE)
     }
-    if (length(primary_id) > 1) return(unname(sapply(primary_id, fund,
-        currency=currency, multiplier=multiplier, tick_size=tick_size, 
-        identifiers=identifiers, ...=...)))
+    if (length(primary_id) > 1) {
+        out <- sapply(primary_id, fund, currency=currency, 
+                      multiplier=multiplier, tick_size=tick_size, 
+                      identifiers=identifiers, assign_i=assign_i, ...=..., 
+                      simplify=assign_i)
+        return(if (assign_i) unname(out) else out)
+    }
     instrument(primary_id=primary_id, currency=currency, 
                multiplier=multiplier, tick_size=tick_size, 
                identifiers=identifiers, ..., type="fund", assign_i=assign_i)
@@ -429,10 +435,11 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL,
                    paste(intersect(primary_id, li), collapse=", ")), 
                call.=FALSE)
       }
-      return(unname(sapply(primary_id, future_series,
-          root_id=root_id, suffix_id=suffix_id, first_traded=first_traded, 
-          expires=expires, identifiers = identifiers, assign_i=assign_i, 
-          ...=...)))
+      out <- sapply(primary_id, future_series, root_id=root_id, 
+                    suffix_id=suffix_id, first_traded=first_traded, 
+                    expires=expires, identifiers = identifiers, 
+                    assign_i=assign_i, ...=..., simplify=assign_i)
+      return(if (assign_i) unname(out) else out)
   } else if (is.null(root_id) && !is.null(suffix_id) && 
              parse_id(primary_id)$type == 'root') {
       #if we have primary_id, but primary_id looks like a root_id, and we have 
@@ -597,10 +604,12 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL,
           stop(paste("'first_traded' and 'expires' must be NULL",
                      "if calling with multiple primary_ids"))
       }
-      return(unname(sapply(primary_id, option_series, 
-          root_id=root_id, suffix_id=suffix_id, first_traded=first_traded,
-          expires=expires, callput=callput, strike=strike, 
-          identifiers=identifiers, assign_i=assign_i, ...=...)))
+      out <- sapply(primary_id, option_series, root_id=root_id, 
+                    suffix_id=suffix_id, first_traded=first_traded, 
+                    expires=expires, callput=callput, strike=strike, 
+                    identifiers=identifiers, assign_i=assign_i, ...=..., 
+                    simplify=assign_i)
+      return(if (assign_i) unname(out) else out)
     } else if (is.null(root_id) && !is.null(suffix_id) && 
                parse_id(primary_id)$type == 'root') {
           #if we have primary_id, but primary_id looks like a root_id, and we 
@@ -809,8 +818,9 @@ currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
         }
     }
     if (length(primary_id) > 1) {
-        return(unname(sapply(primary_id, currency, 
-                             identifiers=identifiers, ...=...)))
+        out <- sapply(primary_id, currency, identifiers=identifiers, 
+                      assign_i=assign_i, ...=..., simplify=assign_i)
+        return(if (assign_i) unname(out) else out)
     }
     if (is.null(identifiers)) identifiers <- list()
     ccy <- try(getInstrument(primary_id,type='currency',silent=TRUE))
@@ -903,8 +913,9 @@ exchange_rate <- function (primary_id = NULL, currency = NULL,
   }
 
   if (length(primary_id) > 1) {
-    return(unname(sapply(primary_id, exchange_rate, identifiers=identifiers, 
-                         ...=...)))
+    out <- sapply(primary_id, exchange_rate, identifiers=identifiers, 
+                         assign_i=assign_i, ...=..., simplify=assign_i)
+    return(if (assign_i) unname(out) else out)
   }
   if (is.null(currency)) currency <- substr(primary_id,4,6)
   if (is.null(counter_currency)) counter_currency <- substr(primary_id,1,3)

@@ -43,6 +43,14 @@ BUG FIXES
   uses the "%m" format in the as.Date call instead of using the month name with 
   the (locale-specific) "%b" format.  Thanks to Alexis Petit for the patch.
 
+* when instrument() wrappers were called with vectors of symbols and 
+  assign_i=FALSE, the symbols were being returned instead of the instrument
+  objects.  Now, when `assign_i=FALSE` and `length(primary_id) > 1`, a 
+  named list of instruments will be returned.  Named lists of instruments are 
+  easy to work with since they can be passed directly to (re)loadInstruments(), 
+  or coerced to an environment with as.environment()
+
+
 TESTS
 -----
 
