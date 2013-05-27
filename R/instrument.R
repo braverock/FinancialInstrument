@@ -256,10 +256,10 @@ stock <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01,
     if (is.null(currency)) stop ("'currency' is a required argument")
     if (!isTRUE(overwrite) && isTRUE(assign_i) &&
         any(in.use <- primary_id %in% (li <- ls_instruments()))) {
-        stop(paste(paste0("In stock(...) : ",
+        stop(paste(paste("In stock(...) : ",
                           "overwrite is FALSE and primary_id", 
                           if (sum(in.use) > 1) "s are" else " is", 
-                          " already in use:\n"),
+                          " already in use:\n", sep=""),
                    paste(intersect(primary_id, li), collapse=", ")), 
              call.=FALSE)
     }
@@ -282,10 +282,10 @@ fund <- function(primary_id , currency=NULL , multiplier=1 , tick_size=.01,
     if (is.null(currency)) stop ("'currency' is a required argument")
     if (!isTRUE(overwrite) && isTRUE(assign_i) &&
         any(in.use <- primary_id %in% (li <- ls_instruments()))) {
-        stop(paste(paste0("In fund(...) : ",
+        stop(paste(paste("In fund(...) : ",
                           "overwrite is FALSE and primary_id", 
                           if (sum(in.use) > 1) "s are" else " is", 
-                          " already in use:\n"),
+                          " already in use:\n", sep=""),
                    paste(intersect(primary_id, li), collapse=", ")), 
              call.=FALSE)
     }
@@ -751,10 +751,10 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100,
     if (!isTRUE(overwrite)) {
         new.ids <- unname((u <- unlist(id.list))[grep("primary_id", names(u))])
         if (any(in.use <- new.ids %in% (li <- ls_instruments()))) {
-            stop(paste(paste0("In option_series.yahoo(...) : ",
+            stop(paste(paste("In option_series.yahoo(...) : ",
                               "overwrite is FALSE and primary_id", 
                               if (sum(in.use) > 1) "s are" else " is", 
-                              " already in use:\n"),
+                              " already in use:\n", sep=""),
                        paste(intersect(new.ids, li), collapse=", ")), 
                  call.=FALSE)
         }
@@ -809,10 +809,10 @@ currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
     if (hasArg("overwrite")) {
         if (!list(...)$overwrite && isTRUE(assign_i) &&
             any(in.use <- primary_id %in% (li <- ls_instruments()))) {
-            stop(paste(paste0("In currency(...) : ",
+            stop(paste(paste("In currency(...) : ",
                               "overwrite is FALSE and primary_id", 
                               if (sum(in.use) > 1) "s are" else " is", 
-                              " already in use:\n"),
+                              " already in use:\n", sep=""),
                        paste(intersect(primary_id, li), collapse=", ")), 
                 call.=FALSE)
         }
@@ -904,10 +904,10 @@ exchange_rate <- function (primary_id = NULL, currency = NULL,
   }
   if (!isTRUE(overwrite) && isTRUE(assign_i) &&
         any(in.use <- primary_id %in% (li <- ls_instruments()))) {
-        stop(paste(paste0("In exchange_rate(...) : ",
+        stop(paste(paste("In exchange_rate(...) : ",
                           "overwrite is FALSE and primary_id", 
                           if (sum(in.use) > 1) "s are" else " is", 
-                          " already in use:\n"),
+                          " already in use:\n", sep=""),
                    paste(intersect(primary_id, li), collapse=", ")), 
              call.=FALSE)
   }
