@@ -6,7 +6,6 @@ Title: Financial Instrument Model Infrastructure for R
 Type: Package
 LazyLoad: yes
 Author: Peter Carl, Brian G. Peterson, Garrett See
-Contributors: Dirk Eddelbuettel, Alexis Petit, Jeffrey Ryan, Joshua Ulrich
 Description: Infrastructure for defining meta-data and
     relationships for financial instruments.
 Version: 1.1.9

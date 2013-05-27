@@ -261,10 +261,9 @@ addTA(Ad(IBM.EUR), on=1, col='red')
 }
 }
 \author{
-  Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey
-  Ryan, Garrett See, Joshua Ulrich
+  Peter Carl, Brian G. Peterson, Garrett See,
 
-  Maintainer: Garrett See \email{gsee000@gmail.com}
+  Maintainer: G See \email{gsee000@gmail.com}
 }
 \seealso{
   \code{\link[xts:xts-package]{xts}},

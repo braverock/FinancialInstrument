@@ -102,13 +102,10 @@
 #' @docType package
 #' @author
 #' Peter Carl,
-#' Dirk Eddelbuettel, 
 #' Brian G. Peterson,
-#' Jeffrey Ryan, 
 #' Garrett See,
-#' Joshua Ulrich 
 #'
-#' Maintainer: Garrett See \email{gsee000@@gmail.com}
+#' Maintainer: G See \email{gsee000@@gmail.com}
 #' @keywords package
 #' @seealso
 #' \code{\link[xts:xts-package]{xts}},
