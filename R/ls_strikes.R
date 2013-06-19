@@ -33,7 +33,7 @@
 #' }
 #' @export
 ls_strikes <- function(pattern=NULL) {
-    symbols <- ls_options(pattern)
+    symbols <- ls_option_series(pattern, match=FALSE)
     tmp_symbols <- NULL
     for (symbol in symbols) {
         tmp_instr <- try(get(symbol,pos=FinancialInstrument:::.instrument),silent=TRUE)
