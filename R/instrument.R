@@ -745,7 +745,6 @@ option_series.yahoo <- function(symbol, Exp, currency="USD", multiplier=100,
                     primary_id = paste(symbol, "_", clean.si, sep="")))
     }
 
-    CleanID(optnames[4], "GS")
     id.list <- lapply(optnames, CleanID, symbol)
     
     if (!isTRUE(overwrite)) {
