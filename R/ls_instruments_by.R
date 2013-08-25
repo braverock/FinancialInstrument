@@ -57,7 +57,7 @@ ls_instruments_by <- function (what, value, in.slot=NULL, pattern=NULL, match=TR
     if (missing(value)) value <- NULL
     tmp_symbols <- NULL 
     for (symbol in symbols) {
-        tmp_instr <- try(get(symbol, pos = FinancialInstrument:::.instrument),silent=TRUE)
+        tmp_instr <- try(get(symbol, pos = .instrument),silent=TRUE)
         #TODO: clean this up
         if (is.instrument(tmp_instr)) {
             if (

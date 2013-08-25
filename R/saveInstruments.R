@@ -63,7 +63,6 @@
 saveInstruments <- function(file_name="MyInstruments", dir="", compress="gzip") {
 	if (!is.null(dir) && !dir == "" && substr(dir,nchar(dir),nchar(dir)) != "/")
 		dir <- paste(dir,"/",sep="")
-    .instrument <- FinancialInstrument:::.instrument
     ssfn <- strsplit(file_name, "\\.")[[1]]
 	extension <- if (tolower(tail(ssfn, 1)) %in% c('rda', 'rdata', 'r', 'txt')) {
         file_name <- paste(ssfn[1:(length(ssfn)-1)], collapse=".")
@@ -76,7 +75,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="", compress="gzip") 
             "require(FinancialInstrument)\n\n", file=file.name)
         for (s in ls_instruments()) {
             sink(file.name, append=TRUE)
-            cat('assign("', s, '", pos=FinancialInstrument:::.instrument, ', 
+            cat('assign("', s, '", pos=.instrument, ', 
                 'value=\n', sep="", append=TRUE)
             dput(getInstrument(s))
             cat(")\n\n", append=TRUE)
@@ -99,7 +98,7 @@ loadInstruments <-function(file_name="MyInstruments", dir="") {
         }
         for (i in seq_along(ilist)) {
             assign(ilist[[i]][["primary_id"]], ilist[[i]],
-                   pos=FinancialInstrument:::.instrument)
+                   pos=.instrument)
         }
         return(invisible(NULL))
 	}
@@ -122,7 +121,7 @@ loadInstruments <-function(file_name="MyInstruments", dir="") {
         il <- ls(tmpenv$.instrument, all.names=TRUE)
         for (i in il) {
              assign(i, tmpenv$.instrument[[i]], 
-                    pos=FinancialInstrument:::.instrument, inherits=FALSE)
+                    pos=.instrument, inherits=FALSE)
         }
     }
 }

@@ -376,7 +376,7 @@ ICS <- function(primary_id, assign_i=TRUE, identifiers = NULL, ...)
     })
 
     # Check to make sure members exist in instrument envir.  Warn if not.
-    defined <- sapply(members, exists, where=FinancialInstrument:::.instrument)
+    defined <- sapply(members, exists, where=.instrument)
     if (any(defined == FALSE)) warning("No instrument definition found for ", 
                                        paste(members[!defined], collapse=" "))
     memberratio <- suff.2

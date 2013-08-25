@@ -108,7 +108,7 @@ is.currency.name <- function( x ) {
 #' \code{primary_id}s are already in use.
 #' 
 #' As of version 0.10.0, the .instrument environment is located at the top level
-#' of the package. i.e. \code{FinancialInstrument:::.instrument}.
+#' of the package. i.e. \code{.instrument}.
 #' 
 #' \code{future} and \code{option} are used to define the contract specs of a 
 #' series of instruments.  The \code{primary_id} for these can begin with 1 or 
@@ -244,7 +244,7 @@ instrument <- function(primary_id , ..., currency , multiplier , tick_size=NULL,
   
   if(assign_i)  {
       assign(primary_id, tmpinstr, 
-             envir=as.environment(FinancialInstrument:::.instrument) )
+             envir=as.environment(.instrument) )
       return(primary_id)  
   } else return(tmpinstr) 
 }
@@ -321,7 +321,7 @@ future <- function(primary_id , currency , multiplier , tick_size=NULL,
     if(is.null(underlying_id)) {
         warning("underlying_id should only be NULL for cash-settled futures")
     } else {
-        if(!exists(underlying_id, where=FinancialInstrument:::.instrument,
+        if(!exists(underlying_id, where=.instrument,
                    inherits=TRUE)) {
             warning("underlying_id not found") # assumes that we know where to look
         }
@@ -478,7 +478,7 @@ future_series <- function(primary_id, root_id=NULL, suffix_id=NULL,
                                                first_traded))
           temp_series$expires<-unique(c(temp_series$expires,expires))
           assign(primary_id, temp_series, 
-                 envir=as.environment(FinancialInstrument:::.instrument))
+                 envir=as.environment(.instrument))
           return(primary_id)
       } else warning("No contract found to update. A new one will be created.")
   }
@@ -539,7 +539,7 @@ option <- function(primary_id , currency , multiplier , tick_size=NULL,
   if(is.null(underlying_id)) {
       warning("underlying_id should only be NULL for cash-settled options")
   } else {
-      if(!exists(underlying_id, where=FinancialInstrument:::.instrument,
+      if(!exists(underlying_id, where=.instrument,
                  inherits=TRUE)) {
           warning("underlying_id not found") # assumes that we know where to look
       }
@@ -656,7 +656,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL,
                                                  first_traded))
             temp_series$expires<-unique(c(temp_series$expires,expires))
             assign(primary_id, temp_series, 
-                   envir=as.environment(FinancialInstrument:::.instrument))
+                   envir=as.environment(.instrument))
             return(primary_id)
         } else {
             warning("No contract found to update.  A new one will be created.")
@@ -851,7 +851,7 @@ currency <- function(primary_id, identifiers = NULL, assign_i=TRUE, ...){
     class(ccy)<-c("currency","instrument")
     if (assign_i) {
         assign(primary_id, ccy, 
-               pos=as.environment(FinancialInstrument:::.instrument) )
+               pos=as.environment(.instrument) )
         return(primary_id)
     }
     ccy
@@ -918,11 +918,11 @@ exchange_rate <- function (primary_id = NULL, currency = NULL,
   }
   if (is.null(currency)) currency <- substr(primary_id,4,6)
   if (is.null(counter_currency)) counter_currency <- substr(primary_id,1,3)
-  if(!exists(currency, where=FinancialInstrument:::.instrument,inherits=TRUE)) {
+  if(!exists(currency, where=.instrument,inherits=TRUE)) {
     warning(paste("currency",currency,"not found")) # assumes that we know where to look
   }
   if(!exists(counter_currency, 
-    where=FinancialInstrument:::.instrument,inherits=TRUE)) {
+    where=.instrument,inherits=TRUE)) {
         warning(paste("counter_currency",counter_currency,"not found")) # assumes that we know where to look
   }
 
@@ -971,7 +971,7 @@ bond_series <- function(primary_id , suffix_id, ..., first_traded=NULL,
         temp_series$first_traded<-c(temp_series$first_traded,first_traded)
         temp_series$maturity<-c(temp_series$maturity,maturity)
         assign(id, temp_series, 
-               envir=as.environment(FinancialInstrument:::.instrument))
+               envir=as.environment(.instrument))
     } else {
         dargs<-list(...)
         dargs$currency=NULL
@@ -1298,12 +1298,12 @@ instrument.auto <- function(primary_id, currency=NULL, multiplier=1, silent=FALS
 #' @export
 #' @rdname getInstrument
 getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
-    tmp_instr <- try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE)
+    tmp_instr <- try(get(x,pos=.instrument),silent=TRUE)
     if(inherits(tmp_instr,"try-error") || !inherits(tmp_instr, type)){
         xx <- make.names(x)
         ## First, look to see if x matches any identifiers.
         # unlist all instruments into a big named vector
-        ul.instr <- unlist(as.list(FinancialInstrument:::.instrument, 
+        ul.instr <- unlist(as.list(.instrument, 
                                    all.names=TRUE))
         # subset by names that include "identifiers"
         ul.ident <- ul.instr[grep('identifiers', names(ul.instr))]
@@ -1314,7 +1314,7 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
         if (length(tmpname) > 0) {
             #primary_id is everything before .identifiers
             id <- gsub("\\.identifiers.*", "", names(tmpname))
-            tmp_instr <- try(get(id, pos=FinancialInstrument:::.instrument), 
+            tmp_instr <- try(get(id, pos=.instrument), 
                              silent=TRUE)
             if (inherits(tmp_instr, type)) {
                 #&& (x %in% tmp_instr$identifiers || x %in% make.names(tmp_instr$identifiers))
@@ -1326,14 +1326,14 @@ getInstrument <- function(x, Dates=NULL, silent=FALSE, type='instrument'){
         # to the beginning of id.
         char.x <- strsplit(x, "")[[1]] # split x into vector of characters
         x <- substr(x, grep("[^\\.]", char.x)[1], length(char.x)) # excluding leading dots
-        tmp_instr<-try(get(x,pos=FinancialInstrument:::.instrument),silent=TRUE)
+        tmp_instr<-try(get(x,pos=.instrument),silent=TRUE)
         if(!inherits(tmp_instr,type)) {
             tmp_instr<-try(get(paste(".",x,sep=""),
-                               pos=FinancialInstrument:::.instrument),
+                               pos=.instrument),
                            silent=TRUE)
             if(!inherits(tmp_instr,type)) {
                 tmp_instr<-try(get(paste("..",x,sep=""),
-                                   pos=FinancialInstrument:::.instrument),
+                                   pos=.instrument),
                                silent=TRUE)
             }
         }
@@ -1402,7 +1402,7 @@ instrument_attr <- function(primary_id, attr, value, ...) {
     if (inherits(instr, 'try-error') || !is.instrument(instr))
         stop(paste('instrument ',primary_id,' must be defined first.',sep=''))
     if (attr == 'primary_id') {
-        rm(list = primary_id, pos = FinancialInstrument:::.instrument)
+        rm(list = primary_id, pos = .instrument)
     } else if (attr == 'currency') {
         if (!is.currency.name(value)) {
             stop("currency ", value, " must be an object of type 'currency'")
@@ -1440,7 +1440,7 @@ instrument_attr <- function(primary_id, attr, value, ...) {
         }
     }
     instr[[attr]] <- value
-    assign(instr$primary_id, instr, pos=FinancialInstrument:::.instrument)
+    assign(instr$primary_id, instr, pos=.instrument)
 }
 
 

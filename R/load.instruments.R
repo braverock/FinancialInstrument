@@ -181,7 +181,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 
     #load all instrument names
     instr_names <- if(missing(Symbols)) {
-        ls_non_currencies(ls(pos=FinancialInstrument:::.instrument)) #if roots begin with a dot, this will filter out roots and currencies
+        ls_non_currencies(ls(pos=.instrument)) #if roots begin with a dot, this will filter out roots and currencies
     } else Symbols
     
     #TODO add check to make sure that src is actually the name of a getSymbols function

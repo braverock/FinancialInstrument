@@ -44,14 +44,14 @@
 CompareInstrumentFiles <- function(file1, file2, ...) {
     force(file1)
     #backup current instrument environment
-    bak <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
+    bak <- as.list(.instrument, all.names=TRUE)
     # load files to be compared
     reloadInstruments(file1)
-    orig <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
+    orig <- as.list(.instrument, all.names=TRUE)
     if (!missing(file2)) {
         force(file2)
         reloadInstruments(file2)
-        new <- as.list(FinancialInstrument:::.instrument, all.names=TRUE)
+        new <- as.list(.instrument, all.names=TRUE)
     } else new <- bak
     #restore user's instrument environment
     reloadInstruments(bak)

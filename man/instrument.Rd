@@ -134,7 +134,7 @@
 
   As of version 0.10.0, the .instrument environment is
   located at the top level of the package. i.e.
-  \code{FinancialInstrument:::.instrument}.
+  \code{.instrument}.
 
   \code{future} and \code{option} are used to define the
   contract specs of a series of instruments.  The
