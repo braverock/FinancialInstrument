@@ -51,6 +51,9 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' \code{active_months} is a numeric field indicating how many months including  
 #' the month of the \code{start_date} the contract is available to trade.  
 #' This number will be used as the upper limit for symbol generation.
+#' 
+#' If \code{type} is also specified, it should be a specific instrument type, 
+#' e.g. 'future_series','option_series','guaranteed_spread' or 'calendar_spread' 
 #'
 #' One of \code{data} or \code{file} must be populated for input data.
 #'
@@ -62,6 +65,11 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' @seealso
 #' \code{\link{load.instruments}}
 #' \code{\link{build_series_symbols}}
+#' @examples 
+#' build_spread_symbols(data=data.frame(primary_id='CL',
+#'                                      month_sequence="F,G,H,J,K,M,N,Q,U,V,X,Z",
+#'                                      contracts_ahead="1,2,3",
+#'                                      type='calendar_spread')
 #' @export
 build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=Sys.Date())
 {
