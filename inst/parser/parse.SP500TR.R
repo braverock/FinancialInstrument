@@ -5,15 +5,14 @@
 # Peter Carl
 
 # Load needed packages:
-require(zoo)
+require(xts)
 require(gdata)
 
 # @TODO: Set the working directory
 # 
 
 # Download the first sheet in the xls workbook directly from the web site:
-# x = read.xls("http://www2.standardandpoors.com/spf/xls/index/MONTHLY.xls")
-x = read.xls("http://www.standardandpoors.com/servlet/BlobServer?blobheadername3=MDT-Type&blobcol=urldata&blobtable=MungoBlobs&blobheadervalue2=inline%3B+filename%3DMONTHLY.xls&blobheadername2=Content-Disposition&blobheadervalue1=application%2Fexcel&blobkey=id&blobheadername1=content-type&blobwhere=1243862365806&blobheadervalue3=UTF-8")
+x = read.xls("http://www.spindices.com/documents/additional-material/monthly.xlsx?force_download=true")
 
 # That gives us something like the following:
 # > head(x)
