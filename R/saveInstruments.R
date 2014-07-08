@@ -75,7 +75,7 @@ saveInstruments <- function(file_name="MyInstruments", dir="", compress="gzip") 
             "require(FinancialInstrument)\n\n", file=file.name)
         for (s in ls_instruments()) {
             sink(file.name, append=TRUE)
-            cat('assign("', s, '", pos=.instrument, ', 
+            cat('assign("', s, '", pos=FinancialInstrument:::.instrument, ', 
                 'value=\n', sep="", append=TRUE)
             dput(getInstrument(s))
             cat(")\n\n", append=TRUE)
