@@ -168,7 +168,6 @@ buildRatio <- function(x,env=.GlobalEnv, silent=FALSE) {
             #return(x[, grep("Ask", colnames(x), ignore.case = TRUE)])
         stop("subscript out of bounds: no column name containing \"Ask\"")
     }
-    has.Mid <- quantmod:::has.Mid
     
     Mid <- #This should be exported from quantmod
     function (x) 
@@ -344,10 +343,8 @@ redenominate <- function(x, new_base='USD', old_base=NULL, EOD_time='15:00:00', 
     } else rate <- xts(rep(1L, nrow(x)), index(x))
     
     #!#---#!# Define function we'll need
-    has.Mid <- quantmod:::has.Mid
-    Mid <- #This should be exported from quantmod
-    function (x) 
-    {
+    #This should be exported from quantmod
+    Mid <- function (x) {
         if (has.Mid(x)) 
             return(x[,has.Mid(x,1)])            
             #return(x[, grep("Mid", colnames(x), ignore.case = TRUE)])

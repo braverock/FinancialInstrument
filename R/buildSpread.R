@@ -50,8 +50,6 @@
 #' @export
 buildSpread <- function(spread_id, Dates = NULL, onelot=TRUE, prefer = NULL, 
                         auto.assign=TRUE, env=.GlobalEnv) {
-    has.Mid <- quantmod:::has.Mid #FIXME: this should be exported from quatmod
-    
     spread_instr <- try(getInstrument(spread_id))
     if (inherits(spread_instr, "try-error") | !is.instrument(spread_instr)) {
         stop(paste("Instrument", spread_instr, " not found, please create it first."))
@@ -219,10 +217,13 @@ buildBasket <- buildSpread
 #' stock("SPY", "USD")
 #' stock("DIA", "USD")
 #' getSymbols(c("SPY","DIA"))
-#' fSB <- fn_SpreadBuilder("SPY","DIA") #can call with names of instrument/xts ojects
+#' 
+#' #can call with names of instrument/xts ojects
+#' fSB <- fn_SpreadBuilder("SPY","DIA") 
 #' fSB2 <- fn_SpreadBuilder(SPY,DIA) # or you can pass xts objects
 #'
-#' fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) #assuming you first somehow calculated the ratio to be a constant 1.1
+#' #assuming you first somehow calculated the ratio to be a constant 1.1
+#' fSB3 <- fn_SpreadBuilder("SPY","DIA",1.1) 
 #' head(fSB)
 #'
 #' # Call fn_SpreadBuilder with vector of 2 instrument names

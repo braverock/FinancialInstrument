@@ -245,10 +245,7 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' value for an argument, that value will be used.  If the user did not provide
 #' a value for an argument, but there is a value for that argument for the 
 #' given \code{Symbol} in the Symbol Lookup Table (see 
-#' \code{\link{setSymbolLookup.FI}}), that value will be used.  Otherwise,
-#' if \code{\link[Defaults]{setDefaults}} has been applied to this function 
-#' (\code{getSymbols.FI}) for the argument, the value that was set with 
-#' \code{setDefaults} will be used.  Finally, if none of the above are true,
+#' \code{\link{setSymbolLookup.FI}}), that value will be used.  Otherwise, 
 #' the formal defaults will be used.
 #'
 #' @param Symbols a character vector specifying the names of each symbol to be 
@@ -344,7 +341,7 @@ getSymbols.FI <- function(Symbols,
         .days_to_omit <- days_to_omit
     if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
 
-    importDefaults("getSymbols.FI")
+    #importDefaults("getSymbols.FI")
 
     # Now get the values for each formal that we'll use if not provided
     # by the user and not found in the SymbolLookup table
@@ -455,7 +452,7 @@ getSymbols.FI <- function(Symbols,
                         }
                     } # end 'common'/default method (same as getSymbols.rda)    
                 ) # end split_method switch
-            fr <- quantmod:::convert.time.series(fr=fr,return.class=return.class)
+            fr <- convert.time.series(fr=fr,return.class=return.class)
             Symbols[[i]] <-make.names(Symbols[[i]]) 
             tmp <- list()
             tmp[[Symbols[[i]]]] <- fr

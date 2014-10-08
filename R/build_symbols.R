@@ -65,11 +65,11 @@ build_series_symbols <- function(roots, yearlist=c(0,1)) {
 #' @seealso
 #' \code{\link{load.instruments}}
 #' \code{\link{build_series_symbols}}
-#' @examples 
-#' build_spread_symbols(data=data.frame(primary_id='CL',
-#'                                      month_sequence="F,G,H,J,K,M,N,Q,U,V,X,Z",
-#'                                      contracts_ahead="1,2,3",
-#'                                      type='calendar_spread')
+# @examples 
+# build_spread_symbols(data=data.frame(primary_id='CL',
+#                                      month_sequence="F,G,H,J,K,M,N,Q,U,V,X,Z",
+#                                      contracts_ahead="1,2,3",
+#                                      type='calendar_spread')
 #' @export
 build_spread_symbols <- function(data=NULL,file=NULL,outputfile=NULL,start_date=Sys.Date())
 {

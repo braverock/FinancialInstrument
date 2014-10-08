@@ -1,4 +1,4 @@
-Copyright: (c) 2004 - 2013
+Copyright: (c) 2004 - 2014
 Package: FinancialInstrument
 Maintainer: G See <gsee000@gmail.com>
 License: GPL
@@ -8,50 +8,19 @@ LazyLoad: yes
 Author: Peter Carl, Brian G. Peterson, Garrett See
 Description: Infrastructure for defining meta-data and
     relationships for financial instruments.
-Version: 1.1.9
+Version: 1.2.0
 URL: https://r-forge.r-project.org/projects/blotter/
-Date: 2013-05-26
+Date: 2014-10-07
 Depends:
     R (>= 2.12.0),
     quantmod(>= 0.3-17),
+Imports:
+    zoo(>= 1.7-5),
     xts,
-    zoo(>= 1.7-5)
+    TTR
 Suggests:
     foreach,
     XML (>= 3.96.1.1),
-    testthat
-Collate:
-    'buildHierarchy.R'
-    'buildSpread.R'
-    'build_symbols.R'
-    'instrument.R'
-    'instrument.table.R'
-    'load.instruments.R'
-    'redenominate.R'
-    'splice.R'
-    'splooth.R'
-    'synthetic.R'
-    'volep.R'
-    'parse_id.R'
-    'MonthCodes.R'
-    'format_id.R'
-    'ls_by_expiry.R'
-    'ls_instruments_by.R'
-    'ls_instruments.R'
-    'ls_strikes.R'
-    'ls_underlyings.R'
-    'update_instruments.yahoo.R'
-    'ls_by_currency.R'
-    'saveInstruments.R'
-    'ls_expiries.R'
-    'saveSymbols.R'
-    'Tick2Sec.R'
-    'all.equal.instrument.R'
-    'expires.R'
-    'find.instrument.R'
-    'FinancialInstrument-package.R'
-    'FindCommonInstrumentAttributes.R'
-    'Notionalize.R'
-    'update_instruments.iShares.R'
-    'update_instruments.morningstar.R'
-    'CompareInstrumentFiles.R'
+    testthat,
+    its,
+    timeSeries

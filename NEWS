@@ -4,6 +4,11 @@ Changes in Version 1.2
 USER VISIBLE CHANGES
 --------------------
 
+* No longer using Defaults package (which is now archived on CRAN) in
+  getSymbols.FI.
+
+* remove some `:::` calls to unexported functions from quantmod.
+
 * saveInstruments() gains a "compress" argument to allow for different 
   compression than the default ("gzip")
 

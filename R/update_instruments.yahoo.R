@@ -76,7 +76,7 @@ update_instruments.yahoo <- function(Symbols=c('stocks','all'), verbose=FALSE ) 
     yahoo.syms <- paste(yahoo.syms, collapse=";")
 	if (is.null(yahoo.syms) || length(yahoo.syms) == 0) 
         stop('error with symbol names; no Symbols supplied?')
-    yahooStuff <- quantmod:::getQuote.yahoo(yahoo.syms,
+    yahooStuff <- getQuote(yahoo.syms, src="yahoo",
 					  what=yahooQF(c("Name", 
                         "Stock Exchange",
 					    "Market Capitalization",

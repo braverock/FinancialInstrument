@@ -37,7 +37,7 @@ get_tblox <- function(env='.GlobalEnv') {
 getSymbols.tblox <-
 function (Symbols, env, return.class = "xts", ...) 
 {
-    importDefaults("getSymbols.tblox")
+    #importDefaults("getSymbols.tblox")
     this.env <- environment()
     for (var in names(list(...))) {
         assign(var, list(...)[[var]], this.env)
