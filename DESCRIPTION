@@ -13,10 +13,10 @@ URL: https://r-forge.r-project.org/projects/blotter/
 Date: 2014-10-07
 Depends:
     R (>= 2.12.0),
-    quantmod(>= 0.3-17),
+    quantmod (>= 0.4-2),
+    zoo (>= 1.7-5),
+    xts
 Imports:
-    zoo(>= 1.7-5),
-    xts,
     TTR
 Suggests:
     foreach,
