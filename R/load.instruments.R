@@ -287,19 +287,23 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' }
 #' @export
 getSymbols.FI <- function(Symbols,
-                            from='2010-01-01',
-                            to=Sys.Date(),
+                            from=getOption("getSymbols.FI.from", "2010-01-01"),
+                            to=getOption("getSymbols.FI.to", Sys.Date()),
                             ..., 
-                            dir="",
-                            return.class="xts",
-                            extension="rda",
-                            split_method = c("days", "common"),
-                            use_identifier = NA,
-                            date_format=NULL,
-                            verbose=TRUE,
-                            days_to_omit=c("Saturday", "Sunday"),
-                            indexTZ=NA
-                         ) 
+                            dir=getOption("getSymbols.FI.dir", ""),
+                            return.class=getOption("getSymbols.FI.return.class", 
+                                                   "xts"),
+                            extension=getOption("getSymbols.FI.extension", "rda"),
+                            split_method=getOption("getSymbols.FI.split_method",
+                                                   c("days", "common")),
+                            use_identifier=getOption("getSymbols.FI.use_identifier",
+                                                     NA),
+                            date_format=getOption("getSymbols.FI.date_format"),
+                            verbose=getOption("getSymbols.FI.verbose", TRUE),
+                            days_to_omit=getOption("getSymbols.FI.days_to_omit",
+                                                   c("Saturday", "Sunday")),
+                            indexTZ=getOption("getSymbols.FI.indexTZ", NA)
+                         )
 {
     if (is.null(date_format)) date_format <- "%Y.%m.%d"
     if (is.null(days_to_omit)) days_to_omit <- 'NULL'

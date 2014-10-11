@@ -7,6 +7,13 @@ USER VISIBLE CHANGES
 * No longer using Defaults package (which is now archived on CRAN) in
   getSymbols.FI.
 
+* getSymbols.FI() allows the user to set default values by checking for 
+  options().  For example, the default value for from= is now 
+  getOption("getSymbols.FI.from", "2010-01-01").  So, if you do not set the
+  "getSymbols.FI.from" option, the value will be what it always has been 
+  ("2010-01-01"), but if you did set a value (e.g. 
+  options(getSymbols.FI.from="2014-01-01")), then that value will be used.
+
 * remove some `:::` calls to unexported functions from quantmod.
 
 * saveInstruments() gains a "compress" argument to allow for different 
