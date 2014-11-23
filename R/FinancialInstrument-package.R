@@ -4,6 +4,7 @@
 #'  has.Op has.Ad has.Trade has.Price getPrice Op Cl Ad has.Cl getSymbols   
 #'  getSymbolLookup setSymbolLookup yahooQF has.Vo Vo getOptionChain
 #' @importFrom TTR stockSymbols runSum
+#' @importFrom zoo na.locf as.zoo coredata is.zoo index
 NULL
 
 #' Construct, manage and store contract specifications for trading

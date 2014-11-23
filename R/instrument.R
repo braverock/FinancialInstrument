@@ -1520,10 +1520,9 @@ add.defined.by <- function(primary_ids, ...) {
 
 #' instrument class print method
 #' 
-#' @method print instrument
-#' @S3method print instrument
 #' @author Joshua Ulrich, Garrett See
 #' @keywords internal
+#' @export
 print.instrument <- function(x, ...) {
   str(unclass(x), comp.str="", no.list=TRUE, give.head=FALSE,
     give.length=FALSE, give.attr=FALSE, nest.lev=-1, indent.str="")
@@ -1532,10 +1531,9 @@ print.instrument <- function(x, ...) {
 
 #' instrument class sort method
 #' 
-#' @method sort instrument
-#' @S3method sort instrument
 #' @author Garrett See
 #' @keywords internal
+#' @export
 sort.instrument <- function(x, decreasing=FALSE, na.last=NA, ...) {
     anchored <- x[c("primary_id", "currency", "multiplier", "tick_size", 
                   "identifiers", "type")] 

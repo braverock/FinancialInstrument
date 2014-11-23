@@ -81,11 +81,10 @@ expires <- function(x, ...) {
 #'   \code{FALSE} the first one after \code{Date} will be returned. Note that
 #'   if \code{expires} is a single value, \code{expired} will be ignored.
 #' @param silent silence warnings?
-#' @method expires instrument
-#' @S3method expires instrument
 #' @seealso \code{\link{expires}}
 #' @author Garrett See
 #' @keywords internal
+#' @export
 expires.instrument <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     if (is.instrument(x)) {
         if (missing(Date)) Date <- Sys.Date()
@@ -142,11 +141,10 @@ expires.instrument <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
 #'   returned will be the last one before \code{Date}.  If \code{expired} is 
 #'   \code{FALSE} the first one after \code{Date} will be returned.
 #' @param silent silence warnings?
-#' @method expires character
-#' @S3method expires character
 #' @seealso \code{\link{expires.instrument}}
 #' @author Garrett See
 #' @keywords internal
+#' @export
 expires.character <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     xi <- getInstrument(x, silent=TRUE)
     if (is.instrument(xi)) {
@@ -179,11 +177,10 @@ expires.character <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
 #'   \code{expires} is a vector.  If \code{expired} is \code{TRUE} the date 
 #'   returned will be the last one before \code{Date}.  If \code{expired} is 
 #'   \code{FALSE} the first one after \code{Date} will be returned.
-#' @method expires character
-#' @S3method expires character
 #' @seealso \code{\link{expires.instrument}}
 #' @author Garrett See
 #' @keywords internal
+#' export
 expires.spread <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
     if (inherits(x, "spread")) {
         if (!is.null(x$expires)) {
@@ -220,11 +217,10 @@ expires.spread <- function(x, Date, expired=TRUE, silent=FALSE, ...) {
 #'   
 #'   If \code{src} is \dQuote{instrument} the symbol of the xts object will
 #'   be passed to \code{\link{expires.character}}
-#' @method expires xts
-#' @S3method expires xts
 #' @seealso \code{\link{expires.instrument}}, \code{\link{expires}}
 #' @author Garrett See
 #' @keywords internal
+#' @export
 expires.xts <- function(x, Date, expired=TRUE, silent=FALSE, 
                         src=c("data", "instrument"), ...) {
     src <- c("data", "instrument")[pmatch(src, c("data", "instrument"))[[1L]]]

@@ -25,8 +25,6 @@
 #' \code{char.n}.  Unless \code{collapse} is \code{NULL}, it will be used in a 
 #' call to \code{\link{paste}}.  If \code{collapse} is \code{NULL}, each element 
 #' of the character vector will be compared separately.
-#' @method all.equal instrument
-#' @S3method all.equal instrument
 #' @author Garrett See
 #' @seealso \code{\link{getInstrument}}, \code{\link{instrument.table}},
 #' \code{\link{buildHierarchy}}
@@ -45,6 +43,7 @@
 #' 
 #' all.equal(getInstrument("DIA"), getInstrument("USD"))
 #' }
+#' @export
 all.equal.instrument <- function (target, current, char.n=2, collapse=";", ...) {
     stopifnot(is.instrument(target))
     if (char.n < 0) char.n <- Inf

@@ -3,7 +3,7 @@
 \alias{all.equal.instrument}
 \title{instrument all.equal method}
 \usage{
-\method{all.equal}{instrument}(target, current, char.n = 2, collapse = ";",
+\method{all}{equal.instrument}(target, current, char.n = 2, collapse = ";",
   ...)
 }
 \arguments{
