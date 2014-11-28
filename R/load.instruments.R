@@ -345,7 +345,7 @@ getSymbols.FI <- function(Symbols,
         .days_to_omit <- days_to_omit
     if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
 
-    #importDefaults("getSymbols.FI")
+    importDefaults("getSymbols.FI")
 
     # Now get the values for each formal that we'll use if not provided
     # by the user and not found in the SymbolLookup table

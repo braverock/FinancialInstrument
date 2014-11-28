@@ -17,7 +17,8 @@ Depends:
     zoo (>= 1.7-5),
     xts
 Imports:
-    TTR
+    TTR,
+    Defaults (>= 2.0.0)
 Suggests:
     foreach,
     XML (>= 3.96.1.1),

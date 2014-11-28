@@ -5,7 +5,11 @@
 #'  getSymbolLookup setSymbolLookup yahooQF has.Vo Vo getOptionChain
 #' @importFrom TTR stockSymbols runSum
 #' @importFrom zoo na.locf as.zoo coredata is.zoo index
+#' @importFrom Defaults importDefaults
 NULL
+
+# for packages in Suggests:
+globalVariables(c("timeSeries", "readHTMLTable", "%dopar%", "foreach"))
 
 #' Construct, manage and store contract specifications for trading
 #'
