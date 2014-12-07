@@ -4,8 +4,8 @@ Changes in Version 1.2
 USER VISIBLE CHANGES
 --------------------
 
-* No longer using Defaults package (which is now archived on CRAN) in
-  getSymbols.FI.
+* Requires quantmod >= 0.4-3 and no longer using the Defaults package 
+  (which is now archived on CRAN) for importDefaults() in getSymbols.FI.
 
 * getSymbols.FI() allows the user to set default values by checking for 
   options().  For example, the default value for from= is now 
