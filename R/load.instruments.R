@@ -287,45 +287,124 @@ setSymbolLookup.FI<-function(base_dir, Symbols, ..., split_method=c("days","comm
 #' }
 #' @export
 getSymbols.FI <- function(Symbols,
-                            from=getOption("getSymbols.FI.from", "2010-01-01"),
-                            to=getOption("getSymbols.FI.to", Sys.Date()),
-                            ..., 
-                            dir=getOption("getSymbols.FI.dir", ""),
-                            return.class=getOption("getSymbols.FI.return.class", 
-                                                   "xts"),
-                            extension=getOption("getSymbols.FI.extension", "rda"),
-                            split_method=getOption("getSymbols.FI.split_method",
-                                                   c("days", "common")),
-                            use_identifier=getOption("getSymbols.FI.use_identifier",
-                                                     NA),
-                            date_format=getOption("getSymbols.FI.date_format"),
-                            verbose=getOption("getSymbols.FI.verbose", TRUE),
-                            days_to_omit=getOption("getSymbols.FI.days_to_omit",
-                                                   c("Saturday", "Sunday")),
-                            indexTZ=getOption("getSymbols.FI.indexTZ", NA)
-                         )
+                          from=getOption("getSymbols.FI.from", "2010-01-01"),
+                          to=getOption("getSymbols.FI.to", Sys.Date()),
+                          ..., 
+                          dir=getOption("getSymbols.FI.dir", ""),
+                          return.class=getOption("getSymbols.FI.return.class", 
+                                                 "xts"),
+                          extension=getOption("getSymbols.FI.extension", "rda"),
+                          split_method=getOption("getSymbols.FI.split_method",
+                                                 c("days", "common")),
+                          use_identifier=getOption("getSymbols.FI.use_identifier",
+                                                   NA),
+                          date_format=getOption("getSymbols.FI.date_format"),
+                          verbose=getOption("getSymbols.FI.verbose", TRUE),
+                          days_to_omit=getOption("getSymbols.FI.days_to_omit",
+                                                 c("Saturday", "Sunday")),
+                          indexTZ=getOption("getSymbols.FI.indexTZ", NA)
+)
 {
-    if (is.null(date_format)) date_format <- "%Y.%m.%d"
-    if (is.null(days_to_omit)) days_to_omit <- 'NULL'
-    this.env <- environment()
-    for(var in names(list(...))) {
-        assign(var,list(...)[[var]], this.env)
+  if (is.null(date_format)) date_format <- "%Y.%m.%d"
+  if (is.null(days_to_omit)) days_to_omit <- 'NULL'
+  this.env <- environment()
+  for(var in names(list(...))) {
+    assign(var,list(...)[[var]], this.env)
+  }
+  
+  #The body of the following function comes from Dominik's answer here: 
+  #browseURL("http://stackoverflow.com/questions/7224938/can-i-rbind-be-parallelized-in-r")
+  #it does what do.call(rbind, lst) would do, but faster and with less memory usage
+  do.call.rbind <- function(lst) {
+    while(length(lst) > 1) {
+      idxlst <- seq(from=1, to=length(lst), by=2)
+      
+      lst <- lapply(idxlst, function(i) {
+        if(i==length(lst)) { return(lst[[i]]) }
+        
+        return(rbind(lst[[i]], lst[[i+1]]))
+      })
     }
-
-    #The body of the following function comes from Dominik's answer here: 
-    #browseURL("http://stackoverflow.com/questions/7224938/can-i-rbind-be-parallelized-in-r")
-    #it does what do.call(rbind, lst) would do, but faster and with less memory usage
-    do.call.rbind <- function(lst) {
-        while(length(lst) > 1) {
-            idxlst <- seq(from=1, to=length(lst), by=2)
-
-            lst <- lapply(idxlst, function(i) {
-                if(i==length(lst)) { return(lst[[i]]) }
-
-                return(rbind(lst[[i]], lst[[i+1]]))
-            })
-        }
-        lst[[1]]
+    lst[[1]]
+  }
+  
+  # Find out if user provided a value for each formal
+  if (hasArg.from <- hasArg(from)) .from <- from
+  if (hasArg.to <- hasArg(to)) .to <- to
+  if (hasArg.dir <- hasArg(dir)) .dir <- dir
+  if (hasArg.return.class <- hasArg(return.class)) 
+    .return.class <- return.class
+  if (hasArg.extension <- hasArg(extension)) .extension <- extension
+  if (hasArg.split_method <- hasArg(split_method)) 
+    .split_method <- split_method
+  if (hasArg.use_identifier <- hasArg(use_identifier)) 
+    .use_identifier <- use_identifier
+  if (hasArg.date_format <- hasArg(date_format)) .date_format <- date_format
+  if (hasArg.verbose <- hasArg(verbose)) .verbose <- verbose
+  if (hasArg.days_to_omit <- hasArg(days_to_omit)) 
+    .days_to_omit <- days_to_omit
+  if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
+  
+  #importDefaults("getSymbols.FI")
+  
+  # Now get the values for each formal that we'll use if not provided
+  # by the user and not found in the SymbolLookup table
+  default.from <- from
+  default.to <- to
+  default.dir <- dir
+  default.return.class <- return.class
+  default.extension <- extension
+  default.split_method <- split_method[1]
+  default.use_identifier <- use_identifier
+  default.date_format <- date_format
+  default.verbose <- verbose
+  default.days_to_omit <- days_to_omit
+  default.indexTZ <- indexTZ
+  
+  # quantmod:::getSymbols will provide auto.assign and env
+  # so the next 2 if statements should always be TRUE
+  auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
+  env <- if(hasArg(env)) {env} else .GlobalEnv 
+  
+  # make an argument matching function to sort out which values to use for each arg
+  pickArg <- function(x, Symbol) {
+    if(get(paste('hasArg', x, sep="."))) {
+      get(paste(".", x, sep=""))
+    } else if(!is.null(SymbolLookup[[Symbol]][[x]])) {
+      SymbolLookup[[Symbol]][[x]]
+    } else get(paste("default", x, sep="."))
+  }
+  
+  SymbolLookup <- getSymbolLookup()
+  fr <- NULL
+  datl <- lapply(1:length(Symbols), function(i) {
+    #FIXME? Should nothing be saved if there are errors with any of 
+    # the Symbols (current behavior)?  Or, if auto.assign == TRUE, should
+    # we assign the data as we get it instead of making a list of data and 
+    # assigning at the end.
+    from <- pickArg("from", Symbols[[i]])
+    to <- pickArg("to", Symbols[[i]])
+    dir <- pickArg("dir", Symbols[[i]])
+    return.class <- pickArg("return.class", Symbols[[i]])
+    extension <- pickArg('extension', Symbols[[i]])
+    split_method <- pickArg('split_method', Symbols[[i]])
+    use_identifier <- pickArg('use_identifier', Symbols[[i]])
+    date_format <- pickArg('date_format', Symbols[[i]])
+    verbose <- pickArg('verbose', Symbols[[i]])
+    days_to_omit <- pickArg('days_to_omit', Symbols[[i]])
+    indexTZ <- pickArg('indexTZ', Symbols[[i]])
+    # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
+    # First, find out what the instrument name is
+    instr_str <- NA
+    if(!is.na(use_identifier[1])) { 
+      tmp_instr <- try(getInstrument(Symbols[[i]], silent=FALSE))
+      if (inherits(tmp_instr,'try-error') || !is.instrument(tmp_instr)) 
+        stop("must define instrument first to call with 'use_identifier'")
+      if (!use_identifier[1]=='primary_id') {
+        instr_str <- make.names(tmp_instr$identifiers[use_identifier])
+        instr_str <- instr_str[!is.null(instr_str)] 
+      } else  instr_str <- make.names(tmp_instr[[use_identifier]])
+      if (length(instr_str) == 0L) stop("Could not find instrument. Try with use_identifier=NA")
     }
 
     # Find out if user provided a value for each formal
@@ -361,138 +440,95 @@ getSymbols.FI <- function(Symbols,
     default.days_to_omit <- days_to_omit
     default.indexTZ <- indexTZ
     
-    # quantmod:::getSymbols will provide auto.assign and env
-    # so the next 2 if statements should always be TRUE
-    auto.assign <- if(hasArg(auto.assign)) {auto.assign} else TRUE
-    env <- if(hasArg(env)) {env} else .GlobalEnv 
-
-    # make an argument matching function to sort out which values to use for each arg
-    pickArg <- function(x, Symbol) {
-        if(get(paste('hasArg', x, sep="."))) {
-            get(paste(".", x, sep=""))
-        } else if(!is.null(SymbolLookup[[Symbol]][[x]])) {
-            SymbolLookup[[Symbol]][[x]]
-        } else get(paste("default", x, sep="."))
+    tmpr<-list()
+    tmp <- list()
+    dirstr<-paste(dirs, collapse=' ')
+    if(!length(dirs)==1) warning(paste0('multiple directories ',dirstr,' referenced, merge may be messy.'))
+    for(dir in dirs) {
+      if(!dir=="" && !file.exists(dir)) {
+        if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
+      } else {
+        if(verbose) cat("loading ",Symbols[[i]],".....\n")
+        switch(split_method[1],
+               days={
+                 StartDate <- as.Date(from) 
+                 EndDate <- as.Date(to) 
+                 date.vec <- as.Date(StartDate:EndDate)
+                 date.vec <- date.vec[!weekdays(date.vec) %in% days_to_omit]  
+                 date.vec <- format(date.vec, format=date_format)
+                 sym.files <- paste(date.vec, Symbol, extension, sep=".")
+                 if (dir != "") sym.files <- file.path(dir, sym.files)
+                 dl <- lapply(sym.files, function(fp) {
+                   sf <- strsplit(fp, "/")[[1]]
+                   sf <- sf[length(sf)]
+                   if (verbose) cat("Reading ", sf, "...")                            
+                   if(!file.exists(fp)) {       
+                     if (verbose) cat(" failed. File not found in ", dir, " ... skipping\n")
+                   } else {
+                     if (verbose) cat(' done.\n')
+                     local.name <- load(fp)
+                     dat <- get(local.name)
+                     if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
+                     dat
+                   }
+                 })
+                 if (verbose) cat('rbinding data ... ')
+                 fr <- do.call.rbind(dl)
+               },
+               common = , {
+                 sym.file <- paste(Symbol,extension,sep=".")
+                 if(dir != "") sym.file <- file.path(dir, sym.file)
+                 if(!file.exists(sym.file)) {
+                   if (verbose) cat("file ",paste(Symbol,extension,sep='.')," does not exist in ",dir,"....skipping\n")
+                 } else {
+                   #fr <- read.csv(sym.file)
+                   local.name <- load(sym.file)
+                   dat <- get(local.name)
+                   if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
+                   assign('fr', dat)
+                   if(verbose) cat("done.\n")
+                   #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
+                 }
+               } # end 'common'/default method (same as getSymbols.rda)    
+        ) # end split_method switch
+        fr <- convert.time.series(fr=fr,return.class=return.class)
+        Symbols[[i]] <-make.names(Symbols[[i]]) 
+        #tmp <- list()
+        tmp[[Symbols[[i]]]] <- fr        
+        if(!dir==dirs[1]) tmp[[Symbols[[i]]]] <- rbind(tmp[[Symbols[[i]]]],fr)
+      } # end Symbols else
     }
-
-    SymbolLookup <- getSymbolLookup()
-    fr <- NULL
-    datl <- lapply(1:length(Symbols), function(i) {
-        #FIXME? Should nothing be saved if there are errors with any of 
-        # the Symbols (current behavior)?  Or, if auto.assign == TRUE, should
-        # we assign the data as we get it instead of making a list of data and 
-        # assigning at the end.
-        from <- pickArg("from", Symbols[[i]])
-        to <- pickArg("to", Symbols[[i]])
-        dir <- pickArg("dir", Symbols[[i]])
-        return.class <- pickArg("return.class", Symbols[[i]])
-        extension <- pickArg('extension', Symbols[[i]])
-        split_method <- pickArg('split_method', Symbols[[i]])
-        use_identifier <- pickArg('use_identifier', Symbols[[i]])
-        date_format <- pickArg('date_format', Symbols[[i]])
-        verbose <- pickArg('verbose', Symbols[[i]])
-        days_to_omit <- pickArg('days_to_omit', Symbols[[i]])
-        indexTZ <- pickArg('indexTZ', Symbols[[i]])
-        # if 'dir' is actually the 'base_dir' then we'll paste the instrument name (Symbol) to the end of it.
-        # First, find out what the instrument name is
-        instr_str <- NA
-        if(!is.na(use_identifier)) { 
-            tmp_instr <- try(getInstrument(Symbols[[i]], silent=FALSE))
-            if (inherits(tmp_instr,'try-error') || !is.instrument(tmp_instr)) 
-                stop("must define instrument first to call with 'use_identifier'")
-            if (!use_identifier=='primary_id') {
-                instr_str<-make.names(tmp_instr$identifiers[[use_identifier]])
-            } else  instr_str <- make.names(tmp_instr[[use_identifier]])
-            if (length(instr_str) == 0L) stop("Could not find instrument. Try with use_identifier=NA")
-        }
-        Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str)
-        ndc<-nchar(dir)
-        if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash
-        dir <- paste(dir, Symbol, sep="/")
-        
-        if(!dir=="" && !file.exists(dir)) {
-            if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
-        } else {
-            if(verbose) cat("loading ",Symbols[[i]],".....\n")
-            switch(split_method[1],
-                    days={
-                        StartDate <- as.Date(from) 
-                        EndDate <- as.Date(to) 
-                        date.vec <- as.Date(StartDate:EndDate)
-                        date.vec <- date.vec[!weekdays(date.vec) %in% days_to_omit]  
-                        date.vec <- format(date.vec, format=date_format)
-                        sym.files <- paste(date.vec, Symbol, extension, sep=".")
-                        if (dir != "") sym.files <- file.path(dir, sym.files)
-                        dl <- lapply(sym.files, function(fp) {
-                            sf <- strsplit(fp, "/")[[1]]
-                            sf <- sf[length(sf)]
-                            if (verbose) cat("Reading ", sf, "...")                            
-                            if(!file.exists(fp)) {       
-                                if (verbose) cat(" failed. File not found in ", dir, " ... skipping\n")
-                            } else {
-                                if (verbose) cat(' done.\n')
-                                local.name <- load(fp)
-                                dat <- get(local.name)
-                                if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
-                                dat
-                            }
-                        })
-                        if (verbose) cat('rbinding data ... ')
-                        fr <- do.call.rbind(dl)
-                    },
-                    common = , {
-                        sym.file <- paste(Symbol,extension,sep=".")
-                        if(dir != "") sym.file <- file.path(dir, sym.file)
-                        if(!file.exists(sym.file)) {
-                            if (verbose) cat("file ",paste(Symbol,extension,sep='.')," does not exist in ",dir,"....skipping\n")
-                        } else {
-                            #fr <- read.csv(sym.file)
-                            local.name <- load(sym.file)
-                            dat <- get(local.name)
-                            if (!is.na(indexTZ) && !is.null(dat)) indexTZ(dat) <- indexTZ
-                            assign('fr', dat)
-                            if(verbose) cat("done.\n")
-                            #if(!is.xts(fr)) fr <- xts(fr[,-1],as.Date(fr[,1],origin='1970-01-01'),src='rda',updated=Sys.time())
-                        }
-                    } # end 'common'/default method (same as getSymbols.rda)    
-                ) # end split_method switch
-            fr <- convert.time.series(fr=fr,return.class=return.class)
-            Symbols[[i]] <-make.names(Symbols[[i]]) 
-            tmp <- list()
-            tmp[[Symbols[[i]]]] <- fr
-            if(verbose) cat("done.\n")
-            tmp     
-        }
-    }) #end loop over Symbols
-
-    if (length(Filter("+", lapply(datl, length))) == 0) {
-        warning("No data found.")
-        return(NULL) 
+    if(verbose) cat("done.\n")
+    tmp
+  }) #end lapply loop over Symbols
+  
+  if (length(Filter("+", lapply(datl, length))) == 0) {
+    warning("No data found.")
+    return(NULL) 
+  }
+  
+  datl.names <- do.call(c, lapply(datl, names))
+  missing <- Symbols[!Symbols %in% datl.names]
+  if (length(missing) > 0) warning('No data found for ', paste(missing, collapse=" "))
+  if(auto.assign) {
+    #invisible(lapply(datl, function(x) if (length(x) > 0) assign(names(x), x[[1]], pos=env)))
+    out <- Filter(function(x) length(x) > 0, datl)
+    invisible(lapply(out, function(x) assign(names(x), x[[1]], pos=env)))
+    return(datl.names)
+  } else {
+    #NOTE: Currently, NULLs aren't filtered out.  If there are data for any Symbol,
+    # the returned list will have an element for each symbol requested even if some don't contain data.
+    out <- lapply(datl, function(x) {
+      if (length(x) > 0) x[[1]]
+    })
+    if (length(out) == 1)
+      return(out[[1]])
+    else {
+      names(out) <- Symbols
+      return(out)
     }
-
-    datl.names <- do.call(c, lapply(datl, names))
-    missing <- Symbols[!Symbols %in% datl.names]
-    if (length(missing) > 0) warning('No data found for ', paste(missing, collapse=" "))
-    if(auto.assign) {
-        #invisible(lapply(datl, function(x) if (length(x) > 0) assign(names(x), x[[1]], pos=env)))
-        out <- Filter(function(x) length(x) > 0, datl)
-        invisible(lapply(out, function(x) assign(names(x), x[[1]], pos=env)))
-        return(datl.names)
-    } else {
-        #NOTE: Currently, NULLs aren't filtered out.  If there are data for any Symbol,
-        # the returned list will have an element for each symbol requested even if some don't contain data.
-        out <- lapply(datl, function(x) {
-            if (length(x) > 0) x[[1]]
-        })
-        if (length(out) == 1)
-            return(out[[1]])
-        else {
-            names(out) <- Symbols
-            return(out)
-        }
-    }
+  }
 }
-
 
 #' currency metadata to be used by \code{\link{load.instruments}}
 #'
