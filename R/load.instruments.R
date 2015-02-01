@@ -344,9 +344,7 @@ getSymbols.FI <- function(Symbols,
   if (hasArg.days_to_omit <- hasArg(days_to_omit)) 
     .days_to_omit <- days_to_omit
   if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
-  
-  #importDefaults("getSymbols.FI")
-  
+    
   # Now get the values for each formal that we'll use if not provided
   # by the user and not found in the SymbolLookup table
   default.from <- from
@@ -403,7 +401,7 @@ getSymbols.FI <- function(Symbols,
       if (!use_identifier[1]=='primary_id') {
         instr_str <- make.names(tmp_instr$identifiers[use_identifier])
         instr_str <- instr_str[!is.null(instr_str)] 
-      } else  instr_str <- make.names(tmp_instr[[use_identifier]])
+      } else  instr_str <- make.names(tmp_instr[use_identifier])
       if (length(instr_str) == 0L) stop("Could not find instrument. Try with use_identifier=NA")
     }
 
@@ -424,26 +422,14 @@ getSymbols.FI <- function(Symbols,
         .days_to_omit <- days_to_omit
     if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
 
-    importDefaults("getSymbols.FI")
-
-    # Now get the values for each formal that we'll use if not provided
-    # by the user and not found in the SymbolLookup table
-    default.from <- from
-    default.to <- to
-    default.dir <- dir
-    default.return.class <- return.class
-    default.extension <- extension
-    default.split_method <- split_method[1]
-    default.use_identifier <- use_identifier
-    default.date_format <- date_format
-    default.verbose <- verbose
-    default.days_to_omit <- days_to_omit
-    default.indexTZ <- indexTZ
+    Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str) 	 
+    ndc<-nchar(dir) 	 
+    if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash 	 
+    dirs <- paste(dir, Symbol, sep="/")
     
-    tmpr<-list()
     tmp <- list()
     dirstr<-paste(dirs, collapse=' ')
-    if(!length(dirs)==1) warning(paste0('multiple directories ',dirstr,' referenced, merge may be messy.'))
+    if(!length(dirs)==1) warning(paste0('multiple directories ',dirstr,' referenced, merge may interleave dissimilar data.'))
     for(dir in dirs) {
       if(!dir=="" && !file.exists(dir)) {
         if (verbose) cat("\ndirectory ",dir," does not exist, skipping\n")
@@ -492,10 +478,9 @@ getSymbols.FI <- function(Symbols,
                } # end 'common'/default method (same as getSymbols.rda)    
         ) # end split_method switch
         fr <- convert.time.series(fr=fr,return.class=return.class)
-        Symbols[[i]] <-make.names(Symbols[[i]]) 
-        #tmp <- list()
-        tmp[[Symbols[[i]]]] <- fr        
-        if(!dir==dirs[1]) tmp[[Symbols[[i]]]] <- rbind(tmp[[Symbols[[i]]]],fr)
+        Symbols[[i]] <-make.names(Symbols[[i]])               
+        if(dir==dirs[1]) tmp[[Symbols[[i]]]] <- fr 
+        else tmp[[Symbols[[i]]]] <- rbind(tmp[[Symbols[[i]]]],fr)
       } # end Symbols else
     }
     if(verbose) cat("done.\n")
