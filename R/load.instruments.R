@@ -344,7 +344,9 @@ getSymbols.FI <- function(Symbols,
   if (hasArg.days_to_omit <- hasArg(days_to_omit)) 
     .days_to_omit <- days_to_omit
   if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
-    
+   
+  importDefaults("getSymbols.FI")
+  
   # Now get the values for each formal that we'll use if not provided
   # by the user and not found in the SymbolLookup table
   default.from <- from
@@ -399,30 +401,12 @@ getSymbols.FI <- function(Symbols,
       if (inherits(tmp_instr,'try-error') || !is.instrument(tmp_instr)) 
         stop("must define instrument first to call with 'use_identifier'")
       if (!use_identifier[1]=='primary_id') {
-        instr_str <- make.names(tmp_instr$identifiers[use_identifier])
-        instr_str <- instr_str[!is.null(instr_str)] 
+        instr_str <- make.names(unlist(tmp_instr$identifiers[use_identifier]))
       } else  instr_str <- make.names(tmp_instr[use_identifier])
       if (length(instr_str) == 0L) stop("Could not find instrument. Try with use_identifier=NA")
     }
 
-    # Find out if user provided a value for each formal
-    if (hasArg.from <- hasArg(from)) .from <- from
-    if (hasArg.to <- hasArg(to)) .to <- to
-    if (hasArg.dir <- hasArg(dir)) .dir <- dir
-    if (hasArg.return.class <- hasArg(return.class)) 
-        .return.class <- return.class
-    if (hasArg.extension <- hasArg(extension)) .extension <- extension
-    if (hasArg.split_method <- hasArg(split_method)) 
-        .split_method <- split_method
-    if (hasArg.use_identifier <- hasArg(use_identifier)) 
-        .use_identifier <- use_identifier
-    if (hasArg.date_format <- hasArg(date_format)) .date_format <- date_format
-    if (hasArg.verbose <- hasArg(verbose)) .verbose <- verbose
-    if (hasArg.days_to_omit <- hasArg(days_to_omit)) 
-        .days_to_omit <- days_to_omit
-    if (hasArg.indexTZ <- hasArg(indexTZ)) .indexTZ <- indexTZ
-
-    Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str) 	 
+    Symbol <- ifelse(is.na(instr_str), make.names(Symbols[[i]]), instr_str)    
     ndc<-nchar(dir) 	 
     if(substr(dir,ndc,ndc)=='/') dir <- substr(dir,1,ndc-1) #remove trailing forward slash 	 
     dirs <- paste(dir, Symbol, sep="/")
@@ -442,7 +426,7 @@ getSymbols.FI <- function(Symbols,
                  date.vec <- as.Date(StartDate:EndDate)
                  date.vec <- date.vec[!weekdays(date.vec) %in% days_to_omit]  
                  date.vec <- format(date.vec, format=date_format)
-                 sym.files <- paste(date.vec, Symbol, extension, sep=".")
+                 sym.files <- paste(date.vec, basename(dir), extension, sep=".")
                  if (dir != "") sym.files <- file.path(dir, sym.files)
                  dl <- lapply(sym.files, function(fp) {
                    sf <- strsplit(fp, "/")[[1]]
