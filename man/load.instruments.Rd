@@ -45,9 +45,9 @@ Additional columns will be processed, either as additional identifiers for recog
 }
 \examples{
 \dontrun{
-load.instruments(system.file('data/currencies.csv',package='FinancialInstrument'))
-load.instruments(system.file('data/root_contracts.csv',package='FinancialInstrument'))
-load.instruments(system.file('data/future_series.csv',package='FinancialInstrument'))
+load.instruments(system.file('data/currencies.csv.gz',package='FinancialInstrument'))
+load.instruments(system.file('data/root_contracts.csv.gz',package='FinancialInstrument'))
+load.instruments(system.file('data/future_series.csv.gz',package='FinancialInstrument'))
 
 }
 }
