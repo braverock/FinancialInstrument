@@ -24,10 +24,11 @@
 #' }
 #' @export
 update_instruments.morningstar <- function(Symbols, silent=FALSE) {
-    require(XML)
-    x <- readHTMLTable(paste("http://news.morningstar.com/etf/Lists/ETFReturn",
-                             "s.html?topNum=All&lastRecNum=1000&curField=8&ca",
-                             "tegory=0", sep=""), stringsAsFactors=FALSE)
+    if(!requireNamespace("XML", quietly=TRUE))
+        stop("package:",dQuote("XML"),"cannot be loaded.")
+    URL <- paste0("http://news.morningstar.com/etf/Lists/ETFReturns.html",
+                  "?topNum=All&lastRecNum=1000&curField=8&category=0")
+    x <- XML::readHTMLTable(URL, stringsAsFactors=FALSE)
     x <- x[[which.max(sapply(x, NROW))]]
     colnames(x) <- x[1, ]
     x <- x[-c(1:2), -1]

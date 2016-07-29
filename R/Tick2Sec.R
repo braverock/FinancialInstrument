@@ -102,12 +102,14 @@ alltick2sec <- function(getdir = '~/TRTH/tick/',
                         Symbols=list.files(getdir),
                         overwrite = FALSE) {
     if (!file.exists(savedir)) stop(paste("Please create savedir (", savedir, ") first", sep=""))
-    require(foreach)
+    if(!requireNamespace("foreach", quietly=TRUE))
+        stop("package:",dQuote("foreach"),"cannot be loaded.")
     Symbols <- Symbols[!Symbols %in% c("instruments.rda")]
     gsep <- if(substr(getdir, nchar(getdir), nchar(getdir)) == "/") { "" } else "/"
     ssep <- if(substr(savedir, nchar(savedir), nchar(savedir)) == "/") {""} else "/"
     s=NULL    
-    foreach(s = Symbols) %dopar% {
+    `%dopar%` <- foreach::`%dopar%`
+    foreach::foreach(s = Symbols) %dopar% {
         cat("converting ", s, ' ...\n')
         gdir <- paste(getdir, s, sep=gsep)
         if (file.exists(gdir)) {

@@ -89,7 +89,6 @@ saveInstruments <- function(file_name="MyInstruments", dir="", compress="gzip") 
 #' @export
 #' @rdname saveInstruments
 loadInstruments <-function(file_name="MyInstruments", dir="") {
-    require("utils")
     if (is.environment(file_name) || is.list(file_name)) {
         ilist <- as.list(file_name)
         if (!all(vapply(ilist, function(x) length(x[["primary_id"]]) == 1L, 
