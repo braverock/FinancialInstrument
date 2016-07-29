@@ -10,7 +10,7 @@
 #' The correct values will vary based on your data source.
 #'
 #' TODO add more flexibility in input formats for \code{roots}
-#' #' @param yearlist vector of year suffixes to be applied, see Details
+#' @param yearlist vector of year suffixes to be applied, see Details
 #' @param roots data.frame containing at least columns \code{primary_id} and \code{month_cycle}, see Details
 #' @author Brian G. Peterson
 #' @seealso \code{\link{load.instruments}}
