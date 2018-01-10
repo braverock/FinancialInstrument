@@ -41,10 +41,9 @@ ls_instruments_by("name",NULL,in.slot='src')
 ls_instruments_by('src',NULL)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 buildHierarchy, instrument.table, ls_instruments
 }
-
+\author{
+Garrett See
+}

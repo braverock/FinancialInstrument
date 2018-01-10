@@ -3,6 +3,7 @@
 \name{C2M}
 \alias{C2M}
 \alias{M2C}
+\alias{M2C}
 \title{Month-to-Code and Code-to-Month}
 \usage{
 C2M(code)
@@ -29,10 +30,9 @@ M2C()
 M2C("Sep")
 M2C()[9]
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{MC2N}}
 }
-
+\author{
+Garrett See
+}

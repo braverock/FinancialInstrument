@@ -32,11 +32,10 @@ make_spread_id(ids, format='CY')
 make_spread_id(ids, format=FALSE)
 make_spread_id(c("VIX_JAN11","VIX_FEB11"),root='VX',format='CY')
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{spread}}, \code{\link{build_spread_symbols}},  
    \code{\link{build_series_symbols}}
 }
-
+\author{
+Garrett See
+}

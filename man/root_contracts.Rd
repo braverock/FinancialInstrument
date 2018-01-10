@@ -8,4 +8,3 @@
 future metadata to be used by \code{\link{load.instruments}}
 }
 \keyword{data}
-

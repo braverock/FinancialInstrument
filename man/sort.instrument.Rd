@@ -13,4 +13,3 @@ instrument class sort method
 Garrett See
 }
 \keyword{internal}
-

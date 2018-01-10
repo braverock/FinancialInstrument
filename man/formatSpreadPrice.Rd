@@ -21,10 +21,9 @@ price series of same length as \code{x}
 Divides the notional spread price by the spread multiplier and rounds prices 
 to the nearest \code{tick_size}.
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{buildSpread}}, \code{\link{fn_SpreadBuilder}}
 }
-
+\author{
+Garrett See
+}

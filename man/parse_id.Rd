@@ -39,10 +39,9 @@ parse_id("ES_Z11")
 parse_id("CLZ1")
 parse_id("SPY_111217C130")
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{parse_suffix}}
 }
-
+\author{
+Garrett See
+}

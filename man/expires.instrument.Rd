@@ -24,11 +24,10 @@ if \code{expires} is a single value, \code{expired} will be ignored.}
 Returns either the last expiration date before \code{Date}, or the 
 first expiration date after \code{Date} (if \code{expired==FALSE}).
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{expires}}
 }
+\author{
+Garrett See
+}
 \keyword{internal}
-

@@ -13,6 +13,8 @@ setSymbolLookup.FI(base_dir, Symbols, ..., split_method = c("days", "common"),
 
 \item{Symbols}{character vector of names of instruments for which to \code{setSymbolLookup}}
 
+\item{\dots}{any other passthru parameters}
+
 \item{split_method}{string specifying the method files are split, currently \sQuote{days} or \sQuote{common}, see Details}
 
 \item{storage_method}{currently only \sQuote{rda}, but we will eventually support \sQuote{indexing} at least, and maybe others}
@@ -22,8 +24,6 @@ setSymbolLookup.FI(base_dir, Symbols, ..., split_method = c("days", "common"),
 \item{extension}{file extension, default "rda"}
 
 \item{src}{which \code{\link[quantmod]{getSymbols}} sub-type to use, default \code{\link{getSymbols.FI}} by setting 'FI'}
-
-\item{\dots}{any other passthru parameters}
 }
 \description{
 This function exists to tell \code{\link[quantmod]{getSymbols}} where to look for your repository of market data.
@@ -45,4 +45,3 @@ the data by days, which is why that option is the default.
 \code{\link{load.instruments}}, \code{\link{loadInstruments}},
 \code{\link[quantmod]{setSymbolLookup}}
 }
-

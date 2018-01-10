@@ -42,4 +42,3 @@ getInstrument("VX",type='option')
 getInstrument('..VX') #finds the option
 }
 }
-

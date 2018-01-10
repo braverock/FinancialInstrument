@@ -24,10 +24,9 @@ The correct values will vary based on your data source.
 \details{
 TODO add more flexibility in input formats for \code{roots}
 }
-\author{
-Brian G. Peterson
-}
 \seealso{
 \code{\link{load.instruments}}
 }
-
+\author{
+Brian G. Peterson
+}

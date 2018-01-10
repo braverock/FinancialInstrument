@@ -66,4 +66,3 @@ getSymbols("SPX") #knows where to look because the last line setSymbolLookup
 getInstrument("SPX")
 }
 }
-

@@ -99,4 +99,3 @@ unlink("tmpdata/SPY", recursive=TRUE)
 \code{\link{loadInstruments}}
 \code{\link[quantmod]{getSymbols}}
 }
-

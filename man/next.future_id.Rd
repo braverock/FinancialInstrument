@@ -46,11 +46,10 @@ next.future_id("ES_Z1","H,M,U,Z", format=NULL)
 next.future_id("VIXAUG11", 1:12, root='VIX', format=NULL)
 next.future_id("YM_Q11", seq(3,12,3)) #gives a warning about 'Q' not being part of month_cycle
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{format_id}} for supported values of \code{format}.
 \code{\link{month_cycle2numeric}}
 }
-
+\author{
+Garrett See
+}

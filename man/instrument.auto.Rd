@@ -91,4 +91,3 @@ getInstrument("VX_H11") #made a future_series
 \author{
 Garrett See
 }
-

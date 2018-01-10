@@ -49,12 +49,11 @@ rat <- buildRatio(syms)
 summary(rat)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{redenominate}}
 \code{\link{buildSpread}}
 \code{\link{fn_SpreadBuilder}}
 }
-
+\author{
+Garrett See
+}

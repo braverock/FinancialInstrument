@@ -49,4 +49,3 @@ naming and calculating conventions.
 \references{
 http://financial-dictionary.thefreedictionary.com/Base+Currency
 }
-

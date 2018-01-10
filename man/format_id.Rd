@@ -43,11 +43,10 @@ format_id(id3,'MMMYY')
 format_id(id3,'CYY')
 format_id(id3,'CY',sep="")
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{parse_id}}, \code{\link{parse_suffix}},
 \code{\link{M2C}}, \code{\link{month_cycle2numeric}}
 }
-
+\author{
+Garrett See
+}

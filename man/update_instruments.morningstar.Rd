@@ -34,9 +34,6 @@ rm_instruments(keep.currencies=FALSE)
 loadInstruments(ibak)
 }
 }
-\author{
-Garrett See
-}
 \references{
 \url{http://www.morningstar.com}
 }
@@ -45,4 +42,6 @@ Garrett See
 \code{\link{update_instruments.TTR}}
 \code{\link{update_instruments.iShares}}
 }
-
+\author{
+Garrett See
+}

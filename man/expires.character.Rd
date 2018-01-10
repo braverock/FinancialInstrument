@@ -27,11 +27,10 @@ in which case the returned value will be a string of the format
 \dQuote{YYYY-MM}.  Presently, \code{Date} and \code{expired} will be ignored 
 if \code{x} is not the name of an instrument
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{expires.instrument}}
 }
+\author{
+Garrett See
+}
 \keyword{internal}
-

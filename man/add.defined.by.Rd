@@ -42,10 +42,9 @@ add.defined.by("GS", "gsee", "demo")
 add.defined.by("GS", "gsee;demo") #same
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{add.identifier}}, \code{\link{instrument_attr}}
 }
-
+\author{
+Garrett See
+}

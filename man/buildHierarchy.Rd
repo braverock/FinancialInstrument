@@ -31,10 +31,9 @@ buildHierarchy(ls_stocks(), c("Name", "Sector"))
 buildHierarchy(ls_stocks(), "Industry", "MarketCap")
 }
 }
-\author{
-Peter Carl, Alexis Petit, Garrett See
-}
 \seealso{
 \code{\link{instrument.table}}
 }
-
+\author{
+Peter Carl, Alexis Petit, Garrett See
+}

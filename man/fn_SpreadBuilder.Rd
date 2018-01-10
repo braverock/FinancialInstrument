@@ -103,13 +103,12 @@ fSB4 <- fn_SpreadBuilder(c("SPY","DIA"))
 chartSeries(Cl(fn_SpreadBuilder(getSymbols(c("SPY","DIA")),auto.assign=FALSE)))
 }
 }
-\author{
-Lance Levenson, Brian Peterson, Garrett See
-}
 \seealso{
 \code{\link{buildSpread}}
 \code{\link{synthetic.instrument}}
 \code{\link{formatSpreadPrice}}
 \code{\link{buildRatio}}
 }
-
+\author{
+Lance Levenson, Brian Peterson, Garrett See
+}

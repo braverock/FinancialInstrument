@@ -40,10 +40,9 @@ it <- instrument.table(exclude="USD|GM", attrs.of = "XOM") #columns created base
 it <- instrument.table(exclude='tick_size|description|exchange')
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{buildHierarchy}}, \code{\link{instrument}}
 }
-
+\author{
+Garrett See
+}

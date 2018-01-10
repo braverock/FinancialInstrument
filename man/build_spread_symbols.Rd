@@ -46,11 +46,10 @@ e.g. 'future_series','option_series','guaranteed_spread' or 'calendar_spread'
 
 One of \code{data} or \code{file} must be populated for input data.
 }
-\author{
-Ilya Kipnis <Ilya.Kipnis<at>gmail.com>
-}
 \seealso{
 \code{\link{load.instruments}}
 \code{\link{build_series_symbols}}
 }
-
+\author{
+Ilya Kipnis <Ilya.Kipnis<at>gmail.com>
+}

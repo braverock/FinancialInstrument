@@ -2,8 +2,8 @@
 % Please edit documentation in R/FinancialInstrument-package.R
 \docType{package}
 \name{FinancialInstrument-package}
-\alias{FinancialInstrument}
 \alias{FinancialInstrument-package}
+\alias{FinancialInstrument}
 \title{Construct, manage and store contract specifications for trading}
 \description{
 Transaction-oriented infrastructure for defining tradable instruments based 
@@ -234,6 +234,13 @@ addTA(Ad(IBM.EUR), on=1, col='red')
 
 }
 }
+\seealso{
+\code{\link[xts:xts-package]{xts}},
+\code{\link[quantmod:quantmod-package]{quantmod}},
+\href{https://r-forge.r-project.org/R/?group_id=316}{blotter},
+\href{https://cran.r-project.org/package=PerformanceAnalytics}{PerformanceAnalytics},
+\href{https://r-forge.r-project.org/R/?group_id=1113}{qmao, and twsInstrument}
+}
 \author{
 Peter Carl,
 Brian G. Peterson,
@@ -241,12 +248,4 @@ Garrett See,
 
 Maintainer: G See \email{gsee000@gmail.com}
 }
-\seealso{
-\code{\link[xts:xts-package]{xts}},
-\code{\link[quantmod:quantmod-package]{quantmod}},
-\href{https://r-forge.r-project.org/R/?group_id=316}{blotter},
-\href{http://cran.r-project.org/web/packages/PerformanceAnalytics/index.html}{PerformanceAnalytics},
-\href{https://r-forge.r-project.org/R/?group_id=1113}{qmao, and twsInstrument}
-}
 \keyword{package}
-

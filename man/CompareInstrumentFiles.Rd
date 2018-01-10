@@ -53,10 +53,9 @@ setwd(old.wd)
 reloadInstruments(bak)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{saveInstruments}}, \code{\link{all.equal.instrument}}
 }
-
+\author{
+Garrett See
+}

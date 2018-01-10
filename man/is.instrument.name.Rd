@@ -17,4 +17,3 @@ logical vector
 check each element of a character vector to see if it is either the 
 primary_id or an identifier of an \code{\link{instrument}}
 }
-

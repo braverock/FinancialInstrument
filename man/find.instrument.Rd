@@ -60,11 +60,10 @@ rm_instruments(); rm_currencies()
 loadInstruments(instruments.bak)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{buildHierarchy}}, \code{\link{instrument.table}}, 
 \code{\link{regex}}
 }
-
+\author{
+Garrett See
+}

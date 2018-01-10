@@ -32,10 +32,9 @@ ids <- c("ES_U11",'GLD','SPY',"YM_Jun11",'DIA','VX_V10')
 sort_ids(ids)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{parse_id}}
 }
-
+\author{
+Garrett See
+}

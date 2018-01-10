@@ -17,4 +17,3 @@ generate endpoints for volume bars
 \author{
 Joshua Ulrich
 }
-

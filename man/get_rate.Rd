@@ -28,11 +28,10 @@ head(USDEUR)
 head(EURUSD)
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{buildRatio}}
 \code{\link{redenominate}}
 }
-
+\author{
+Garrett See
+}

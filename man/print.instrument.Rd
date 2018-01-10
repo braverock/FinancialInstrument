@@ -13,4 +13,3 @@ instrument class print method
 Joshua Ulrich, Garrett See
 }
 \keyword{internal}
-

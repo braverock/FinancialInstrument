@@ -59,4 +59,3 @@ load.instruments(system.file('data/future_series.csv.gz',package='FinancialInstr
 \code{\link[quantmod]{getSymbols}}, 
 \code{\link{getSymbols.FI}}
 }
-

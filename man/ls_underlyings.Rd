@@ -30,10 +30,9 @@ returned.
 ls_underlyings()
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 ls_instruments_by, ls_derivatives, ls_options, ls_futures
 }
-
+\author{
+Garrett See
+}

@@ -3,6 +3,7 @@
 \name{ls_by_expiry}
 \alias{ls_by_expiry}
 \alias{rm_by_expiry}
+\alias{rm_by_expiry}
 \title{list or remove instruments by expiration date}
 \usage{
 ls_by_expiry(expiry, pattern = NULL, match = TRUE)
@@ -39,11 +40,10 @@ ls_by_expiry('20110917')
 ls_by_expiry('20110917',ls_options())
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{ls_instruments}}, \code{\link{ls_options}}, \code{\link{ls_calls}}, 
 \code{\link{ls_puts}}, \code{\link{ls_futures}}, \code{\link{ls_derivatives}}
 }
-
+\author{
+Garrett See
+}

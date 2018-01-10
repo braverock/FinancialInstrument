@@ -50,10 +50,9 @@ U1.0302 --> type == "ICS", "spread"; month == 'SEP', year == 2011
 parse_suffix("U11")
 parse_suffix("110917C125")
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{parse_id}}, \code{\link{format_id}}
 }
-
+\author{
+Garrett See
+}

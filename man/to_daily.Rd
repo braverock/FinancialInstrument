@@ -17,10 +17,9 @@ xts object with daily scale.
 \description{
 Extract a single row from each day in an xts object
 }
-\author{
-Garrett See
-}
 \seealso{
 quantmod:::to.daily, quantmod:::to.period
 }
-
+\author{
+Garrett See
+}

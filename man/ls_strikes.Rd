@@ -27,10 +27,9 @@ option_series.yahoo('SPY')
 ls_strikes(ls_options('SPY'))
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 ls_options, ls_calls, ls_puts ls_instruments_by ls_underlyings
 }
-
+\author{
+Garrett See
+}

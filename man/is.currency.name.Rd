@@ -14,4 +14,3 @@ is.currency.name(x)
 check each element of a character vector to see if it is either the 
 primary_id or an identifier of a \code{\link{currency}}
 }
-

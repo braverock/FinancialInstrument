@@ -51,14 +51,13 @@ option_series.yahoo('DIA', Exp=NULL) #all chains
 ls_instruments()
 }
 }
-\author{
-Garrett See
-}
 \references{
-Yahoo \url{http://finance.yahoo.com}
+Yahoo \url{https://finance.yahoo.com}
 }
 \seealso{
 \code{\link{option_series}}, \code{\link{option}}, 
   \code{\link{instrument}}, \code{\link[quantmod]{getOptionChain}}
 }
-
+\author{
+Garrett See
+}

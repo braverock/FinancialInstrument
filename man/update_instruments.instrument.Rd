@@ -73,11 +73,10 @@ update_instruments.instrument("SPY", "SPX", create.new=TRUE, ignore=NULL,
                               assign_i=FALSE) 
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{update_instruments.yahoo}}, 
 \code{\link{all.equal.instrument}}
 }
-
+\author{
+Garrett See
+}

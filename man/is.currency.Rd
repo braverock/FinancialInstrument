@@ -12,4 +12,3 @@ is.currency(x)
 \description{
 class test for object supposedly of type 'currency'
 }
-

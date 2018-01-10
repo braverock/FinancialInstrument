@@ -56,10 +56,9 @@ stock("GLD","USD")
 GLD.EUR <- redenominate('GLD','EUR') #can also call with instrument name
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{buildRatio}}
 }
-
+\author{
+Garrett See
+}

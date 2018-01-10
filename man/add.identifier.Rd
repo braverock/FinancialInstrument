@@ -27,10 +27,9 @@ add.identifier("^XXX", "x3")
 all.equal(getInstrument("x3"), getInstrument("XXX")) #TRUE
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{instrument_attr}}
 }
-
+\author{
+Garrett See
+}

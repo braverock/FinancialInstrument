@@ -58,9 +58,6 @@ update_instruments.masterDATA(s)
 buildHierarchy(s, "Name", "Fund.Type", "defined.by")
 }
 }
-\author{
-Garrett See
-}
 \references{
 \url{http://masterDATA.com} 
 (\url{http://www.masterdata.com/helpfiles/ETF_List_Downloads/AllTypes.csv})
@@ -69,4 +66,6 @@ Garrett See
 \code{\link{update_instruments.yahoo}}, 
   \code{\link{update_instruments.instrument}}
 }
-
+\author{
+Garrett See
+}

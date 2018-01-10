@@ -22,12 +22,11 @@ returned will be the last one before \code{Date}.  If \code{expired} is
 (character representation of the) exiration date of the first-to-expire of 
 the \code{members} will be returned.
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{expires.instrument}}
 }
+\author{
+Garrett See
+}
 \keyword{export}
 \keyword{internal}
-

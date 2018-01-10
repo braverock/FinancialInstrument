@@ -24,11 +24,10 @@ determines (or estimates) the expiration from an xts object by either
 finding the last row that is not \code{NA} or by passing the name/symbol
 of the xts object to \code{\link{expires.character}}
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{expires.instrument}}, \code{\link{expires}}
 }
+\author{
+Garrett See
+}
 \keyword{internal}
-

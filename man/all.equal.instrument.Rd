@@ -38,13 +38,12 @@ all.equal(getInstrument("SPY"), getInstrument("DIA"), char.n=5, collapse=NULL)
 all.equal(getInstrument("DIA"), getInstrument("USD"))
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{getInstrument}}, \code{\link{instrument.table}},
 \code{\link{buildHierarchy}}
 }
+\author{
+Garrett See
+}
 \keyword{internal}
 \keyword{utilities}
-

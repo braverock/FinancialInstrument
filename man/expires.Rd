@@ -55,9 +55,6 @@ instrument("FOO_U1", currency=currency("USD"), multiplier=1,
 expires("FOO_U1")
 }
 }
-\author{
-Garrett See
-}
 \seealso{
 \code{\link{expires.instrument}}, \code{\link{expires.character}}, 
   \code{\link{sort_ids}}
@@ -65,4 +62,6 @@ Garrett See
 \code{\link{getInstrument}} and \code{\link{buildHierarchy}} to see actual 
   values stored in \code{instrument}
 }
-
+\author{
+Garrett See
+}
