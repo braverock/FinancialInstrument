@@ -707,7 +707,7 @@ option_series <- function(primary_id , root_id = NULL, suffix_id = NULL,
 #' @param overwrite if an instrument already exists, should it be overwritten?
 #' @return Called for side-effect. The instrument that is created and stored 
 #'   will inherit option_series, option, and instrument classes. 
-#' @references Yahoo \url{http://finance.yahoo.com}
+#' @references Yahoo \url{https://finance.yahoo.com}
 #' @author Garrett See
 #' @note Has only been tested with stock options.
 #' The options' currency should be the same as the underlying's.

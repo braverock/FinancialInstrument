@@ -123,7 +123,7 @@ NULL
 #' \code{\link[xts:xts-package]{xts}},
 #' \code{\link[quantmod:quantmod-package]{quantmod}},
 #' \href{https://r-forge.r-project.org/R/?group_id=316}{blotter},
-#' \href{http://cran.r-project.org/web/packages/PerformanceAnalytics/index.html}{PerformanceAnalytics},
+#' \href{https://cran.r-project.org/package=PerformanceAnalytics}{PerformanceAnalytics},
 #' \href{https://r-forge.r-project.org/R/?group_id=1113}{qmao, and twsInstrument}
 #' 
 #' @examples
@@ -293,17 +293,17 @@ convert.time.series <- function (fr, return.class) {
         fr <- as.data.frame(fr)
         return(fr)
     }
-    else if ("its" %in% return.class) {
-        if (requireNamespace("its", quietly = TRUE)) {
-            fr.dates <- as.POSIXct(as.character(index(fr)))
-            fr <- its::its(coredata(fr), fr.dates)
-            return(fr)
-        }
-        else {
-            warning(paste("'its' from package 'its' could not be loaded:", 
-                " 'xts' class returned"))
-        }
-    }
+    # else if ("its" %in% return.class) {
+    #     if (requireNamespace("its", quietly = TRUE)) {
+    #         fr.dates <- as.POSIXct(as.character(index(fr)))
+    #         fr <- its::its(coredata(fr), fr.dates)
+    #         return(fr)
+    #     }
+    #     else {
+    #         warning(paste("'its' from package 'its' could not be loaded:", 
+    #             " 'xts' class returned"))
+    #     }
+    # }
     else if ("timeSeries" %in% return.class) {
         if (requireNamespace("timeSeries", quietly = TRUE)) {
             fr <- timeSeries::timeSeries(coredata(fr), charvec = as.character(index(fr)))
